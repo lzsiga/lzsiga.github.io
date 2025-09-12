@@ -1,0 +1,3999 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Ékezetes FAQ webművészek számára</title>
+
+<script type="text/javascript">
+function nyitoka ()
+{
+    var mywin = window.open ('');
+    mywin.document.write ('árvíztűrő tükörfúrógép');
+    mywin.document.close ();
+}
+</script>
+<style type="text/css">
+pre {
+    background: lightgrey; 
+    margin: 0.1em 0 0.1em 0;
+    padding-left: 1em; }
+div, p { margin: 0 0 1em 0; }
+span.quote { 
+    background: lightgrey; font-family: monospace; 
+    padding-left: 1px; padding-right: 1px; }
+</style>
+
+</head><body>
+
+<p><b>Ékezetes FAQ webművészek számára</b> (Nem mennek az ékezetek a 
+szájtomon!)</p>
+
+<p><b>K:</b> Nem mennek az ékezetek a szájtomon, pedig már összevissza 
+kapkodtam,
+mindent átállítottam és vissza, mit csináljak még?!<br>
+<b>V:</b> Végső esetben próbálj meg tájékozódni, valamilyen kódkészletet
+ kiválasztani,
+és minden beállításnál azt használni.</p>
+
+<div><b>K:</b> Mi az a 'minden beállítás'?<br>
+<b>V:</b> Először jöjjön a HTTP-header, azon belül is a <i>Content-Type,</i>
+pédául ennek az oldalnak az esetében:
+<pre>Content-Type: text/html; charset=UTF-8</pre></div>
+
+<div><b>K:</b> Na ez honnan jön?<br>
+<b>V:</b> Statikus fájlok (HTML, CSS, JS stb) esetén a <i>.htaccess</i>-ben
+az
+<a href="http://httpd.apache.org/docs/2.0/mod/core.html#adddefaultcharset">AddDefaultCharset</a>-ből
+(ha az nincs, akkor az apache globális
+beállítása érvényesül), dinamikus fájlok esetén ezt felülbírálhatjuk 
+úgy,
+ha magunk állítjuk elő ezt a fejrész sort. Példa PHP-ban:
+<pre>header ('Content-Type: text/html; charset=iso-8859-2');</pre>
+
+Példa Perl CGI-ben:<br>
+<pre>print "Content-Type: text/html; charset=windows-1250\r\n";</pre></div>
+
+<div><a name="Q0114"><b>K:</b></a> PHP-ben mi lesz az alapértelmezés,
+ha nem használok header-t?<br>
+<b>V:</b> A <span class="quote">php.ini</span>-ből veszi az alapértelmezett értéket, pl:
+<pre>
+default_mimetype = "text/html"
+default_charset = "iso-8859-2"
+</pre>
+</div>
+
+<div><a name="Q0215"><b>K:</b> Kipróbáltam, de nem ment!</a><br>
+<b>V:</b> Minden más kiíratás előtt kell lennie; PHP-ben az is gondot okoz,
+ha a <b>&lt;?php</b> tag nem a fájl legelején van, hanem van előtte egy üres sor,
+szóköz, tabulátor, <a href="Q0044">BOM</a>; CGI esetén pedig az okozhatja a gondot, ha elfelejted
+a fejrészt lezáró üres sort kiadni, hiszen ekkor azt hiszi az Apache, hogy
+ez is az adathoz tartozik.</div>
+
+<div><a name="Q0044"><b>K:</b> Mi az a BOM?!</a><br>
+<b>V:</b> Egy hárombájtos szekvencia a fájl elején, ami azt jelezné,
+hogy a fájl UTF-8 kódolású. Tudnod kell róla, hogy UNIX-ban nem használatos,
+csak Windows-ban; továbbá, hogy HTML, PHP, CGI stb. fájlban nincs rá szükség,
+szabadulj meg tőle!
+Bővebben itt: <a href="http://en.wikipedia.org/wiki/Byte-order_mark">wiki:BOM</a>
+</div>
+
+<div><a name="Q0116"><b>K:</b></a> Szóval ilyenkor ne legyen BOM a fájl elején.
+Van olyan eset, amikor viszont érdemes BOM-ot használni?<br>
+<b>V:</b> Ha a programodból (PHP, CGI) olyan UTF-8 kódolású szöveges fájlt állítasz elő
+(pl .TXT, .CVS), amelyet a felhasználó külső programmal nyit meg (Notepad, Excel),
+akkor ezzel jelezheted az UTF-8 kódolást. PHP példa:
+
+<pre>print "\xEF\xBB\xBF";</pre>
+</div>
+
+<p><b>K:</b> És hogyan lehet a HTTP-fejrészt ellenőrizni?<br>
+<b>V:</b> Például a <i>wget</i> -S opciójával, vagy a <i>Firefox</i>
+<a href="http://livehttpheaders.mozdev.org/">LiveHttpHeaders</a>
+kiegészítőjével.</p>
+
+<div><b>K:</b> Nem veszi figyelembe a .htaccess-t, mit csináljak?<br>
+<b>V:</b> Lehet, hogy nem Apache-t használnak, hanem valamilyen 
+egzotikus webszervert,
+amelyik nem ismeri ezt az opciót, vagy átnevezték a 
+<a href="http://httpd.apache.org/docs/2.0/howto/htaccess.html">.htaccess</a>-t
+(<a href="http://httpd.apache.org/docs/2.0/mod/core.html#directory">AccessFileName</a>
+ opció), 
+vagy pedig a globális beállításban megtiltották, hogy a 
+.htaccess-ből vegye ezt az opciót. Mindezen esetekben a szolgáltatóval 
+kell egyeztetned, a legutóbbi esetben
+például ezt kell magadniuk:
+<pre><a href="http://httpd.apache.org/docs/2.0/mod/core.html#allowoverride">AllowOverride</a> FileInfo</pre></div>
+
+<div><b>K:</b> Mi legyen a következő lépés?<br>
+<b>V:</b> A HTML fejrészben (HEAD) is meg lehet adni 
+(értsd: érdemes megadni) a kódolást, valahogy így:
+<pre>&lt;META http-equiv="Content-Type" content="text/html; charset=iso-8859-2"&gt;</pre></div>
+
+<p><b>K:</b> De minek, ha ennek nincs prioritása a HTTP-fejrész fölött?<br>
+<b>V:</b> Valóban nincs, de a HTTP-fejrésszel szemben ez akkor is 
+megmarad,
+ha az oldalt elmented fájlba, és később megtekinted/módosítod.</p>
+
+<div><b>K:</b> Ennek van értelme, de mi a helyzet a JS, CSS stb. 
+fájlokkal?<br>
+<b>V:</b> Javascript-re nem tudom a választ, CSS esetén a <i>@charset</i>
+ használható:
+<pre>@charset "ISO-8859-2";</pre>
+XML esetén a fejrész tartalmazza a kódkészletet, pl.:
+<pre>&lt;?xml version="1.0" encoding="iso-8859-2"?&gt;</pre></div>
+
+<div><b>K:</b> Magában a HTML-ben is meg lehet adni a kívülről beemelt
+javascript vagy stíluslap kódolását?<br>
+<b>V:</b> Hát például így:
+<pre>&lt;SCRIPT src="neve.js" type="text/javascript" charset="UTF-8"&gt;
+&lt;LINK href="neve.css" rel="stylesheet" type="text/css" charset="UTF-8"&gt;</pre>
+
+Sőt, adott esetben az &lt;A&gt; tagban is megadhatjuk a linkelt oldal kódolását:
+<pre>&lt;A src="neve.txt" type="text/plain" charset="windows-1250"&gt;</pre>
+</div>
+
+<div><a name="Q0146"><b>K:</b></a> Mi történik, ha az URL 'path' részében van ékezetes betű?<br>
+<b>V:</b> A HTTP-üzenetben %-szekvenciaként fog közlekedni az illető karakter kódja,
+de persze az nem garantált, hogy a szerver és a kliens ugyanazt a kódolást használják.
+Például a magyar wikipedia az utf8-at peferálja,
+de a latin2-t is elfogadja (illetve átirányítással kezeli)
+<pre>
+<U>kérés:</U>
+GET /wiki/R%E9pa HTTP/1.1
+
+<U>válasz:</U>
+HTTP/1.1 301 Moved Permanently
+Location: https://hu.wikipedia.org/wiki/R%C3%A9pa
+
+<U>kérés:</U>
+GET /wiki/R%C3%A9pa HTTP/1.1
+
+<U>válasz:</U>
+HTTP/1.1 200 OK
+</pre>
+</div>
+
+<div><a name="Q0147"><b>K:</b></a> És ha a 'domain' részben van ékezet,
+mint például <a href="http://xn--szrgp-esa04e4h.hu">http://szűrőgép.hu/</a>?
+<br>
+<b>V:</b> A <a href="https://en.wikipedia.org/wiki/Punycode">printable unicode</a>
+avagy punycode nevű kódolást kell alkalmazni, és az <span class="quote">xn--</span>
+prefixet tenni elé.
+Példa (az idn segédprogramot használva):
+<pre>
+$ <b>idn szűrőgép.hu</b>
+xn--szrgp-esa04e4h.hu
+</pre>
+Lásd még az <a href="http://www.ietf.org/rfc/rfc3490.txt">RFC3490</a>-et
+és a <a href="http://www.gnu.org/software/libidn/manual/libidn.html">libidn</a>
+könyvtárat.
+</div>
+
+<div><a name="Q0161"><b>K:</b></a> Tehát ha a 'domain' részben van ékezet,
+akkor szép magyaros szöveget láthatnak a felhasználók a címsorban? Tök jó!<br>
+<b>V:</b> Csak amíg ki nem javítják a böngészőket, ugyanis ez átverős
+oldalak készítésére is alkalmas (lenne). Lásd ezeket:<br>
+<pre>
+<a href="https://www.wordfence.com/blog/2017/04/chrome-firefox-unicode-phishing/">Wordfence: Chrome and Firefox Phishing Attack Uses Domains Identical to Known Safe Sites</a>
+<a href="http://index.hu/tech/2017/04/20/cirill_betukkel_hamisitjak_a_weboldalakat/">Index Tech: Cirill betűkkel hamisítják a weboldalakat</a>
+<a href="http://www.xn--e1awd7f.com/">www.xn--e1awd7f.com</a>
+</pre>
+</div>
+
+<div><a name="Q0162"><b>K:</b></a> Ebből mi az utolsó link? Ha rákattintok, megsemmisül a gépem?<br>
+<b>V:</b> Nem, nem történik semmi, csak a böngésző címsorát kell megnézned: ha az jelenik meg, hogy
+<span class="quote">www.&#x435;&#x440;&#x456;&#x441;.com</span>, akkor a böngésződ támadható ilyen módon.
+(Ellenőrzésképpen vágd ki innen ezt a négy betűt: <span class="quote">&#x435;&#x440;&#x456;&#x441;</span>
+és másold át egy hexa-kód megmutatásra képes szövegszerkesztőbe.)
+</div>
+
+<div style="text-align: center;"><a name="S0035"><b>&#8212; Urlencode (%-szekvenciák) &#8212;</b></a></div>
+
+<div><a name="Q0235"><b>K:</b></a> A <a href="#Q0146">fentebb említett</a> %-szekvenciákat milyen szabvány definiálja?<br>
+<b>V:</b> Az <a href="http://www.ietf.org/rfc/rfc3986.txt">RFC3986</a> 2.1-es fejezete
+írja la a <I>Percent-Encoding</I>-ot; a legfontosabb tudnivaló, hogy a %-szekvencia mindig három
+karakterből áll (<span class="quote">%&lt;hexdig1&gt;&lt;hexdig2&gt;</span>) és egyetlen bájtot
+reprezentál. A bájt értelmezése ASCII-kompatibilis kell legyen (pl. ISO-8859-x, UTF-8).
+Nem kell (bár megengedett) %-szekvenciával ábrázolni az <span class="quote">a-zA-Z0-9~_-.</span>
+karaktereket, minden mást igen. (Ez azért kontextustól függ, lásd például lentebb a <a href="#Q0240">wget</a>-nél.)
+Speciális eset a <I>szóköz</I> (ASCII 0x20): egyes változatok a <span class="quote">%20</span>
+szekvencia helyett/mellett a <span class="quote">+</span> jelet használják a szóköz ábrázolására.
+</div>
+
+<div><a name="Q0236"><b>K:</b></a> Tehát a %-szekvenciáknál nincs előírva, hogy mondjuk UTF8-at
+vagy ISO-8859-2-t használjak?<br>
+<b>V:</b> Így van, az RFC csak ASCII-karakterekkel foglalkozik, tehát arról nem mond semmit, hogy
+például valamely kontextusban a <span class="quote">%C3%95</span> UTF8-szerint egy darab
+<span class="quote">&#xD5;</span> karaktert jelent-e, vagy két karaktert (és az utóbbi esetben
+milyen kódolás szerint).</div>
+
+<div><a name="Q0237"><b>K:</b></a> HTTP protokoll esetén hol találkozom én ilyen %-szekvenciákkal?<br>
+<b>V:</b> Az URL-fájl/path részében <a href="#Q0146">(a példát lásd fentebb)</a>; a GET-paraméterben
+(A <span class="quote">?</span> utáni rész, más néven: <I>Querystring);</I>
+valamint a HTTP-Body-ban, ha a <span class="quote">Content-Type</span> értéke
+<span class="quote">application/x-www-form-urlencoded</span>.</div>
+
+<div><a name="Q0238"><b>K:</b></a> Nézzük konkrétan a PHP esetét: a GET/POST adatban lévő
+%-szekvenciákat milyen kódolás szerint értelmezi a PHP-motor?<br>
+<b>V:</b> A PHP-string típusa bájtok sorozata, tehát a felhasználói program feladata
+a bájtok értelmezése.
+</div>
+
+<div><a name="Q0239"><b>K:</b></a> Akkor nézzük fordítva: a kliensprogram (böngésző)
+milyen kódolás szerint állítja elő a %-szekvenciákat a GET/POST adatmezőiben?<br>
+<b>V:</b> Általálában az illető <span class="quote">FORM</span>-ot tartalmazó oldal
+kódolásának megfelelően, de a
+<a href="https://www.w3.org/TR/html401/interact/forms.html#h-17.3">FORM</a>-nál is megadhatunk egy
+<a href="https://www.w3.org/TR/html401/interact/forms.html#adef-accept-charset">accept-charset</a>
+értéket.
+</div>
+
+<div><a name="Q0240"><b>K:</b></a> A <a href="https://www.gnu.org/software/wget/">wget</a>-ről
+mit mondhatunk?<br>
+<b>V:</b> A következő információtöredékeket szedtem össze:<br>
+<ul style="margin-top: 0;">
+<li>A <span class="quote">--post-data</span> és <span class="quote">--post-file</span> tartalmát
+nem módosítja.
+<li>Az URL-t (és benne a Querystring-et) urlencode-olja (nem minden karaktert), pl.:
+<pre>http://10.98.20.14/tűdő.php?ű=Ű&amp;ő=Ő -> http://10.98.20.14/t%C5%B1d%C5%91.php?%C5%B1=%C5%B0&amp;%C5%91=%C5%90</pre>
+<li>Előtte esetleg kódkonverziót végez.
+<li>Ezt a kódkonverziót letilthatjuk a <span class="quote">--no-iri</span> opcióval.
+<li>A konverzió kimeneti kódolása mindig UTF-8; a bemeneti kódolása a
+<span class="quote">--local-encoding</span> opció értéke, ennek hijján a
+<span class="quote">LC_CTYPE</span> (ha a bemeneti kódolás UTF-8, akkor nem történik konverzió).
+</ul>
+</div>
+
+<div style="text-align: center;"><a name="S0003"><b>&#8212; Kódkészletek &#8212;</b></a></div>
+
+<p><b>K:</b> Jó választás az iso-8859-1 (avagy latin1)?<br>
+<b>V:</b> Nem, mert nincs benne őŐűŰ csak &#245;&#213;&#251;&#219;.<br>
+<b>K:</b> Dehát sok helyen az az alapértelmezés!<br>
+<b>V:</b> És mégsem jó a magyar betűkhöz. Válassz inkább ezekből: iso-8859-2 (latin2),
+win-1250, utf-8.</p>
+
+<p><a name="Q0045"><b>K:</b></A> És az igaz, hogy a latin2 (más néven iso-8859-2) ugyanaz, mint a
+ win-1250?<br>
+<b>V:</b> Nem egészen. A magyar betűk ugyanott vannak mindkettőben, ez
+igaz;
+viszont a win-1250-ben van pár hasznos jel, ami a latin2-ből hiányzik,
+például az euro
+jele (0x80 &#8364;), a hárompont (0x85 &#8230;), az ndash (0x96 &#8211;), az mdash (0x97
+&#8212;) és a kopirájt jele (0xA9 &#169;). A pontos lista unicode.org-on:
+<a href="http://www.unicode.org/Public/MAPPINGS/ISO8859/8859-2.TXT">8859-2.TXT</a>
+<a href="http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP1250.TXT">
+cp1250.TXT</a>
+</p>
+
+<p><b>K:</b> És a csehszlovák/szerbhorvát betűk is ugyanott vannak a 
+fenti két kódolásban?<br>
+<b>V:</b> Sajnos nem, például az Š latin2-ben 0xA9, win1250-ben 0x8A.
+(Újabb ok az utf8 használatára!)</p>
+
+<p><b>K:</b> Igaz, hogy a legtöbb baj az Ő és az Ű betűvel van? És 
+miért?<br>
+<b>V:</b> Igaz, mégpedig azért, mert csak ezek nincsenek benne a 
+latin1-ben
+(ami a legtöbb esetben az alapértelmezés), hanem helyettük
+&#213; és &#219; van azon a kódon.</p>
+
+<p><b>K:</b> Azt hallottam, hogy ha azt írom helyettük,
+hogy &amp;Otilde; és &amp;Ucirc; akkor a fájl kódolásától
+függetlenül mindig jó lesz.<br>
+<b>V:</b> Ez majdnem igaz, a pontos információ az, hogy így a fájl 
+kódolásától
+függetlenül mindig rossz lesz.
+Ha &amp;-szekvenciákat akarsz, akkor használd ezeket:
+&amp;#x150;=Ő, &amp;#x151;=ő, &amp;#x170;=Ű, &amp;#x171;=ű.</p>
+
+<p><b>K:</b> Hol találok egy listát az összes ilyen &amp;-szekvenciáról,
+hogy pl.: &amp;hellip;=&#8230; vagy &amp;beta;=&#946;?<br>
+<b>V:</b> Mondjuk a w3.org-on:
+<a href="http://www.w3.org/TR/html4/sgml/entities.html">
+Character entity references in HTML 4</a>. Természetesen a kódokat is 
+használhatod,
+decimálisan vagy hexásan, pl.: &amp;#915;=&amp;#x393;=&amp;Gamma;=&#915;.</p>
+
+<p><b>K:</b> Kódolásra visszatérve, lehet, hogy érdemes lenne áttérnem 
+az utf8-ra?<br>
+<b>V:</b> Nem lehetetlen, különösen, ha akár csak a távlati terveid 
+között is szerepel
+orosz, ázsiai, eszperantó vagy klingon karakterek ábrázolása.</p>
+
+<p><b>K:</b> Már elkezdtem valamit alkotni, de most szeretném 
+átkonvertálni egy másik kódkészletbe,
+mit tegyek?<br>
+<b>V:</b> Könnyen lehet, hogy a kedvenc szövegszerkesztőd is képes erre 
+(keresgélj a 'Save As'
+menüpontnál), de ha nem, használj valami olyasféle programot, mint az
+<a href="http://en.wikipedia.org/wiki/Iconv">iconv</a>!
+(Még egyszer figyelmeztetlek: az egyetlen dolog, amit a 'BOM'-ról tudnod
+ kell, az az, hogy nincs rá szükséged!)</p>
+
+<div><a name="Q0010"><b>K:</b></a> Mit kell tudnom az UTF-7-ről?<br>
+<b>V:</b>Valószínűleg semmit, de egyszer kipróbálhatod
+(a <i>-f (=from)</i> opciót igazítsd a saját aktuális beállításodhoz):<br>
+<pre>echo 'árvíztűrő tükörfúrógép' | iconv -f latin2 -t utf-7
++AOE-rv+AO0-zt+AXE-r+AVE t+APw-k+APY-rf+APo-r+APM-g+AOk-p</pre>
+<b>Megj:</b> További kódolások, amikről nem kell tudnod: UTF-1, UTF-5, UTF-6, UTF-9, UTF-18.</div>
+
+<div><a name="Q0155"><b>K:</b></a> Ha már furcsa kódolásokról beszélünk,
+a <span class="quote">cat -v</span> milyen jeleket használ?<br>
+<b>V:</b> Két speciális jelölést használ,
+az egyik a <span class="quote">^kalap</span> karakter,
+a másik a <span class="quote">M-</span> prefix.
+Egy táblázattal próbálom szemlélteni a működését:
+<pre>
+<U>ezt látjuk</U>		<U>ezt jelenti (karakterkód hexásan)</U> <U>megjegyzés</U>
+^A .. ^Z 		00..1A				  0x40-et levonunk a karakterkódból
+^[ ^\ ^] ^^ ^_		1B..1F				  0x40-et levonunk a karakterkódból
+normál ASCII karakter	20..7E
+^?			7F				  egyedi jelölés
+M-^A .. M-^Z		80..9A				  0x40-et hozzáadunk a karakterkódhoz
+M-^[ .. M-^_		9B..9F				  0x40-et hozzáadunk a karakterkódhoz
+M-normál ASCII karakter	A0..FE				  0x80-at hozzáadunk a karakterkódhoz
+M-^?			FF				  egyedi jelölés
+</pre></div>
+
+<div><a name="Q0054"><b>K:</b></a> Ha nekem jó lenne az
+<a href="http://www.unicode.org/Public/MAPPINGS/ISO8859/8859-2.TXT">ISO-8859-2</a>,
+de euró-jelet (&#8364;) is szeretnék, akkor használhatom az
+<a href="http://www.unicode.org/Public/MAPPINGS/ISO8859/8859-16.TXT">ISO-8859-16</a>-ot?<br>
+<b>V:</b> Használhatod, de az <b>űŰ</b> nem ugyanott van a kettőben, vagyis kovertálni kell...
+akkor már jobban jársz a windows-1250-nel (abban a magyar betűk ugyanott vannak),
+vagy az utf-8-cal (univerzális, korszerű megoldás).</div>
+
+<div><a name="Q0151"><b>K:</b></a> Tulajdonképpen mit szabványosít az
+<a href="http://www.unicode.org/">Unicode</a>?<br>
+<b>V:</b> Karakterekhez rendel számokat. Azt <i>nem</I> írja elő, hogy ezeket a számokat
+hogyan kell memóriában vagy fájlban tárolni.<br>
+<b>K:</b> De az legalább egy remek dolog, hogy ezek a számok sosem változnak!<br>
+<b>V:</b> Tulajdonképpen egyes tibeti és koreai karakterekkel azért történt ilyesmi, pl.:
+<pre>
+   <u> 1.0</u> <u> 1.1</u> <u> 2.0</u>
+ &#xf40; 1000    &ndash;  F40
+&#xac00; 3400 3400 AC00
+</pre>
+</div>
+
+<div><a name="Q0049"><b>K:</b></a> Nem az lenne a legjobb, ha egyszerűen
+Unicode-ot használnánk?
+Ugyebár minden karakterhez hozzárendeltek egy 0 és 65535 közötti
+(tehát két bájton tárolható) számot...<br>
+<b>V:</b> Az a szám már messze túl van a 65535-ön,
+például az &amp;#127828;=&amp;#x1f354;=&#127828; egy hamburger.
+UTF-8-ban a kódja: f0 9f 8d 94
+(ha a böngésződ nem talál olyan fontot,
+amiben benne van, akkor persze kérdőjelet/furcsa izét látsz).
+De még ha bele is férne két bájtba, akkor is két lehetőség lenne a tárolásra,
+a little-endian, meg a big-endian, szóval eleve nem lenne univerzális megoldás.<br>
+<b>K:</b> Franc. Akkor ezt nem is használják?<br>
+<b>V:</b> De igen, úgy hívják őket, hogy UCS-2LE és UCS-2BE. Minta:
+<pre>$ <b>echo -n 'tűrő' | iconv -f latin2 -t UCS-2LE | od -tx1</b>
+0000000  74 00 71 01 72 00 51 01
+$ <b>echo -n 'tűrő' | iconv -f latin2 -t UCS-2BE | od -tx1</b>
+0000000  00 74 01 71 00 72 01 51
+</pre></div>
+
+<div><a name="Q0050"><b>K:</b></a> Ezek közül valamelyik megegyezik az 
+<a href="http://en.wikipedia.org/wiki/UTF-16">UTF-16</a>-tal?<br>
+<b>V:</b> Az UTF16-LE és az UTF16-BE ezeknek továbbfejlesztett változatai,
+képesek minden unikódot ábrázolni, igaz nem fix hosszon.
+Az előbbi hamburgerrel kipróbálva:
+<pre>$ <b>echo -n $'\xf0\x9f\x8d\x94' | iconv -f utf-8 -t utf-16le | od -tx1</b>
+0000000 3c d8 54 df
+$ <b>echo -n $'\xf0\x9f\x8d\x94' | iconv -f utf-8 -t utf-16be | od -tx1</b>
+0000000 d8 3c df 54</pre>
+</div>
+
+<div><a name="Q0129"><b>K:</b></a> Mik lennének ezek a négybájtos
+(avagy kétszer kétbájtos) szekvenciák?<BR>
+<b>V:</b> Ezt a dolgot <I>helyettesítő pár</I>-nak hívják <I>(surrogate pair);</I>
+a pár két fele 1024 érték közül tárol egyet-egyet
+(az első a d800-dbff tartományból, a második a dc00-dfff tartományból vesz fel értéket),
+így összesen 1048576 kódot lehet így tárolni.
+Valahogy így tudnám ezt táblázattal szemlélteni (minden kód hexadecimális,
+az unikód elé U+ -t írok, hogy gyakoroljuk ezt a jelölést,
+továbbá feltüntetem az UTF8-as és a CESU8-beli kódot is):
+<PRE>
+  <U>Unikód</U>   <U>UTF-16</U>     <U>UTF-8</U>        <U>CESU-8</U>
+     U+0   0000       00           00
+  U+D7FF   D7FF       ED-9F-BF	   ED-9F-BF
+-- itt 2048 érték kimarad, nem reprezentál karaktert --
+  U+E000   E000       EE-80-80     EE-80-80
+  U+FFFF   FFFF       EF-BF-BF     EF-BF-BF
+ U+10000   D800 DC00  F0-90-80-80  ED-A0-80 ED-B0-80
+ U+103FF   D800 DFFF  F0-90-8F-BF  ED-A0-80 ED-BF-BF
+U+10FC00   DBFF DC00  F4-8F-B0-80  ED-AF-BF ED-B0-80
+U+10FFFF   DBFF DFFF  F4-8F-BF-BF  ED-AF-BF ED-BF-BF
+</PRE>
+<b>K:</b> Igazából nem <span class="quote">U+xxxx</span> illete
+<span class="quote">U-xxxxxxxx</span> a <I>hivatalos</I> jelölés
+(vagyis négy illetve nyolc hexa számjegy)?<BR>
+<b>V:</b> De igen, ha programokkal kommunikálsz, használd így;
+ha viszont emberekkel, akkor talán elvárhatsz némi rugalmasságot
+az olvasótól.
+</div>
+
+<div><a name="Q0130"><b>K:</b></a> Például hol használnak ilyen UTF-16-ot, és miért?<BR>
+<B>V:</B> Például MS Windows, Oracle, Java, AIX...
+És azért, mert volt idő, amikor még úgy tűnt, hogy 16 biten el fog férni az összes unikód
+(bár ezt egy kicsit nehéz elhinni, ha pl. a kínai szóírásra gondolunk),
+utána viszont már késő volt teljes átállásra, tehát valami kvázi-kompatibilis
+megoldást kellett tákolni, ez lett az UTF-16.
+Azok a programok/platformok, amik később tértek át az unikódra, rendszerint az UTF-8-at használják.
+</div>
+
+<DIV><a name="Q0051"><b>K:</b></a> A kétféle UTF-16 után azt tippelem, hogy 
+UTF-32-ből is kettő van: UTF32-LE és UTF32-BE...<BR>
+<b>V:</b> Stimmel. A jó hír viszont az, hogy ez legalább fixhosszú kódokból áll.
+A rossz pedig az, hogy nagyon sok a kihasználatlan (nulla értékű) bit.</DIV>
+
+<DIV><a name="Q0052"><b>K:</b></a> És van valami módszer,
+amivel ezt a sok szép lehetőséget azonosítani lehet?<BR>
+<b>V:</b> Ez lenne a 
+<a href="http://en.wikipedia.org/wiki/Byte_order_mark">BOM</A> jelentősége,
+rögtön a fájl legelején, az alábbiak szerint:
+<PRE>
+EF-BB-BF    UTF-8
+FF-FE	    UTF-16LE
+FE-FF	    UTF-16BE
+FF-FE-00-00 UTF-32LE
+00-00-FE-FF UTF-32BE
+</PRE></DIV>
+
+<DIV><a name="Q0150"><b>K:</b></a> Ebben a FAQ-ban sok helyen van szó az 
+<a href="https://en.wikipedia.org/wiki/UTF-8">UTF-8</a>-ról,
+összefoglalhatnánk itt a legfontosabb tudnivalókat?<br>
+<b>V:</b> Na nézzük listában:<br>
+<UL>
+<LI> az <a href="https://tools.ietf.org/html/rfc3629">RFC3629</a> definiálja
+(korábban: <a href="https://tools.ietf.org/html/rfc2279">RFC2279</a>,
+még korábban: <a href="https://tools.ietf.org/html/rfc2044">RFC2044</a>)
+<LI> részhalmazként tartalmazza a hétbites ASCII-t
+<LI> a U+7F fölötti unikódokat 2-4 bájtos szekvencia reprezentálja
+<LI> ezeknek a szekvenciáknak az első bájtja 0xC0 és 0xF4 között van,
+a többi bájtja 0x80 és 0xBF között
+<LI> a szekvencia hosszát az első bájtból lehet meghatározni
+<LI> hogy a kódolás egyértelmű legyen, hibásnak kell tekinteni az olyan UTF-8 szekvenciát,
+ami nem a lehető legrövidebb (pl. 2-4 bájton ábrázolt ASCII karakter nem fogadható el)
+<LI> hibásnak kell tekinteni az olyan szekvenciákat is, amik U+10FFFF feletti unikódot ábrázolnak 
+(a legnagyobb legális érték: F4 8F BF BF)
+<LI> a szabvány szerint hibásnak kell tekinteni az olyan szekvenciákat is,
+amik az U+D800..U+DFFF tartománynak felelnek meg,
+mivel ezek nem reprezentálnak karaktert (<a href="#Q0129">lásd fentebb</a>),
+CESU-8-ban viszont ezek megengedettek
+<LI> <I>ha</I> BOM-ot akarunk tenni elé, akkor az EF BB BF legyen (ami az U+FEFF kódja)
+<LI> vannak neki változatai is, úgymint 
+<a href="https://en.wikipedia.org/wiki/CESU-8">CESU-8</a>, 
+<a href="https://en.wikipedia.org/wiki/UTF-8#Modified_UTF-8">módosított UTF-8</a>
+és <a href="https://en.wikipedia.org/wiki/UTF-8#WTF-8">WTF-8</a>
+</UL>
+Egy kis ábra az egyes szekvenciákról:
+<pre>
+bájtok száma:  1	      2		     3		    4
+hasznos bitek: 7	      11	     16		    21
+első bájt:     00..7f	      c2..df <s>c0..df</s>  e0..ef	    f0..f4   <s>f0..f7</s>
+minimum:       00	      c2 80	     e0 a0 80	    f0 90 80 80
+maximum:       7f	      df bf	     ef bf bf	    f4 8f bf bf
+U+minimum:     U+0	      U+80	     U+800	    U+10000
+U+maximum:     U+7f	      U+7ff	     U+ffff	    U+10ffff <s>U+1fffff</s>
+	      +-----------+  +-----------+  +-----------+  +-----------+ 
+	      | 0xxx xxxx |  | 110x xxxx |  | 1110 xxxx |  | 1111 0xxx |
+	      +-----------+  +-----------+  +-----------+  +-----------+
+			     | 10xx xxxx |  | 10xx xxxx |  | 10xx xxxx |
+			     +-----------+  +-----------+  +-----------+
+					    | 10xx xxxx |  | 10xx xxxx |
+					    +-----------+  +-----------+
+							   | 10xx xxxx |
+							   +-----------+
+</pre>
+<b>Megj.:</b> Itt a 'minimum' nem azt jelenti, hogy annál kisebb értéket ne
+lehetne ábrázolni az adott bájtsorozattal, hanem azt, hogy a szabvány szerint
+hibásnak kell tekinti ilyen bájtsorozatot, amelyik a minimumnál kisebb értéket repretentál.<br>
+Az érdekesség kedvéért egy ábra arról,
+hogy mi <I>volt</I> korábban, amikor még 5-6 bájtos szekvenciák is lehettek
+:
+<pre>
+bájtok száma:  1	      2		     3		    4		   5		  6
+hasznos bitek: 7	      11	     16		    21		   26		  31
+első bájt:     00..7f	      c2..df <s>c0..df</s>  e0..ef	    f0..f7	   f8..fb	  fc..fd
+minimum:       00	      c2 80	     e0 a0 80	    f0 90 80 80    f8 88 80*3	  fc 84 80*4
+maximum:       7f	      df bf	     ef bf bf	    f7 bf bf bf    fb bf bf*3	  fd bf bf*4
+U+minimum:     U+0	      U+80	     U+800	    U+10000        V+200000       V+4000000
+U+maximum:     U+7f	      U+7ff	     U+ffff	    V+1fffff	   V+3ffffff	  V+7fffffff
+	      +-----------+  +-----------+  +-----------+  +-----------+  +-----------+  +-----------+ 
+	      | 0xxx xxxx |  | 110x xxxx |  | 1110 xxxx |  | 1111 0xxx |  | 1111 10xx |  | 1111 110x |
+	      +-----------+  +-----------+  +-----------+  +-----------+  +-----------+  +-----------+
+			     | 10xx xxxx |  | 10xx xxxx |  | 10xx xxxx |  | 10xx xxxx |  | 10xx xxxx |
+			     +-----------+  +-----------+  +-----------+  +-----------+  +-----------+
+					    | 10xx xxxx |  | 10xx xxxx |  | 10xx xxxx |  | 10xx xxxx |
+					    +-----------+  +-----------+  +-----------+  +-----------+
+							   | 10xx xxxx |  | 10xx xxxx |  | 10xx xxxx |
+							   +-----------+  +-----------+  +-----------+
+									  | 10xx xxxx |  | 10xx xxxx |
+									  +-----------+	 +-----------+
+											 | 10xx xxxx |
+											 +-----------+
+</pre>
+<b>Megj.:</b> a <span class="quote">V+szám</span> jelölést csak ennek a példának a kedvéért találtam ki,
+hogy hangsúlyozzam, hogy a jelenlegi szabvány szerint nem lehet ilyen unikód.
+</DIV>
+
+<DIV><a name="Q0204"><b>K:</b></a> Még további UTF-8 változatok is vannak?<br>
+<b>V:</b> Van még egy UTF-8-MOD nevű speciális változat,
+amit <a href="https://en.wikipedia.org/wiki/EBCDIC">EBCDIC</a>-kel kapcsolatban szokás használni:
+<a href="https://www.unicode.org/reports/tr16/tr16-8.html">UTF-EBCDIC</a> (avagy <span class="quote">UTFE</span>):
+<pre>
+bájtok száma:  1	      2		     3		    4		   5
+hasznos bitek: 7(7.25)	      10	     14		    18		   21
+első bájt:     00..9f	      c5..df <s>c0..df</s>  e1..ef <s>e0..ef</s>  f0..f7	   f8..f9 <s>f8..fa</s>
+minimum:       00	      c5 a0	     e1 a0*2	    f0 a0*3	   f8 a0*4
+maximum:       9f	      df bf	     ef bf*2	    f7 bf*3	   f9 a1 bf*3 <s>bf*4</s>
+U+minimum:     U+0	      U+a0	     U+400	    U+4000	   U+40000
+U+maximum:     U+9f	      U+3ff	     U+3fff	    U+3ffff	   U+10ffff <s>U+1fffff</s>
+	      +-----------+  +-----------+  +-----------+  +-----------+  +-----------+ 
+	      | 0xxx xxxx |  | 110x xxxx |  | 1110 xxxx |  | 1111 0xxx |  | 1111 100x |
+	      +-----------+  +-----------+  +-----------+  +-----------+  +-----------+
+	      vagy	     | 101x xxxx |  | 101x xxxx |  | 101x xxxx |  | 101x xxxx |
+	      +-----------+  +-----------+  +-----------+  +-----------+  +-----------+
+	      | 100x xxxx |		    | 101x xxxx |  | 101x xxxx |  | 101x xxxx |
+	      +-----------+		    +-----------+  +-----------+  +-----------+
+							   | 101x xxxx |  | 101x xxxx |
+							   +-----------+  +-----------+
+									  | 101x xxxx |
+									  +-----------+
+</pre>
+Az így kapott bájtsorozatokat úgy kell az adott EBCDIC-változatba konvertálni,
+mintha ISO-8859-1 kódban lennének. (Érdemes tudni, hogy az EBCDIC-nek számos
+inkompatibilis változata van.)<br>
+Ennek a módszernek az előnye az, hogy a <span class="quote">0x80..0x9f</span> értekek
+(binárisan <span class="quote">100xxxxx</span>), amelyek az ISO-8859-es kódolásban
+<a href="https://en.wikipedia.org/wiki/C0_and_C1_control_codes#C1_control_codes_for_general_use">C1 vezérlőkaraktereket</a>
+jelentenek nem szerepelnek a több-bájtos szekvenciákban.<br>
+<b>K:</b> Ez miért lenne jó?<br>
+<b>V:</b> A hagyományos egybájtos kódolásra felkészített programok ezeket
+a bájtokat vezérlőkarakternek tekinthetnék, például az U+85 kódú <span class="quote">NL</span>
+(vagy <span class="quote">NEL</span>) &ndash; illetve annak EBCDIC-megfelelője &ndash;
+<a href="https://en.wikipedia.org/wiki/Newline">soremelést</a>
+jelent(het).<br>
+<b>K:</b> És ez mitől EBCDIC-specifikus?<br>
+<b>V:</b> Igazából nem az, de ASCII-kiterjesztésből sok van, és nem mindegyik
+tekinti vezérlőkarakternek ezeket a kódokat (lásd pl <a href="#Q0045">ISO8859-2 vs windows-1252</a>),
+tehát <I>kevésbé valószínű,</I> hogy a programok működését zavarnák ezek a kódok.
+Azonkívül az EBCDIC-et használó mainframe-eken gyakori, hogy bevált programokat
+változatlanul futtatnak évtizedeken át, ezért itt a kompatibilitási szempontok
+fontosabbak.<br>
+<b>K:</b> Az UTF-8-nál említetted, hogy hosszabb szekvenciákkal több karaktert is lehet(ne)
+ábrázolni (ha az Unicode értéktartományát nem csökkentették volna).
+Ez itt is lehetséges?<br>
+<b>V:</b> Igen, valahogy így:
+<pre>
+bájtok száma:  1	      2		     3		    4		   5		  6		 7
+hasznos bitek: 7(7.25)	      10	     14		    18		   22		  26		 31
+első bájt:     00..9f	      c5..df <s>c0..df</s>  e1..ef <s>e0..ef</s>  f0..f7	   f8..fb	  fc..fd	 fe..ff
+minimum:       00	      c5 a0	     e1 a0*2	    f0 a0*3	   f8 a0*4	  fa a0*5	 fe a0*6
+maximum:       9f	      df bf	     ef bf*2	    f7 bf*3	   f9 bf*4	  fb bf*5	 ff bf*6
+U+minimum:     U+0	      U+a0	     U+400	    U+4000	   U+40000	  V+400000	 V+4000000
+U+maximum:     U+9f	      U+3ff	     U+3fff	    U+3ffff	   V+3fffff	  V+3ffffff	 V+7fffffff
+	      +-----------+  +-----------+  +-----------+  +-----------+  +-----------+  +-----------+  +-----------+
+	      | 0xxx xxxx |  | 110x xxxx |  | 1110 xxxx |  | 1111 0xxx |  | 1111 10xx |  | 1111 110x |  | 1111 111x |
+	      +-----------+  +-----------+  +-----------+  +-----------+  +-----------+  +-----------+  +-----------+
+	      vagy	     | 101x xxxx |  | 101x xxxx |  | 101x xxxx |  | 101x xxxx |  | 101x xxxx |  | 101x xxxx |
+	      +-----------+  +-----------+  +-----------+  +-----------+  +-----------+  +-----------+  +-----------+
+	      | 100x xxxx |		    | 101x xxxx |  | 101x xxxx |  | 101x xxxx |  | 101x xxxx |  | 101x xxxx |
+	      +-----------+		    +-----------+  +-----------+  +-----------+  +-----------+  +-----------+
+							   | 101x xxxx |  | 101x xxxx |  | 101x xxxx |  | 101x xxxx |
+							   +-----------+  +-----------+  +-----------+  +-----------+
+									  | 101x xxxx |  | 101x xxxx |  | 101x xxxx |
+									  +-----------+  +-----------+  +-----------+
+											 | 101x xxxx |  | 101x xxxx |
+											 +-----------+  +-----------+
+													| 101x xxxx |
+													+-----------+
+</pre>
+</div>
+
+<div><a name="Q0217"><b>K:</b></a> Már <a href="Q0129">volt</a> <a href="Q0150">szó</a>
+a <a href="https://en.wikipedia.org/wiki/CESU-8">CESU-8</a>-ról, de mi is pontosan?<br>
+<b>V:</b> Az <a href="#Q0150">UTF-8</a> változata vagy rokona;
+azzal azonos a <span class="quote">U+0..U+d7ff</span> és <span class="quote">U+e000..U+ffff</span> tartományokon
+(emlékezzünk, d800 és dfff között nincsenek karakterkódok); az afölötti kódokat az UTF-16-nál
+leírt helyettesítő párok UTF-8-as kódolásával alakítja hatbájtos szekvenciává, pl.:
+<pre>
+$ <b>echo '&#127828;' | od -tx1</b>  # => f0 9f 8d 94 &ndash; UTF-8
+$ <b>echo '&#127828;' | iconv -f UTF-8 -t UTF-16BE \</b>
+            <b>| od -tx1</b>  # => <U>d8 3c</U> <U>df 54</U> &ndash; UTF-16
+$ <b>echo '&#127828;' | iconv -f UTF-8 -t UTF-16BE \</b>
+            <b>| recode UCS-2BE..UTF-8 \</b>
+            <b>| od -tx1</b>  # => <U>e3 b3 98</U> <U>e5 93 9f</U> &ndash; CESU-8
+</pre>
+<b>K:</b> Nagyon szép ez a hatbájtos szekvencia, de miért vetted elő ezt a
+<span class="quote">recode</span> nevű programot? Ha jól látom, ugyanarra való,
+mint az <span class="quote">iconv</span> (csak más szintaktikával).<br>
+<b>V:</b> Az egyik gond az, hogy a kettő egyike sem ismeri a CESU-8-at (ezért kell
+két lépésben konvertálni),
+a másik az, hogy (ahogy fentebb mondtuk) a d800..dfff tartomány "tiltott",
+ezért az <span class="quote">iconv</span> nem is hajlandó velük foglalkozni,
+a <span class="quote">recode</span> viszont "engedékenyebb".
+</div>
+
+<div style="text-align: center;"><a name="S0025"><b>&#8212; C-programozás &#8212;</b></a></div>
+
+<DIV><a name="Q0053"><b>K:</b></a> Ha én mondjuk C-programozó vagyok,
+akkor a <a href="http://en.wikipedia.org/wiki/Wide_character#C.2FC.2B.2B">wchar_t</a>
+mit fog jelenteni az UCS-*, UTF-16*, UTF-32* lehetőségek közül?<BR>
+<B>V:</B> Platformfüggő.<BR>
+<B>K:</B> Hogy mi van?!<BR>
+<B>V:</B> Tudom, hogy ez most úgy hangzik, mintha nem lehetne portábilisan
+használni, de a valóság az, hogy nem lehet portábilisen használni.
+Tehát ha mondjuk az a vágyad, hogy írj egy platformfüggetlen programot,
+ami előállít egy fájlt pl. UTF-16LE/-16BE/-32LE/-32BE kódolásban,
+akkor abban a wchar_t egycsapásra nem segít semmit.
+Tesztprogram:
+<PRE>/* wchartest.c */
+
+#include &lt;stdio.h&gt;
+#include &lt;wchar.h&gt;
+
+int main (void)
+{
+    wchar_t wstring [] = L"\xf6\u0151\xfc\u0171\U0001f354"; /* o: o" u: u" hamburger */
+
+    size_t i;
+
+    for (i=0; i&lt;sizeof(wstring); ++i) {
+        unsigned c= ((unsigned char *)wstring)[i];
+        if (i!=0 &amp;&amp; (i%sizeof(wchar_t)==0)) printf ("-");
+        printf ("%02x", c);
+    }
+    printf ("\n");
+    return 0;
+}
+</PRE>
+Ennek a kimenete különféle platformokon:
+<PRE>
+linux, x86:      f6000000-51010000-fc000000-71010000-54f30100 # UTF-32LE
+Windows, x86:    f600-5101-fc00-7101-3cd8-54df                # UTF-16LE
+AIX, PowerPC/32: 00f6-0151-00fc-0171-d83c-df54                # UTF-16BE
+AIX, PowerPC/64: 000000f6-00000151-000000fc-00000171-0001f354 # UTF-32BE
+</PRE>
+<b>Megjegyzés:</b> Láthatjuk, hogy a wchar_t típusú string-ben lehet
+<span class="quote">\x</span>,
+<span class="quote">\u</span> és <span class="quote">\U</span>
+szekvenciákat használni, mindegyik Unicode-ot jelent, csak a használható
+számjegyek száma különbözik: 2, 4, 8. (Igazából a <span class="quote">\x</span>
+a mögötte álló összes hexadecimális számjegyet felhasználja,
+pl <span class="quote">"\x17ez" == "\x17e"+"z"</span>, ezért használatához
+óvatosság ajánlott.)</div>
+
+<DIV><a name="Q0139"><b>K:</b></a> 
+De ha egyszerűen <span class="quote">L'ä'</span> vagy
+<span class="quote">L"öőüű"</span> formában akarom rögzíteni ezeket a 'wide'stringeket,
+abben van valamilyen problémás rész vagy hibalehetőség?<BR>
+<B>V:</B> Annyi, hogy a compiler-nek tudnia kell, hogy milyen kódolásban van
+a forrásprogram. Hogy ez hogyan történik, az platformfüggő lehet;
+ha nem adod meg, akkor valamiféle alapértelmezés fog érvényesülni.
+Például gcc esetén az <span class="quote">-finput-charset</span> való erre, pl (linux).:
+<pre>
+# a source latin2-ben van
+$ <b>gcc -finput-charset=iso-8859-2 -o wchartest_l wchartest_l.c</b>
+$ <b>./wchartest_l</b>
+f6000000-51010000-fc000000-71010000-00000000
+
+# a source utf8-ban van
+$ <b>gcc -finput-charset=utf-8 -o wchartest_u wchartest_u.c</b>
+f6000000-51010000-fc000000-71010000-00000000
+</pre>
+<b>K:</b> Ha eltévesztem, akkor fordítási hibát kapok, vagy a futás lesz rossz?<br>
+<B>V:</B> Igen. (A fordító észreveheti, hogy a latin2 (általában) nem valid utf8,
+de ha utf8-at nevezünk tévedésből latin2-nek, azt nem veszi észre.)
+</DIV>
+
+<DIV><a name="Q0140"><b>K:</b></a> MS Windows esetén micsoda a <span class="quote">wchar_t</span>?<BR>
+<B>V:</B> Intel platformon 16-bites little endian, a 16-biten el nem férő
+karaktereket két egymást követő wchar_t tárolja (lásd: UTF-16LE, <a href="#Q0129">surrogate pairs</a>).
+</DIV>
+
+<DIV><a name="Q0141"><b>K:</b></a> És igaz, hogy majdnem a teljes Windows API-t
+'megduplázták', minden hagyományos stringeket használó függvénynek lett egy
+párja, ami UTF-16-os ("széles" avagy "wide") stringeket használ?<br>
+<b>V:</b> Igaz (pl. a CreateWindow <i>makró</i>
+a CreateWindowA és CreateWindowW <i>függvények</i> valamelyikévé fog kifejtődni),
+de lehetséges olyan programot írni, ami egy #define-tól (<span class="quote">UNICODE</span>)
+függően lesz "keskeny-" vagy "széles-" karakteres.
+<pre>
+TCHAR name= _T("Őrült Űrhajós");
+size_t namelen= _tcslen(name);
+</pre>
+</DIV>
+
+<DIV><a name="Q0142"><b>K:</b></a> És milyen függvényekkel konvertálhatok Windows-ban "keskeny" és "széles" között?<br>
+<b>V:</b> Ezeket használhatod:
+<a href="https://msdn.microsoft.com/en-us/library/windows/desktop/dd319072%28v=vs.85%29.aspx">MultiByteToWideChar</a>
+<a href="https://msdn.microsoft.com/en-us/library/windows/desktop/dd374130%28v=vs.85%29.aspx">WideCharToMultiByte</a>.
+Nevükkel ellentétben nem csak multibájtról/-ra tudnak konvertálni
+(lásd itt: <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/dd317756%28v=vs.85%29.aspx">Code Page Identifiers</a>,
+valamint használhatsz <i>default ansi kód</i> és <i>default oem kód</i> értékeket is (CP_ACP és CP_OEMCP),
+ha platformfüggő működést akarsz elérni).
+</DIV>
+
+<DIV><a name="Q0143"><b>K:</b></a> C-programban milyen oktális/hexa szekvenciákat használhatok
+karakter- és stringliterálokban?<br>
+<b>V:</b> Az egyre újabb szabványok egyre újabb lehetőségeket hoztak:
+<pre>
+\000	    --  egy-három oktális számjegy a 000-377 tartományból
+\x00	    --  egy vagy több hexadecimális számjegy (a hossz nincs korlátozva)
+\u0000      --  négy hexadecimális számjegy (unikód)
+\U00000000  --  nyolc hexadecimális számjegy (unikód)
+</pre>
+<b>Megjegyzések:</b>
+<ul><li>
+Az persze lehet, hogy nem minden lehetőség használható minden platformon,
+illetve hogy valamilyen compiler-opció kell hozzá (pl. gcc esetén a <span class="quote">-std=c99</span>).<br>
+<li>
+A <span class="quote">\x</span> szekvenciánál a hossz nincs korlátozva,
+de ha a megadott érték nem fér el a használt
+karaktertípusban (char, wchar_t, char16_t, char32_t), akkor az eredmény platformfüggő
+(pl hibaüzenet, az érték csonkítása, stb).<br>
+<li>
+A <span class="quote">\u</span> és <span class="quote">\U</span> szekvenciáknál
+az érték a literal tipusának megfelelően konvertálódik
+UTF16-re, UTF32-re vagy UTF8-ra (lásd a <a href="#0149">következő pontban</a> az 
+<span class="quote">L"</span>,
+<span class="quote">u"</span>,
+<span class="quote">U"</span> és <span class="quote">u8"</span> tipusjelzőket);
+<span class="quote">\x</span> szekvenciáknál nincs konverzió.<br>
+<li>
+A <span class="quote">\u</span> és <span class="quote">\U</span> szekvenciákat
+(legalábbis egy fordítókkal, pl. gcc) nem használhatjuk <i>"túl kicsi"</i> értékek
+megadására (pl. <span class="quote">U+a0</span> alatti értékek), illetve a <span class="quote">\u</span>
+szekenciával nem adhatunk meg <a href="#Q0129">surrogate pair</a>-t sem. Pl.:
+<pre>
+<s>char uint16_t eznemjo[]= u"\u0020\ud83c\udf54"</s>
+</pre>
+</ul>
+</DIV>
+
+<DIV><a name="Q0149"><b>K:</b></a> Mit kell tudnom a C11-es szabvány szerinti új 
+<span class="quote">char16_t</span> és 
+<span class="quote">char32_t</span> típusokról?<br>
+<b>V:</b> Ezek az <span class="quote">uchar.h</span>-ban definiált előjel nélküli integer típusok,
+amelyek 16- illetve 32-bitesek. Legalább.<br>
+<b>K:</b> <I>Legalább?!</I> Ugye jobb lesz nekem, ha nem gondolok bele abba, hogy mit jelent
+ez a <I>legalább?</I><br>
+<b>V:</b> Határozottan. Nézzük meg inkább, hogyan tudsz literálokat definiálni ezekhez a típusokhoz:
+<pre>
+    <b>wchar_t</b>  cw=    L'ő', sw[]=  L"tűzvész"; /* platformfüggő */
+    <b>char16_t</b> c16=   u'ő', s16[]= u"tűzvész"; /* UTF-16 */
+    <b>char32_t</b> c32=   U'ő', s32[]= U"tűzvész"; /* UTF-32 */
+    <b>char</b>                  su8[]= u8"tűzvész";/* UTF-8 */
+</pre>
+<b>K:</b> Az utolsó az UTF-8, ugye? De azt minden további nélkül tudok használni, nemde?<br>
+<b>V:</b> Igen, ha a forrásprogram UTF-8-ban van. Az <span class="quote">u8</span>-nál viszont
+a fordítóprogram konvertál UTF-8-ra. Ehhez persze tudnia kell, hogy milyen karakterkészetetben
+van a forrásprogram. Ha ez az információ hiányzik vagy hibás, akkor fordítási hiba és/vagy
+hibás működés lesz belőle (lásd <a href="#Q0139">fentebb</a>).
+Persze ugyanez igaz a <span class="quote">L</span>/<span class="quote">u</span>/<span class="quote">U</span> literálokra is.
+</div>
+
+<div><a name="Q0168"><b>K:</b></a> gcc-nél említettük a
+<span class="quote">-finput-charset</span> opciót. Ez csak az L/u/U/u8 típusú
+literálokra vonatkozik, a hagyományosakra nem?<br>
+<b>V:</b> Hagyományos észjárással így képzelnénk, de igazából a gcc
+a "sima" string- és karakterliterálokat is konvertálja "input-charset"-ről UTF-8-ra.<br>
+Szerencsére rá lehet venni, hogy ezt visszacsinálja, ha megadjuk a
+<span class="quote">-fexec-charset</span> opciót, ugyanazzal az értékkel,<br>
+pl. ha a <a href="#Q0149">fenti</a> stringeket teszteljük egy kis programmal
+(amit latin2-ben rögzítünk):
+<pre>
+<b>gcc -std=c11 -finput-charset=ISO-8859-2 -fexec-charset=ISO-8859-2 tuzvesz.c -o tuzvesz</b>
+<b>./tuzvesz</b>
+"sima" string:      74 <u>fb</u> 7a 76 <u>e9</u> 73 7a
+wchar_t string:     74 00 00 00 <u>71 01 00 00</u> 7a 00 00 00 76 00 00 00 <u>e9 00 00 00</u> 73 00 00 00 7a 00 00 00
+char16_t u"string": 74 00 <u>71 01</u> 7a 00 76 00 <u>e9 00</u> 73 00 7a 00
+char32_t U"string": 74 00 00 00 <u>71 01 00 00</u> 7a 00 00 00 76 00 00 00 <u>e9 00 00 00</u> 73 00 00 00 7a 00 00 00
+utf8 u8"string":    74 <u>c5 b1</u> 7a 76 <u>c3 a9</u> 73 7a
+</pre>
+<b>Megjegyzés:</b> Ne felejtsük el, hogy a byte-order és a <span class="quote">wchar_t</span>
+ mérete platformfüggő.
+</div>
+
+<div><a name="Q0160"><b>K:</b></a> Szóval a 
+<a href="https://gcc.gnu.org/">gcc</a>-ben <span class="quote">-finput-charset</span> opciót használhatom.
+És <a href="https://clang.llvm.org/">clang</a> esetén?<br>
+<b>V:</b> Az opció ugyanaz, de a használható értékkészlet egy kicsit szűkebb:
+csak az <span class="quote">UTF-8</span> értéket választhatod.<br>
+
+<b>K:</b> Nem baj, az iconv segít, ugye?<br>
+<b>V:</b> Persze. Feltéve, hogy csak L"", U"", u"", u8"" formájú
+stringek és karakter-konstansok vannak a programban, 
+mert ha hagyományos stringek (karakterek) is vannak benne,
+akkor a program mást fog csinálni, mint a konverzió előtt
+(már ha egyáltalán lefordul).<br>
+Mindenesetre itt egy Makefile-részlet az érdekesség kedvéért:
+<pre>
+%_clang.c: %.c
+    (echo '#line 1 "$<"';\
+     iconv -f ISO-8859-2 -t UTF-8 "$<") \
+    >"$@"
+</pre>
+</div>
+
+<div><a name="Q0163"><b>K:</b></a> A Borland-féle BCC32 fordító esetén
+mi a <span class="quote">-finput-charset</span> megfelelője?<br>
+<b>V:</b> A <span class="quote">-CP&lt;kódlapszám&gt;</span> opció,
+pl.:
+<pre>
+bcc32 -v <U>-CP1250</U> mysource.c
+</pre>
+</div>
+
+<div><a name="Q0199"><b>K:</b></a> A Microsoft <span class="quote">MSC</span>
+compiler esetén milyen opciókat használhatok erre?<br>
+<b>V:</b> A forrásprogram kódolását a
+<a href="https://docs.microsoft.com/en-us/cpp/build/reference/source-charset-set-source-character-set">/source-charset</a>
+opcióval állíthatjuk be, a 'kimenő' kódolást pedig
+<a href="https://docs.microsoft.com/en-us/cpp/build/reference/execution-charset-set-execution-character-set">/execution-charset</a>
+opcióval, illetve van egy összevont
+<a href="https://docs.microsoft.com/en-us/cpp/build/reference/utf-8-set-source-and-executable-character-sets-to-utf-8">/utf-8</a>
+opció is, ami mindkettőt <span class="quote">UTF-8</span>-ra állítja.
+</div>
+
+<div align="center"><a name="S0020"><b>&#8212; Automatikus felismerés &#8212;</b></a></div>
+
+<div><a name="Q0119"><b>K:</b></a> Van egy program, ami automatikusan felismeri a kódolást...<BR>
+<b>V:</b> Nincs.<BR>
+<b>K:</b> De, mondom, megvizsgálja a fájlt, és kiírja, hogy 'ANSI'...<BR>
+<b>V:</b> Felejtsd el, nincs ilyen hogy 'ANSI', és nincs olyan, hogy
+automatikus felismerés.<BR>
+<b>K:</b> Dehát még a Windows API-ban is benne van egy ilyen függvény:
+<a href="https://msdn.microsoft.com/en-us/library/windows/desktop/dd318672%28v=vs.85%29.aspx">IsTextUnicode</a><br>
+<b>V:</b> És mégsem. Az ilyen eszközök kb. ilyesmire képesek:
+<ul style="margin-top: 0">
+<li>Van az elején <a href="#Q0052">BOM?</a> Ha igen, akkor jó.
+<li>Rengeteg nulla bájt van benne? ha igen, akkor UTF32.
+<li>Sok nulla bájt van benne? Ha igen, akkor UTF16.
+<li>UTF8-ként értelmezhető? Ha igen, akkor UTF8.
+<li>Egyébként valamilyen egybájtos kódolás (ezt jelenti az 'ANSI').
+</ul>
+</div>
+<div><a name="Q0123"><b>K:</b></a> Na jó, de akkor pontosan mi az az ANSI?<BR>
+<b>V:</b> Ha egy program mondja neked, akkor azt jeleni,
+hogy <I>'valószínűleg nem UTF8';</I>
+ha te mondod egy Windows-os programnak,
+akkor a default egybájtos kódolást jelenti,
+ami lehet pl. az EASTEUROPE_CHARSET néven is ismert windows-1250,
+de lehet a nyugat-európában szokásos windows-1252. Vagy más.
+</div>
+
+<div><a name="Q0120"><b>K:</b></a> Akkor mit tegyek?!<BR>
+<b>V:</b> Mivel te ember vagy, a kódolás meghatározásához
+használd a természetes intelligenciádat, a hexviewert,
+meg ennek a fájlnak a végén a <a href="#S0007">táblázatot</a>.
+(Ha a fáljt egy ember állította elő, őt is megkérdezheted,
+de jó eséllyel nem fogja tudni;
+sőt, még csak be sem ismeri, hogy nem tudja,
+hanem kimondja az első/egyetlen kódolás nevét,
+ami az eszébe jut.)
+</div>
+
+<div align="center"><a name="S0019"><b>&#8212; Iconv &#8212;</b></a></div>
+
+<div><a name="Q0174"><b>K:</b></a> Sokat emlegeted ezt az iconv-ot,
+de igazából mi az?<br>
+<b>V:</b> Egy program (iconv executable) és egy programkönyvtár (libiconv)
+együtt; ha a te gépeden gyárilag nincs ilyen, akkor a
+<a href="https://www.gnu.org/software/libiconv/">GNU&nbsp;libiconv</a>
+telepítését javaslom.</div>
+
+<div><a name="Q0111"><b>K:</b></a> Ez a libiconv állítólag mindenre jó,
+nekem mégsem működik pl. a CP852-vel.<br>
+<b>V:</b> Lehet, hogy a te gépeden egy hiányos változat van,
+így ellenőrizheted:
+<pre>$ <B>iconv -l | grep 852</B>
+852 CP852 IBM852 CSPCP852
+</pre></div>
+
+<div><a name="Q0112"><b>K:</b></a> Jó, és ha tényleg nincs találat?<br>
+<b>V:</b> Fordít(tat)sd újra, de a configure-nél add meg a 
+<span class="quote">--enable-extra-encodings</span> opciót!<br>
+<b>K:</b> Én?!<br>
+<b>V:</b> Vagy te, vagy a rendszergazda, aki azért kap fizetést,
+hogy a gépet üzemeltesse.
+</div>
+
+<div><a name="Q0113"><b>K:</b></a> És ha pl. Perl CGI-t használok,
+abban is van iconv?<br>
+<b>V:</b> Akad: <a href="http://search.cpan.org/%7Empiotr/Text-Iconv-1.7/Iconv.pm">Text-Iconv</a>.
+</div>
+
+<div><a name="Q0175"><b>K:</b></a> Lehet saját kódtáblákkal bővíteni
+a GNU&nbsp;libiconv-ot?</br>
+<b>V:</b> Lehet, de a részletek leírása helyett csak két példafájlt adok,
+kiindulásnak jó lehet:
+<a href="IBM-037.TXT">IBM-037.TXT</a>
+<a href="IBM-1047.TXT">IBM-1047.TXT</a>
+</div>
+
+<div><a name="Q0224"><b>K:</b></a> Az iconv-on kívül milyen segédprogramokat
+használhatunk konverziós feladatokhoz?</br>
+<b>V:</b> Az iconv-hoz hasonló a
+<a href="https://linux.die.net/man/1/recode">recode</a>, hívási példa:
+<pre>
+<b>echo '&#x391;&#x3b3;&#x3b1;&#x3bc;&#x3ad;&#x3bc;&#x3bd;&#x3bf;&#x3bd;&#x3b1;&#x3c2;' | recode UTF8..UCS-2BE | od -tx2 --endian=big</b>
+0000000 0391 03b3 03b1 03bc 03ad 03bc 03bd 03bf
+0000020 03bd 03b1 03c2 000a
+</pre>
+Az <a href="https://linux.die.net/man/1/uni2ascii">uni2ascii</a>/<a href="https://linux.die.net/man/1/ascii2uni">ascii2uni</a>
+páros UTF8 és annak ASCII-reprezentációi között konvertál, pl.:
+<pre>
+<b>echo 'árvíztűrő tükörfúrógép' | uni2ascii -q -l -aU</b>
+\u00e1rv\u00edzt\u0171r\u0151 t\u00fck\u00f6rf\u00far\u00f3g\u00e9p
+</pre>
+Sajnos az ascii2uni nem hibátlan a <span class="quote">\u</span> szekvenciák kezelésében
+(egy kísérlet a javításra
+<a href="https://github.com/lzsiga/uni2ascii">itt látható</a>),
+helyette a Java
+<a href="https://docs.oracle.com/javase/7/docs/technotes/tools/solaris/native2ascii.html">native2ascii</a>
+nevű segéprogramját ajánlom, példa a használatára:
+<pre>
+native2ascii -encoding UTF-8          normal.file     usequences.file
+native2ascii -encoding UTF-8 -reverse usequences.file normal.file
+</pre>
+</div>
+
+<div style="text-align: center;"><a name="S0015"><b>&#8212; JavaScript &#8212;</b></a></div>
+
+<div><a name="Q0213"><b>K:</b></a> JavaScript-ben hogyan lehet kódokat használni a 
+stringekben?<br>
+<b>V:</b> \-szekvenciákkal, nevezetesen \xDD és \uDDDD; az előbbi két 
+hexa számjegyet
+fogad, az utóbbi négyet, mindkét esetben unikódban. Pl:
+<button onclick='alert ("\xe1rv\xedzt\u0171r\u0151 t\xfck\xf6rf\xfar\xf3g\xe9p");'>Próba</button>
+<pre>&lt;BUTTON onclick='alert ("\xe1rv\xedzt\u0171r\u0151 t\xfck\xf6rf\xfar\xf3g\xe9p");'&gt;Próba&lt;/BUTTON&gt;</pre>
+Figyeljük meg, hogy az <i>ő</i>-t és az <i>ű</i>-t csak a hosszabb 
+formával lehet megadni!</div>
+
+<div><a name="Q0117"><b>K:</b></a> És ha U+ffff-nél nagyobb unikódot akarok használni?<br>
+<b>V:</b> Helyettesítő párt <a href="#Q0129">(surrogate pair)</a> használva,
+pl. az U+1f354 kódú hamburger(&#x1f354;) esetén:
+<button onclick='alert ("\\ud83c\\udf54 = \ud83c\udf54");'>Próba</button>
+<pre>
+&lt;button onclick='alert ("\\ud83c\\udf54 = \ud83c\udf54");'&gt;Próba&lt;/button&gt;
+</pre>
+Egy másik lehetőség (ami újabb fejlesztés, tehát nem biztos, hogy mindenhol használható) ez szintaxis:
+<span class="quote">\u{1-8 hexa számjegy}</span>, pl:
+<button onclick='alert ("\\u{1f354} = \u{1f354}");'>\u{1f354}</button>
+</div>
+
+<p><b>K:</b> JavaScriptről szólva, ha a window.open-nel nyitok meg egy 
+ablakot,
+de úgy, hogy az első paraméter üres string, és az ablak tartalmát 
+document.write-okkal
+állítom elő, az milyen kódolású lesz?<br>
+<b>V:</b> Tapasztalataim szerint UTF-8, pl:
+<button onclick="nyitoka ();">Próba</button>
+</p>
+
+<DIV><a name="Q0075"><b>K:</b></a> Találtam egy 
+<a href="http://www.w3schools.com/jsref/jsref_encodeuricomponent.asp">encodeURIComponent</a>
+nevű függvényt, amit tudnék használni a GET/POST paraméterek kódolásához
+(pl. Ajax alkalmazásánál),
+de nem tudom beopciózni, hogy milyen kódolás szerint képezze a hexakódokat,
+fixen UTF-8-at használ, pl: 'répa' -&gt; 'r%C3%A9pa'.<BR>
+
+<b>V:</b> Én sem tudom.
+A legjobb megoldás, ha a fogadó oldalon (PHP, CGI) is UTF-8-at használsz,
+vagy ha nem, akkor konvertálsz róla (iconv) a használt kódra.<BR>
+
+<b>K:</b> Konvertálhatok, igen, de akkor nem lehet ugyanazt a php programot
+használni hagyományos meghívással és pl. Ajax-szal.<BR>
+
+<b>V:</b> Megpróbálhatod a paraméterek nevével jelezni a kódolást is, pl egy
+_U a név végén UTF-8-at jelezhet, a feldolgozó program ebből tudhatja,
+hogy kell-e konvertálni, egyben az esetleges későbbi átállást is fokozatossá
+lehet így tenni). Pl:
+
+<PRE>valami.php?zoldseg=r%E9pa      -- 'hagyományos hívás', latin2
+valami.php?zoldseg_U=r%C3%A9pa -- 'encodeURI-s hívás', utf-8</pre></div>
+
+<div style="text-align: center;"><a name="S0005"><b>&#8212; PHP &#8212;</b></a></div>
+
+<div><a name="Q0218"><b>K:</b></a> Milyen <span class="quote">\</span>-szekvenciák
+használhatók PHP-ben a string-literálokban?<br>
+<b>V:</b> Egyszeres idézőjelek (avagy 'apostolok') között csak
+<span class="quote">\'</span> és <span class="quote">\\</span> használható,
+jelentésük <span class="quote">'</span> és <span class="quote">\</span>.<br>
+Kettős idézőjelek (avagy "macskakörmök") között többféle szekvencia használható
+(lásd <a href="https://www.php.net/manual/en/language.types.string.php">itt</a>),
+a mi szempontunkból relevánsak ezek:
+<pre>
+\1 \12 \123  oktális kód, 1-3 számjegy, binárisan értődik, nincs konverzió
+\xa \xab     hexadecimális kód, 1-2 számjegy, binárisan értődik, nincs konverzió
+\u{1f354}    hexadecimális kód, egy vagy több számjegy,
+             unicode-ban értődik, utf8-ra konvertálódik,
+             php7-től használható
+</pre>
+<b>Megjegyzés:</b> Az utóbbi eredménye mindenképpen UTF8 lesz,
+nem lehet átállítani.
+</div>
+
+<div><A name="Q0176"><B>K:</B></A> Tehát <span class="quote">\u<i>XXXX</i></span>
+szintaxist nem használhatok, csak <span class="quote">\u{<i>XXXX</i>}</span>
+formát (PHP7-től kezdve)?<br>
+<B>V:</B> Nem, de van kerülőút: használhatod erre a célra a
+<a href="http://php.net/manual/en/function.json-decode.php">json_decode</a>
+függvényt; ennek az eredménye mindig UTF-8 lesz, <A href="#Q0129">helyettesítő párok</A> használhatók; pl:
+<pre>
+    $utf8str= json_decode ('"\u0150 \u0151 \u0170 \u0171 \ud83c\udf54"');
+    printf ("s=%s  hex=%s\n", $utf8str, bin2hex ($utf8str));
+
+    s=Ő ő Ű ű &#x1f354;  hex=c590 c591 c5b0 c5b1 f09f8d94
+</pre>
+</div>
+
+<p><a name="Q0001"><b>K:</b></a> Az jó, ha a
+<a href="https://www.php.net/manual/en/function.header.php">header</a>-t nem teszem
+minden más kiírás elé,
+hanem az <a href="http://php.net/manual/en/ref.outcontrol.php">ob_*</a>
+függvényekkel kavarok?<br>
+<b>V:</b> Szerintem hülyeség, de ha neked jó...</p>
+
+<div><a name="Q0110"><b>K:</b></a> Pontosan hogyan kell használni az
+<a href="http://php.net/manual/en/function.utf8-encode.php">utf8_encode</a> 
+függvényt?<BR>
+<b>V:</b> Sehogy, mert csak latin1-re működik. Válassz ezekből:
+<a href="http://php.net/manual/en/function.iconv.php">iconv</a>,
+<a href="http://php.net/manual/en/function.mb-convert-encoding.php">mb_convert_encoding</a>,
+</div>
+
+<div><a name="Q0125"><b>K:</b></a> Akkor talán az
+<a href="http://php.net/manual/en/function.utf8-decode.php">utf8_decode</a> 
+függvényt sem érdemes használni?<BR>
+<b>V:</b> Bingó! Az utf8-&gt;latin1 konverzió során az őŐűŰ betűk megszűnnek létezni.</div>
+
+<div><a name="Q0002"><b>K:</b></a> Vannak a PHP-nek utf8-as kódolású 
+stringek
+kezelésére szolgáló függvényei?<br>
+<b>V:</b> Akadnak: <a href="http://php.net/manual/en/book.mbstring.php">PHP: Multibyte 
+String - Manual</a> Pl.:
+<pre>$elso_szo= mb_substr ("Árvíztűrő tükörfúrógép", 0, 9, "UTF-8");</pre>
+<b>Megj:</b> Nem kell mindig kiírni a kódkészletet (vagyis az UTF-8-at),
+ha használod az 
+<a href="http://www.php.net/manual/en/function.mb-internal-encoding.php">mb_internal_encoding</a>
+függvényt.</div>
+
+<p><a name="Q0003"><b>K:</b></a> Milyen bajt okozhat, ha pl. a 
+hagyományos <a href="http://php.net/manual/en/function.substr.php">substr</a>
+függvényt használom?<br>
+<b>V:</b> Mondjuk az, hogy ügyesen kettévágsz egy utf8-szekvenciát...</p>
+
+<P><a name="Q0059"><b>K:</b></a> Mit tegyek, ha az
+<a href="http://php.net/manual/en/function.fgetcsv.php">fgetcsv</A>
+függvény hibásan működik, ha ékezetes betűk vannak a mezők elején?<BR>
+<b>V:</b> Előzőleg egy
+<a href="http://php.net/manual/en/function.setlocale.php">setlocale</A>
+(LC_CTYPE, "...") hívás segíthet.
+(Szerk. megj.: A problémát nem tudtam reprodukálni, a PHP verziójától is függhet.)</P>
+
+<P><a name="Q0038"><b>K:</b></a> Igaz, hogy a 
+<a href="http://php.net/manual/en/function.htmlentities.php">htmlentities</a>
+függvény is okozhat gondot?<BR>
+<b>V:</b> Okozhat, mivel ez a függvény mindent &amp;-szekvenciává alakít,
+amit egyáltalán át lehet alakítani; ez magában foglalja a magyar ékezetes betűket is,
+viszot a latin2-t nem támogatja (még ha meg is adjuk a harmadik paraméterben),
+vagyis az Ű-ből például &amp;Ucirc; lesz (eredménye: &Ucirc;).
+UTF-8 esetén az őŐűŰ betúket nem alakítja át.
+(Ez persze nem akkora baj, hiszen a többit sem kellene átalakítania.)
+
+<P><b>K:</b> Akkor mit használjak helyette?<br>
+<b>V:</b> A <a href="http://php.net/manual/en/function.htmlspecialchars.php">htmlspecialchars</A>-t,
+ami csak az alábbiakat konvertálja: &amp; &lt; &gt; ' "
+(ez utóbbi kettő opcionális, lásd a leírásban: ENT_NOQUOTES=egyiket sem,
+default=csak a macskakörmöt, ENT_QUOTES=mindkettőt)</P>
+
+<DIV><a name="Q0061"><B>K:</B></A>
+A <a href="http://php.net/manual/en/function.htmlspecialchars.php">htmlspecialchars</A>-ról
+szólva, mi a harmadik paraméter,
+az <SPAN class="quote">encoding</SPAN> jelentősége?<BR>
+<b>V:</b> Az, hogy fixen <SPAN class="quote">'ISO-8859-1'</SPAN>-et kell odaírni, hogy jól működjön,
+függetlenül attól, hogy milyen kódolást használsz.
+Ez is  volt az alapértelmezés az 5.4-es verzió előtt,
+de akkor megváltoztatták <SPAN class="quote">'UTF-8'</SPAN>-ra, ami azt ereményezi,
+hogy az UTF-8-ként nem értelmezhető input-stringre üres stringet ad válaszul.
+(Hibaüzenet nélkül persze.)<BR>
+
+<B>Megj.:</B> Kérlek, ne értelmezd ezt úgy, hogy szerintem az ISO-8859-1
+kódolás jó lenne a magyar betűkhöz, mert nem így van.
+Csakis és kizárólag a PHP hibája, hogy ezen függvény ezen paraméterében
+nem lehet sem <SPAN class="quote">'ISO-8859-2'</SPAN>-t, 
+sem <SPAN class="quote">'BÁRMI'</SPAN>-t megadni
+(hanem az <SPAN class="quote">'ISO-8859-1'</span> jelenti azt,
+hogy <SPAN class="quote">'BÁRMI'</SPAN>).<BR>
+
+<B>Kieg.:</B> az 5.6-os verzióban ismét változott az alapértelmezés,
+<span class="quote">ini_get('default_charset')</span> az új érték.
+(Ez persze semmit sem változtat az előbbiek érvényességén.)<BR>
+</DIV>
+
+<div><a name="Q0097"><b>K:</b></a> A már átalakított &amp;-szekvenciákat
+hogyan tudnám visszacsinálni?<br>
+<b>V:</b> A <a href="http://php.net/manual/en/function.html-entity-decode.php">html_entity_decode</a>
+fügvénnyel. Akkor könnyebb használni, ha UTF-8-ban dolgozol,
+latin2 esetén az iconv-ra is szükség van:
+<pre>
+function <b>decode_utf8</b> ($s)
+{
+    return html_entity_decode ($s, ENT_QUOTES, 'UTF-8');
+}
+
+function <b>decode_latin2</b> ($s)
+{
+    $u= html_entity_decode ($s, ENT_QUOTES, 'UTF-8');
+    return iconv ('UTF-8', 'ISO-8859-2', $u);
+}
+</pre>
+</div>
+
+<div><a name="Q0190"><b>K:</b></a> A
+<a href="https://www.php.net/manual/en/function.quoted-printable-encode.php">quoted_printable_encode</a> és
+<a href="https://www.php.net/manual/en/function.quoted-printable-decode.php">quoted_printable_decode</a>
+függvények milyen karakterkódolás esetén alkalmazhatók?<br>
+<b>V:</b> Ezek bájtsorozatokkal dolgoznak, tehát erre nincs korlátozás,
+lehet például UTF8, UTF16 vagy bármi más.
+</div>
+
+<div><a name="Q0191"><b>K:</b></a> A
+<a href="https://www.php.net/manual/en/function.base64-encode.php">base64_encode</a> és
+<a href="https://www.php.net/manual/en/function.base64-decode.php">base64_decode</a> és
+függvények milyen karakterkódolás esetén alkalmazhatók?<br>
+<b>V:</b> Ezek bájtsorozatokkal dolgoznak, tehát erre nincs korlátozás,
+lehet például UTF8, UTF16 vagy bármi más.<br>
+<b>K:</b> Base64-ről szólva, Van beépített függvény
+<a href="https://hu.wikipedia.org/wiki/Base64#Egy_v%C3%A1ltozat:_Base64URL">Base64url</a>-hez is?<br>
+<b>V:</b> Úgy látom, nincs; a Wikipedián leírt különbségek alapján házilag kell valamit tákolni, pl:
+<pre>
+function <b>base64url_encode</b> (string $in) {
+    $tmp= base64_encode ($in);
+    $tmp= rtrim ($tmp, '=');
+    $tmp= preg_replace ('/\s/', '', $tmp);
+    $tmp= strtr ($tmp, '+/', '-_');
+    return $tmp;
+}
+
+function <b>base64url_decode</b> (string $in) {
+    $tmp= strtr ($in, '-_', '+/');
+    $tmp= base64_decode ($tmp, false);
+    return $tmp;
+}
+</pre>
+</div>
+
+<div><a name="Q0004"><b>K:</b></a> Azt már értem, hogy az adatbázisba nem tudok
+akármilyen stringet beletenni, hanem némi escape-elésre van szükség
+(legalábbis ha nem lehet <i>bind-változókat</i> használni)
+pl.: <a href="http://php.net/manual/en/function.mysql-real-escape-string.php">mysql(i)_real_escape_string</a>,
+de úgy látom, hogy (legalábbis bizonyos szervereken), 
+valaki más is csinál valami hasonlót, ezzel szépen elrontva az adataimat!<br>
+<b>V:</b> Ez a <a href="http://php.net/manual/en/info.configuration.php#ini.magic-quotes-gpc">magic_quotes_gpc</a>
+nevű beállítás a php.ini-ben; ha nem vagy rendszergazda a gépen, akkor 
+nem tudod
+kikapcsolni, hanem a programból kell a stripslashes függvényt használni,
+ pl:
+<pre>$pwd = $_REQUEST ['jelszo'];
+if (get_magic_quotes_gpc ()) {
+  $pwd = stripslashes ($pwd);
+}
+$mysql_pwd = mysql(i)_real_escape_string ($pwd, $mysql_conn);
+</pre>
+<p><b>Kieg:</b> Jó hír, hogy az 5.4-es verzióban a magic_quotes megszűnt.</P></div>
+
+<DIV><a name="Q0058"><B>K:</B></A> Hol is van ez a 
+<SPAN class="quote">php.ini</SPAN>
+nevű configfájl?<BR>
+<B>V:</B> Platformfüggő, de a 
+<a href="http://php.net/manual/en/function.phpinfo.php">phpinfo</A>
+nevű fügvény elárulja:
+<PRE>$ <B>echo '&lt;?php phpinfo(); ?&gt;' | php 2&gt;/dev/null | \
+    grep "Loaded Configuration File"</B>
+Loaded Configuration File => /usr/local/lib/php.ini
+</PRE><BR>
+
+<A name="Q0085"><B>K:</B></A> Első problémám:
+hol van itt a webserver meg a böngésző?<BR>
+<B>V:</B> Sehol, ez egy <I>standalone PHP</I> volt, ha még nem ismered,
+akkor sürgősen barátkozz meg vele.<BR>
+
+<A name="Q0083"><B>K:</B></A> De ez nem megy Windows-ban!<BR>
+<B>V:</B> Kicsit <A href="#Q0084">lejjebb</A> olvashatsz
+a PHP használatáról Windows alatt.<BR>
+
+<B>K:</B> Második problémám: tényleg kiírt egy fájlnevet,
+de olyan file nincs is a gépemen!<BR>
+<B>V:</B> Akkor jó esélyed van rá, hogy ha lenne ilyen fájlod,
+akkor azt használná.<BR>
+
+<B>K:</B> Hogyan csináljak?! Én csak programozó vagyok, nem fájlteremtő feketemágus!<BR>
+<B>V:</B> Valószínűleg már van is ott két minta,
+<SPAN class="quote">php.ini-production</SPAN>
+és <SPAN class="quote">php.ini-development</SPAN> néven.
+Ha nem tudod, hogy melyikből indulj ki,
+akkor válaszd a development-et.</DIV>
+
+<DIV><A name="Q0084"><B>K:</B></A> Windows-ban is használható a PHP?
+És a <A href="#Q0085">stand-alone</A> változat is?<BR>
+<B>V:</B> Mindkettőre <I>igen</I> a válasz;
+a stand-alone futtatható program a <SPAN class="quote">PHP.EXE</SPAN>; 
+ha kényelmesen akarod használni, jól teszed, ha a PHP könyvtárát 
+(tipikusan C:\PHP) elhelyezed a 
+<a href="http://en.wikipedia.org/wiki/PATH_%28variable%29">PATH</A>-on.</DIV>
+
+<DIV><A name="Q0081"><B>K:</B></A> Windows-ban is használhatók a PHP-bővítmények,
+mint például a <A href="#S0004">FPDF?</A><BR>
+<B>V:</B> Igen; telepítheted őket, ahová jónak gondolod,
+csak ne felejtsd el a 
+<a href="http://www.php.net/manual/en/ini.php">php.ini-ben</a> az 
+<a href="http://php.net/manual/en/ini.core.php#ini.include-path">include_path</a>-t
+beállítani!<BR>
+Példa:
+<PRE>
+C:\> <B>mkdir \Php-Ext\Fpdf</B>
+C:\> <B>cd \Php-Ext\Fpdf</B>
+C:\Php-Ext\Fpdf> <B>unzip C:\download\FPDF17.ZIP</B>
+C:\Php-Ext\Fpdf> <B>find "include_path" c:\php\php.ini</B>
+include_path=".;C:\PHP-EXT"
+</PRE>
+Megjegyzés: egy kis Windows-os minta batch-fájlt láthatsz
+<A href="#Q0082">itt</A> is.<BR>
+Egyéb Windows-os kérdések a FAQ-ban <A href="#S0013">itt</A> találhatók.
+</DIV>
+
+<DIV><A name="Q0115"><B>K:</B></A> Ha egy pillanatra visszatérhetnénk a UNIX-hoz,
+igaz, hogy a php.ini helye nincs egészen kőbe vésve, különösen akkor nem,
+ha forrásból telepítem a PHP-t?<BR>
+<B>V:</B> Ez igaz, ha nem vágysz kellemetlen meglepetésekre,
+akkor szimlinkekkel termethetsz rendet, pl:
+<pre><b>ls -l /usr/local/etc/php.ini /usr/local/bin/php.ini /usr/local/lib/php.ini</b>
+-rw-r--r-- 1 root system 67184 Jan 12 16:40 /usr/local/etc/php.ini
+lrwxrwxrwx 1 root system    14 Jun 19  2013 /usr/local/bin/php.ini -> ../etc/php.ini
+lrwxrwxrwx 1 root system    14 Jun 19  2013 /usr/local/lib/php.ini -> ../etc/php.ini
+</pre>
+Az első a valódi fájl, a másik kettő szimlink.</div>
+
+<div><A name="Q0192"><B>K:</B></A> Off-topic: PHP-scriptemben jogosultsági problémát vélek látni,
+hogyan debuggoljam?<br>
+<B>V:</B> Ilyesféle függvényeket használhatsz:
+<a href="https://www.php.net/manual/en/function.posix-getcwd.php">posix_getcwd</a>
+<a href="https://www.php.net/manual/en/function.posix-getuid.php">posix_getuid</a>,
+<a href="https://www.php.net/manual/en/function.posix-getgid.php">posix_getgid</a>,
+<a href="https://www.php.net/manual/en/function.stat.php">stat</a>.
+Példaprogram:
+<pre>
+ &lt;?php
+    function printfilestat ($fname) {
+        $st= stat ($fname);
+        if (! $st) {
+            printf ("\n%s: 'stat' failed\n", $fname);
+            return;
+        }
+        $userdata= posix_getpwuid ($st['uid']);
+        $groupdata= posix_getgrgid ($st['gid']);
+        printf ("file '%s': owner=%d(%s) group=%d(%s) access=%o\n",
+            $fname,
+            $st['uid'], $userdata['name'],
+            $st['gid'], $groupdata['name'],
+            $st['mode']);
+    }
+
+    printf ("&lt;PRE&gt;\n");
+    $uid= posix_getuid ();
+    $userdata= posix_getpwuid ($uid);
+    $gid= posix_getgid ();
+    $groupdata= posix_getgrgid ($gid);
+    $cwd= posix_getcwd ();
+
+    printf ("posix_pwuid=%d(%s) posix_getgid=%d(%s)\n",
+        $uid, $userdata['name'],
+        $gid, $groupdata['name']);
+    printf ("posix_getcwd=%s\n", $cwd);
+
+    printfilestat ($cwd);
+    printfilestat (__FILE__);
+    printfilestat (dirname (__FILE__));
+
+    printf ("&lt;/PRE&gt;\n");
+?&gt;
+</pre>
+Egy lehetséges kimenet:
+<pre>
+posix_pwuid=33(www-data) posix_getgid=33(www-data)
+posix_getcwd=/local/home/projects/public_html
+file '/local/home/projects/public_html': owner=1000(projects) group=1000(devel) access=40755
+file '/local/home/projects/phptest/web/access.php': owner=1000(projects) group=1000(devel) access=100755
+file '/local/home/projects/phptest/web': owner=1000(projects) group=1000(devel) access=40755
+</pre>
+</div>
+
+<DIV><a name="Q0228"><B>K:</B></A> Szeretném <span class="quote">www-data</span>
+felhasználóként tesztelni a scriptemet, hogyan tehetem meg?<br>
+<B>V:</B> Rendszergazdaként (root user) így válhatsz www-data felhasználóvá:
+<pre>
+$ ... become root (sudo/su/etc) ...
+# <B>su -l www-data -s /bin/bash</B>
+$ <B>echo '&lt;?php print_r(posix_getpwuid(posix_getuid())); ?&gt;' | php</B>
+Array
+(
+    [name] => www-data
+    [passwd] => x
+    [uid] => 34
+    [gid] => 34
+    [gecos] => httpd User
+    [dir] => /usr/local/www
+    [shell] => /sbin/nologin
+)
+</pre></DIV>
+
+<div style="text-align: center;"><a name="S0030"><b>&#8212; Perl &#8212;</b></a></div>
+
+<DIV><a name="Q0184"><B>K:</B></A> Az alábbi hibaüzenetet kapom a Perltől, hogyan tudom elnyomni?
+<pre>
+perl: warning: Setting locale failed.
+perl: warning: Please check that your locale settings:
+    LANGUAGE = (unset),
+    LC_ALL = (unset),
+    LC_CTYPE = "hu_US.CP856",
+    LANG = "C"
+    are supported and installed on your system.
+perl: warning: Falling back to the standard locale ("C").
+</pre>
+<B>V:</B> Legjobb lenne, ha kinyomoznád, hogy miért nem sikerült beállítani a lokalizációt,
+mit kell telepíteni, vagy a <a href="#Q0067">locale-gen</a>-t futtatni, stb.<br>
+Mindazonáltal van 'gyorsmegoldás' a hibaüzenet elnyomására:<br>
+<pre>export PERL_BADLANG=0</pre>
+</DIV>
+
+<DIV><a name="Q0242"><B>K:</B></A> Mit jelent a <span class="quote">Wide character in print</span> hibaüzenet?<br>
+<B>V:</B> Egy stringet akartál egy stream-be írni, és ennek során az alábbi három dolog találkozott össze:
+a string utf8-as kódolású, a stream nem utf8-módú, és a karakter nem konvertálható a stream-hez rendelt
+kódolásban (ennek az alapértelmezése lehet pl. iso-8859-1, ekkor ez U+FF fölötti unikódú karaktert jelent,
+amilyen például a magyar őŐűŰ).
+</DIV>
+
+<DIV><a name="Q0243"><B>K:</B></A> Hogyan lesz a stream <I>utf8-módú,</I> illetve hogyan lehet
+a kódolást beállítani?<BR>
+<B>V:</B> Az <a href="https://perldoc.perl.org/functions/open">open</a> MODE paraméterében
+megadhatod a <span class="quote">:utf8</span> vagy <span class="quote">:encoding(<i>kód</i>)</span> opciót.
+(Az <span class="quote">:utf8</span> és <span class="quote">:encoding(UTF-8)</span> hatása nem egészen egyforma:
+olvasás esetén az utóbbi ellenőrzi is az input utf8-validságát.)<br>
+Van még a <a href="https://perldoc.perl.org/functions/binmode">binmode,</a>
+amivel már megnyitott fájlokat (pl STDIN, STDOUT, STDERR) tudsz átállítani;
+illetve az <a href="https://perldoc.perl.org/open">open pragma</a> amivel a fájlnyitásokhoz
+globálisan adhatsz meg beállítást, illetve az előbb felsorolt STDxxx fájlokat is átállíthatod, pl.:
+<pre>use open ':std', IO=>':encoding(UTF-8)'</pre>
+</DIV>
+
+<DIV><a name="Q0245"><B>K:</B></A> Úgy tűnik nekem, hogy a <span class="quote">LC_CTYPE</span>-ot
+nem veszi figyelembe, tudok tenni valamit ezügyben?<BR>
+<B>V:</B> Ilyesmit lehetne próbálni:
+<pre>
+my $lc_ctype= (split '\.', $ENV{'LC_CTYPE'})[-1];
+open my $outfile, ">:encoding($lc_ctype)";
+</pre>
+</DIV>
+
+<DIV><a name="Q0244"><B>K:</B></A> És mit jelent a <span class="quote">use utf8;</span>?<BR>
+<B>V:</B> Azt, hogy maga a forrásprogram (vagyis a Perl script) utf8-ban értendő.
+Ennek az ellenkezője a <span class="quote">no utf8;</span> ami azt jelenti, hogy valamilyen
+8-bites kódolásban van. Ezek hatása a fájl vagy a tartalmazó blokk végéig tart.
+</DIV>
+
+<div style="text-align: center;"><a name="S0032"><b>&#8212; Python &#8212;</b></a></div>
+
+<DIV><a name="Q0221"><B>K:</B></A> Python3 forrásprogramban használhatok ékezetes betűket?<br>
+<B>V:</B> Igen, ha az első két sor valamelyik tartalmazza a használt kódolást, valahogy így:<br>
+<pre>
+#!/usr/local/bin/python3
+# -*- <b>coding: UTF-8</b> -*-
+</pre>
+</div>
+
+<DIV><a name="Q0219"><B>K:</B></A> Milyen \-szekvenciák használhatók Python3-ban?<br>
+<B>V:</B> Használható a <span class="quote">\x12</span>, valamint a
+<span class="quote">\u1234</span> (itt surrogate pair nem lehet) és
+<span class="quote">\U12345678</span>. Példa:<br>
+<pre>print('\u00e1rv\u00edzt\u0171r\u0151 t\u00fck\u00f6rf\u00far\u00f3g\u00e9p')
+print('hamburger: \U0001f354');
+árvíztűrő tükörfúrógép
+hamburger: &#x1f354;</pre></div>
+
+<DIV><a name="Q0220"><B>K:</B></A> Milyen kódolásban fog ez kiíródni?<br>
+<B>V:</B> Unixon a <span class="quote">LC_CTYPE</span>-nak megfelelően, Windowsban a
+<I>default ANSI charset</I> szerint. (A <span class="quote">\x12</span>-szekvenciát
+ISO-8859-1-szerint értelmezi, a 'coding'-tól függetlenül.)
+<b>Megjegyzés:</b> ha olyan karaktert írnánk ki, amely nem ábrázolható
+a kimeneti kódolásban, vagy ha a forrásprogram kódolása nem azonos a
+<I>coding</I>-ban megadottal, akkor hibaüzenetet vagy hibás eredményt
+kapunk.
+</div>
+
+<DIV><a name="Q0222"><B>K:</B></A> A <span class="quote">chr</span> függvény
+paramétere milyen kódolás szerint értendő?<br>
+<B>V:</B> Unicode, függetlenül 'coding'-tól, pl.:
+<pre>
+chr(0xf5)='&#xf5;'
+chr(0xfb)='&#xfb;'
+chr(0x151)='&#x151;'
+chr(0x171)='&#x171;'
+</pre>
+<a name="Q0223"><B>K:</B></A> Az <span class="quote">ord</span> függvény
+kimenete milyen kódolás szerint értendő?<br>
+<B>V:</B> Unicode, függetlenül 'coding'-tól, pl.:
+<pre>
+ord('&#xf5;')=0xf5
+ord('&#xfb;')=0xfb
+ord('&#x151;')=0x151
+ord('&#x171;')=0x171
+</pre>
+</div>
+
+<div style="text-align: center;"><a name="S0021"><b>&#8212; Java &#8212;</b></a></div>
+
+<DIV><a name="Q0126"><B>K:</B></A> Hogy tudok Javában String és byte-vector között konvertálni?<BR>
+<B>V:</B> A String
+<A href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html#String%28byte%5b%5d,%20java.lang.String%29">egyik konstruktora</A>
+illetve a
+<A href="http://docs.oracle.com/javase/7/docs/api/java/lang/String.html#getBytes%28java.lang.String%29">getBytes</a>
+metódus szolgál erre.<BR>
+<B>K:</B> Ha jól látom, vannak olyan változatok is, amelyeknek nem kell charsetName paraméter.
+Azok mire jók?<BR>
+<B>V:</B> Hogy <I>kibabrálhassál</I> magaddal, illetve hogy platformfüggő legyen a működés
+(lásd a <span class="quote">file.encoding</span> <a href="#Q0024">beállítást</a>).<BR>
+<B>K:</B> Mindesetre, ha oda-vissza elvégzem a konverziót, akkor az eredetit kapom vissza, ugye?<BR>
+<B>V:</B> Kivéve, ha nem. Pl. egybájtos kódolás esetén az "&#xF4;&#xF5;ő"-ből vagy "&#xF4;&#xF5;?"
+lesz, vagy "&#xF4;?ő". Vagy akár "???", szerencse kérdése.
+</DIV>
+
+<DIV><a name="Q0127"><B>K:</B></A> És az igaz, hogy a 16-bites
+<span class="quote">char</span> típusban
+minden unikód elfér?<BR>
+<B>V:</B> Hát tulajdonképpen nem, de az <span class="quote">int</span> típusban igen,
+illetve char-tömbben, vagy String-ben, UTF16 kódolással.<BR>
+<B>K:</B> Vagyis szükség esetén 'helyettesítő párok' (magyarul 'surrogate pairs') használatával?<BR>
+<B>V:</B> Igen, például a kedvenc hamburgerünket így tárolhatjuk String-ként:
+<span class="quote">"\ud83c\udf54"</span>
+</DIV>
+
+<DIV><a name="Q0166"><B>K:</B></A> Ha Javában textfájlokat akarok írni/olvasni,
+a fájl-tartalom milyen kódolás szerint fog előállni/értelmeződni?<br>
+<B>V:</B> Valamilyen alapértelmezés / globális beállítás fog érvényesülni
+(lásd <a href="#Q0024">ezt a pontot</a> is). Vagy használhatsz olyan metódusokat
+(pontosabban konstruktorokat), amiknek paramétere a karakterkészlet neve, pl:<br>
+&nbsp; <a href="https://docs.oracle.com/javase/7/docs/api/java/io/InputStreamReader.html#InputStreamReader(java.io.InputStream,%20java.lang.String)">InputStreamReader (InputStream in, String charsetName)</a><br>
+&nbsp; <a href="https://docs.oracle.com/javase/7/docs/api/java/io/OutputStreamWriter.html#OutputStreamWriter(java.io.OutputStream,%20java.lang.String)">OutputStreamWriter (OutputStream out, String charsetName)</a><br>
+&nbsp; <a href="https://docs.oracle.com/javase/7/docs/api/java/io/PrintStream.html#PrintStream(java.io.File,%20java.lang.String)">PrintStream (File file, String csn)</a><br>
+</DIV>
+
+<DIV><a name="Q0128"><B>K:</B></A> JNI esetén hogyan férhetek hozzá egy String tartalmához?<BR>
+<B>V:</B> Három lehetőséget látok:
+<ul>
+<li>A String.getBytes-t hívod neked tetsző kódolással, és a kapott bájttömbhöz a
+GetArrayLength, GetByteArrayElements, ReleaseByteArrayElements függvényekkel férsz hozzá.
+<li>A GetStringLength, GetStringChars, ReleaseStringChars függvényeket használod,
+ekkor UTF-16-ban kapod a karaktereket.
+<li>A GetStringUTFLength, GetStringUTFChars, ReleaseStringUTFChars függvényeket használod,
+ekkor <I>módosított</I> UTF-8-ban kapod a karaktereket.
+</ul>
+<B>K:</B> Ebből a <I>'módosított'</I> részt nem értem pontosan...<BR>
+<B>V:</B> A <I>'surrogate pair'</I> elemeit külön-külön alakítja hárombájtos
+szekvenciáva, továbbá a nullás kódú karakterből C080 szekvenciát csinál,
+például "&amp;#x1f354;&amp;#0;" ilyen lesz módosított UTF-8-ban:
+<span class="quote">ED-A0-BC&mdash;ED-BD-94&mdash;C0-80</span>
+(Közönséges UTF-8-ban ilyen:
+<span class="quote">F0-9F-8D-94&mdash;00</span>).
+Bővebben lásd itt:
+<a href="https://en.wikipedia.org/wiki/UTF-8#Modified_UTF-8">wiki: Modified UTF-8</a>
+</DIV>
+
+<DIV><a name="Q0159"><B>K:</B></A> A <span class="quote">javac</span>
+fordítóprogramnak kell tudnia, hogy a forrásprogram milyen kódolásban készült?
+És hogyan mondhatom meg neki?<BR>
+<B>V:</B> Igen, a <span class="quote">-encoding</span> paraméterrel;
+ha nem adod meg, akkor valamilyen alapértelmezés jut érvényre,
+ami a konkrét esetben vagy jó, vagy nem.
+Az UTF-8 általában jó választás Java forrásprogramokhoz,
+de <a href="#Q0044">BOM</a> ne legyen a fájl elején!
+</DIV>
+
+<DIV><a name="Q0164"><B>K:</B></A> Szóval a Java forrásprogramok
+string-konstansaiban használhatok <span class="quote">\uXXXX</span>
+szekvenciákat. És string-konstansokon <I>kívül</I> is használhatom őket?<BR>
+<B>V:</B> Igen, bárhol a forrásprogramban; ezeknek az értelmezése
+minden más fordítási lépés előtt történik, ami váratlan következményekhez
+is vezethet; íme egy egyszerű példa:
+<pre>
+public class hellocomment {
+    public static void main (String args[]) {
+        // Where is the code? <U>\u000d</U> System.out.println ("Hello, comment<U>\u0022</U>);
+    }
+}
+</pre>
+Itt a \u000d sorvégejelnek számít, tehát ami mögötte van, az <I>nem</I> megjegyzés;
+a \u0022 pedig a "macskaköröm", ami lezárja a stringet.
+</DIV>
+
+<DIV><A name="Q0169"><B>K:</B></A> IBM MQS-t használnék Javából. Igaz,
+hogy az egyes üzenetek karakterkódolását külön-külön lehet beállítani/lekérdezni?<BR>
+<B>V:</B> Igen, erre való a <span class="quote">com.ibm.mq.MQMessage.characterSet</span> mező.
+Persze egyedi IBM-es kódokat kell használni, pl:<BR>
+<pre>
+	  37	ebcdic/ibm/latin1-compatible
+	 850	cp850
+	 852	cp852
+	 819	iso-8859-1
+	 912	iso-8859-2
+	1208	utf-8
+</pre>
+</DIV>
+
+<DIV><A name="Q0170"><B>K:</B></A> Milyen műveleteket használhatok bináris üzenetekhez?<br>
+<B>V:</B> Itt van rögtön a <span class="quote">write</span>,
+a <span class="quote">getDataLength</span> és a <span class="quote">readFully</span>.
+(Ezek bájttömbökkel dolgoznak, tehát semmiféle konverzió nem történik.)
+</DIV>
+
+<DIV><A name="Q0171"><B>K:</B></A> Milyen műveleteket használhatok karakteres üzenetekhez?<br>
+<B>V:</B> Íráshoz van egy <span class="quote">writeString</span> művelet;
+olvasáshoz a <span class="quote">readStringOfByteLength</span> metódust ajánlom,
+a <span class="quote">getDataLength</span> metódussal kombinálva
+(ezek gondoskodnak a karakterkonverzióról (lásd <A href="#Q0169">fentebb</A> a characterSet mezőt).<br>
+Ha esetleg olyan ősrégi kliensed van, amelyben még csak sima
+<span class="quote">readString</span> művelet van, akkor a multibyte-os kódolásokhoz
+valamilyen helyettesítő megoldást kell tákolni, pl.:
+<pre>
+        message.seek(0);    /* álljon az üzenet elejére */
+        int blen= message.getDataLength ();
+        String s;
+
+        if (message.characterSet==1208) { /* csak egy multibyte-os kódolást kezelünk, az UTF8-at */
+            byte [] binmsg = new byte [blen];
+            message.readFully (binmsg);
+
+            s = new String (binmsg, "UTF-8");
+        } else {
+            s = message.readString (blen);
+        }
+        return s;
+</pre>
+</DIV>
+
+<DIV><A name="Q0189"><B>K:</B></A> Java programomban
+<a href="https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html">SimpleDateFormat</a>-ot
+használok. Egyes értékek (nap és hónap neve, am/pm jelző) lokalizáció-függőek, ezek működése mitől függ?<br>
+<B>V:</B> Tapasztalataim szerint Unixban a <span class="quote">LC_CTYPE</span>-tól, Windows-on a
+<span class="quote">-Duser.language</span>-tól.
+</DIV>
+
+<DIV><A name="Q0210"><B>K:</B></A> A JAXB által létrehozott XML milyen encoding-ban keletkezik?<br>
+<B>V:</B> Alapértelmezésben UTF-8, de a <span class="quote">javax.xml.bind.Marshaller.setProperty</span>
+metódussal másra is be lehet állítani, pl.:
+<PRE>
+    marshaller.setProperty ("jaxb.encoding", "ISO-8859-2");
+</PRE>
+</DIV>
+
+<DIV style="text-align: center;"><a name="S0018"><b>&#8212; SQL-injection &#8212;</b></a></div>
+
+<DIV><a name="Q0098"><B>K:</B></A> Mi is az Sql-injection lényege?<BR>
+<B>V:</B> Legvilágosabban ezen az ábrán mutatják be:
+<a href="http://xkcd.com/327/">http://xkcd.com/327/</a></DIV>
+
+<DIV><a name="Q0099"><B>K:</B></A> Nem értem, miért okozna gondot ez a név?<BR>
+<B>V:</B> Akkor nézzük meg, hogyan működött a program:<BR>
+Ezt akarta a programozó:
+<PRE>
+INSERT INTO students (name) VALUES ('<I>&lt;insertnamehere&gt;</I>');
+</PRE>
+De ez lett belőle:
+<PRE>
+INSERT INTO students (name) VALUES ('Robert'); DROP TABLE students; -- ');
+</PRE>
+</DIV>
+
+<DIV><a name="Q0100"><B>K:</B></A> Azannya! De biztos az,
+hogy ilyen támadás minden adatbáziskezelőben és minden kontextusban lehetséges?<BR>
+<B>V:</B> Természetesen nem: előfordulhat, hogy a te esetedben csupán hibaüzenetet,
+hibás működést lehet így előidézni, nem pedig teljes adattörlést.
+Akarsz kockáztatni?</DIV>
+
+<DIV><a name="Q0101"><B>K:</B></A> Jó, persze, nem, de azért azt megkérdezem,
+hogy miért csak SQL-injection van, miért nincs például HTML-injection, PHP-injection,
+shell-script-injection, és a többi?<BR>
+<B>V:</B> Megnyugtatlak: ezek mind előfordulhatnak, és mind ellen védekezni kell.
+Alapvetően két gond van:<BR>
+1. A hibás (vagy rossz-szándékú) adat olyan karaktereket tartalmaz,
+amiknek nem szabadna ott lenniük.<BR>
+2. Az adat teljesen legálisan tartalmaz olyan karaktereket,
+amik megzavarhatják pl. az SQL-értelmezőt.</DIV>
+
+<DIV><a name="Q0102"><B>K:</B></A> Akkor már értem, mi a baj. És mi lenne a <I>megoldás?</I><BR>
+<B>V:</B> Nos, ha például előre tudjuk, hogy mik a megengedhető karakterek,
+akkor ellenőriznünk kell az input-ot. Egy példa PHP-hez:
+<PRE>
+/* csak magyar kis- és nagybetűk, valamint számjegyek (és nem üres!) */
+function Test ($s)
+{
+    $pattern= '/^[0-9a-záäéíóöőúüűA-ZÁÄÉÍÓÖÚÜŰ]+$/';
+    printf ("check(%s)=%d\n", $s, preg_match ($pattern, $s));
+}
+</PRE>
+Egy pedig Javához:
+<PRE>
+/* csak magyar kis- és nagybetűk, valamint számjegyek (és nem üres!) */
+static void Test1 (String s) {
+    boolean fOk= s.matches ("^[0-9a-záäéíóöőúüűA-ZÁÄÉÍÓÖÚÜŰ]+$");
+
+    System.out.println ("Check ('" + s + "'): " + fOk);
+}
+</PRE>
+</DIV>
+
+<DIV><a name="Q0103"><B>K:</B></A> És ha az input legálisan is tartalmazhat
+mindenféle jeleket?<BR>
+<B>V:</B> Az egyik legjobb lehetőség az adatok és a kódok elválasztása;
+SQL-esetében a <I>bind változók</I> valók erre
+(<A href="#S006">lásd a következő fejezetben</A>).
+Ha erre nincs lehetőség, a helyzettől függő módszereket kell használni ahhoz,
+hogy 'veszélyes' karaktereket tartalmazó adatot is jól kezeljünk.<BR>
+<BR>
+<B>1. példa:</B> <a href="#S0011">Oracle</a>
+esetében a string-literál belsejében lévő aposztrófákat meg kell duplázni:<BR>
+<PRE>select 'Ezt mondta: ''hello''' AS idezet from dual;
+IDEZET
+-------------------
+Ezt mondta: 'hello'</PRE>
+Ha pl. Javában alkotunk, ilyesmit írhatunk:
+<PRE>
+String ora_sql = "UPDATE tabla SET mezo='"+param.replaceAll("'", "''")+"'";
+</PRE>
+PHP-s példa:
+<PRE>
+$ora_sql = sprintf ("UPDATE tabla SET mezo='%s' WHERE ...",
+    str_replace ("'", "''", $param));
+</PRE>
+<BR>
+<a name="Q0103_5"><B>2. példa:</B></a>
+<a href="#S0010">MySql</a> esetében (általában) a \backslash használható escape-characterként
+a string-literálokban
+(PHP esetén lásd az 
+<A href="http://php.net/manual/en/function.addslashes.php">addslashes</A>
+illetve
+<A href="http://php.net/manual/en/function.mysql-real-escape-string.php">mysql(i)_real_escape_string</A>
+függvényeket):
+<PRE>select 'Ezt mondta: \'hello\'' AS idezet;</PRE>
+<B>Megj:</B> Egyes egzotikus két- vagy több-bájtos kódolások esetén (az UTF8 <I>nem</I> ilyen)
+a \backslash része lehet egy bájt-szekvenciának,
+tehát ilyenkor nem jó az addslashes.
+Mivel ezek a szekvenciák a magyar nyelvhez nem használatosak,
+nem kell különösebben aggódnunk;
+mindenesetre arra ügyeljünk, hogy a(z esetleg rossz-szándékú) felhasználó
+ne avatkozhasson bele a <span class="quote">SET NAMES</span>-be.
+<BR>
+<BR>
+<B>3. példa:</B> Ha HTML-be akarunk ilyen stringet illeszteni,
+használjuk az &amp;-szekvenciákat &ndash; PHP esetén erre való a 
+<a href="http://php.net/manual/en/function.htmlspecialchars.php">htmlspecialchars</a>
+függvény (lásd <A href="#Q0061">ezt a pontot</A> is!):
+<pre>
+    $s= '&lt;B&gt;veszélyes szöveg &lt;script&gt;benne gonosz script&lt;/script&gt;&lt;/i&gt;';
+    print htmlspecialchars ($s, ENT_QUOTES, 'ISO-8859-1');
+</pre>
+<a name="Q0103_1">Java</a> esetén különféle külső eszközök használhatók,
+de ha épp egyik sincs a kezünk ügyében,
+akár kézi erővel is alkothatunk valamit:
+<pre>
+static String <b>htmlescape</b> (String s) {
+    String sout=
+        s.replaceAll ("&amp;", "&amp;amp;")
+         .replaceAll ("&lt;", "&amp;lt;")
+         .replaceAll ("&gt;", "&amp;gt;")
+         .replaceAll ("\"","&amp;quot;")
+         .replaceAll ("\'","&amp;#x27;");
+    return sout;
+}
+</pre>
+<B>Megj:</B> Például ezt a programrészt is át kellett alakítani ahhoz, hogy a HTML-ben
+jól jelenjen meg.<BR>
+<a name="Q0103_2">Ugyanez</a> JavaScript-ben ilyesmi lenne:
+<pre>
+function <b>htmlescape</b> (s) {
+    var sret=
+       s.replace (/&amp;/g, '&amp;amp;')
+	.replace (/&lt;/g, '&amp;lt;')
+	.replace (/&gt;/g, '&amp;gt;')
+	.replace (/\"/g,'&amp;quot;')
+	.replace (/\'/g,'&amp;#x27;');
+    return sret;
+}
+</pre>
+<BR>
+<B id="Q0103_3">4. példa:</B> PHP-ből akarunk shell-scriptet hívni. (Nagyon problémás terület,
+szívesebben ajánlanám az <A href="#Q0104">environment változók használatát</A>!):
+<PRE>
+    $gyanus= "\"; rm -rf /fontos/dir/*; echo \" $(rm /important/)";
+    $cmd= sprintf ('echo "Naplósor: %s" >>Naplo',
+	<a href="http://php.net/manual/en/function.addcslashes.php">addcslashes</a> ($gyanus, '"$`\\'));
+    system ($cmd);
+</PRE>
+
+<BR>
+<B>5. példa:</B> PHP és JavaScript között akarunk adatot cserélni.
+Erre való a <a href="http://json.org/">JSON</a> tehcnológia, pl.:
+<pre>
+{"veznev": "árvíztűrő",
+ "utonevek": ["els\u0151","m\u00e1sodik"]}
+</pre>
+Komplett tömböket és struktúrákat is kezel,
+az ékezetes betűket UTF-8-ban vagy <span class="quote">\u</span>
+szekvenciákkal adhatjuk meg.
+Az egyetlen problémás pont az, ha a HTML-be ágyazott JavaScript-ben
+véletlenül a <span class="quote">&lt;/script&gt;</span> string fordul elő,
+ugyanis a böngésző azt a script lezárásnak tekinti. A defenzív megoldás
+az, ha minden <span class="quote">/</span> jelet "escape-elve",
+<span class="quote">\/</span> formában adunk meg.<BR>
+
+<BR>
+<B>6. példa:</B> CSV fájlt akarunk előállítani/elemezni. Ugyebár ennél semmi sem egyszerűbb, de azért gondoljunk a következőkre:<BR>
+(1) ha egy mezőben elválasztójel (magyar beállítás esetén vesszőspont), sorvége, vagy idézőjel (rendszerint "macskaköröm") van,
+akkor a mezőt kötelező idézőjelek közé tenni, egyébként csak <I>szabad</I> idézőjelek közé tenni.<BR>
+(2) ha egy mező idézőjelek között van, akkor a benne előforduló idézőjeleket meg kell duplázni.<BR>
+
+<BR>
+<B id="Q0103_4">7. példa:</B> shell-ben írt CGI-program fájlneveken megy végig,
+és <span class="quote">&lt;img src="<I>fájlnév</I>"&gt;</span> tagokat állít elő.
+Nincs semmi gond, amíg egy haxor létre nem hoz egy 
+<span class="quote">abc"&gt;&lt;h1&gt;Rossz az oldalad.jpg</span>
+nevű fájlt (ami teljesen legális fájlnév Unixban!), és ezzel elcsúfítja a kimenetet.
+Megoldási lehetőség a shell scriptben:
+<PRE>
+for i in *.jpg; do 
+    i2="$(printf '%s' "$i" | sed 's/\"/\&amp;quot;/g')"
+    printf '&lt;img src="%s"&gt;\n' "$i2"
+done
+</PRE>
+</DIV>
+
+<DIV><a name="Q0106"><B>K:</B></A> Erről jut eszembe: esetleg ilyesmi okból szüntették meg PHP-ben a
+<a href="http://php.net/manual/en/security.globals.php">register_globals</a>
+intézményét?<BR>
+<B>V:</B> Bizony ám! A register_globals okozta gondot nevezhetjük akár <I>PHP-injection</I>-nak is.</DIV>
+
+<DIV><a name="Q0107"><B>K:</B></A> Ugye az UTF-8-nak nincs semmi köze ehhez, vagy más biztonsági kérdésekhez?<BR>
+<B>V:</B> Semmi, kivéve azt apróságot, hogy nem szabad elfogadni olyan UTF-8 kódolású inputot,
+amelyben előfordul olyan karakter,
+ami nem a lehető legrövidebb módon van kódolva.
+Például a 27 hexkódú 'aposztrófát' lehetne hosszabban is kódolni (C0A7, E0C0A7 vagy F0C0C0A7),
+és ezzel esetleg megkerülni az ellenőrző programrészeket, de a
+<a href="http://tools.ietf.org/html/rfc3629#section-10">szabvány</a>
+szerint az ilyen szekvenciákat érvénytelennek kell tekinteni.</DIV>
+
+<div style="text-align: center;"><a name="S0006"><b>&#8212; Bind-változók &#8212;</b></a></div>
+
+<DIV><a name="Q0037"><B>K:</B></A> Mi is az a bind-változó?<BR>
+<B>V:</B> Részletesen lásd itt: <a href="http://en.wikipedia.org/wiki/Prepared_statement">wiki:Prepared statement,</a>
+a lényeg az, hogy az adatok nincsenek az SQL-utasításba beleágyazva,
+hanem külön mennek át. Példa:
+<PRE>volt: INSERT INTO t_login VALUES ('userid', 'jelszó')
+lett: INSERT INTO t_login VALUES (?, ?)</PRE></DIV>
+
+<DIV><B>K:</B> De így külön hívások kellenek az adatok megadásához,
+vagyis a program bonyolultabb és lassabb lesz!<BR>
+<B>V:</B> Valóban bonyolultabb, mivel a végrehajtás nem egy, hanem három 
+részből áll: elemzés <I>(parse</I> vagy <I>prepare),</I> értékek megadása
+<I>(binding)</I> és végrehajtás <I>(execute);</I>
+viszont adott esetben lehet, hogy a művelet nem lassabb lesz, hanem gyorsabb.<BR>
+<B>K:</B> Vajon mitől?!<BR>
+<B>V:</B> Attól, hogy így nagy az esélye annak, hogy a szerverhez többször egymás
+után ugyanaz az SQL-utasítás érkezik (az utasításba beépített értékek esetén ez nem
+valószínű). Ennek az az előnye, hogy a szerver (amely gyorstárazza a legutóbbi utasításokat),
+felismeri az utasítást, és így a munka egyik időigényes részét, az elemzést megspórolja.</DIV>
+
+<DIV><B>K:</B> PHP és MySql esetén használhatók bind változók?<BR>
+<B>V:</B> A <a href="http://php.net/manual/en/book.mysqli.php">mysqli</A> modul használatával. A PHP-ben használható egyéb adatbáziskezelőről itt olvashatsz:
+<a href="http://php.net/manual/en/refs.database.php">PHP: Database Extensions</A></DIV>
+
+<DIV><A name="Q0104"><B>K:</B></A> Ilyen bind-változók használhatók más kontextusban is?
+Például PHP-ből shell-hívásakor?<BR>
+<B>V:</B> A környezeti változók <I>(environment variables)</I> használhatók erre a célra, pl:
+<PRE>&lt;?php
+/* felhasználótól jövő megbízhatatlan input */
+    $s = '"; echo én vagyok a haxor és törlök; rm legfontosabb_file #';
+
+/* veszélyes megoldás */
+    $cmd= sprintf ('echo "Test#1 %s" >>kedvesnaplom', $s);
+    system ($cmd);
+
+/* biztonságos megoldás */
+    putenv ('param1='.$s);
+    $cmd= 'printf -- \'Test#2 %s\\n\' "$param1" >>kedvesnaplom';
+    system ($cmd);
+?&gt;</PRE>
+Az utóbbi helyzetben a param1-ben lévő idézőjelek, joker-karakterek, \-szekvenciák stb.
+nem jutnak érvényre.<br>
+<a name="Q0104_1">Ugyanez</a> Perl-ben:
+<PRE>
+$NAME="John Doe'; pwd -P; echo 'I escaped your quotes";
+
+system ("echo Username='$NAME'"); # Haxor wins
+
+$ENV{'param_1'}=$NAME;
+system ("echo Username=\"\$param_1\""); # Haxor loses
+</PRE>
+</DIV>
+
+<DIV><B>K:</B> Ha már így feljött a shell-hívása, van-e még valamilyen fontos szabály, amit tudnom kell?<BR>
+<B>V:</B> Igen: hogy ha csak lehet, kerüld el, mert nagyon lassú.
+Nagyon sok mindenre van PHP-beli megoldás, ne légy rest,
+használd a <a href="http://php.net/">php.net</A> keresőjét.</DIV>
+
+<DIV><A name="Q0121"><B>K:</B></A> Shell-hívásról szólva,
+pl. C-nyelv esetén is használhatunk így environment változókat?<BR>
+<B>V:</B> Igen, pl. a <span class="quote">system</span>
+és <span class="quote">popen</span> függvények esetében;
+a változók beállítására és törlésére használhatjuk a
+<span class="quote">setenv</span> és <span class="quote">unsetenv</span>
+függvényeket:
+<PRE>
+setenv ("param1", dangerous_value, 1);
+system ("printf -- '%s\\n' \"$param1\" >>naplo");
+unsetenv ("param1");
+</PRE>
+Kevésbé korszerű esetben mindkettő
+a <span class="quote">putenv</span> függvénnyel történhet:
+<PRE>
+char env_tmp[64];
+
+sprintf (env_tmp, "param1=%.*s", (int)(sizeof env_tmp -8), gyanus_input);
+putenv (env_tmp);
+system ("printf -- '%s\\n' \"$param1\" >>naplo");
+putenv ("param1=");
+</PRE>
+</DIV>
+
+<div style="text-align: center;"><a name="S0033"><b>&#8212; Miegymás &#8212;</b></a></div>
+<p><a name="Q0020"><b>K:</b></a> Ha a böngésző az ékezetes karakter 
+helyett egy olyan szekvenciát
+küld, hogy &amp;#<i>unikód</i>; az mi a manót jelent?<br>
+<b>V:</b> Azt, hogy a felhasználó olyan karaktert írt (pasztázott) az 
+input-mezőbe,
+ami nincs benne az oldalad által használt kódban
+(illetve a &lt;FORM&gt; tagban megadott
+<a href="http://www.w3.org/TR/html4/interact/forms.html#adef-accept-charset">accept-charsetben</a>).
+
+Például, ha latin2-t állítasz be, akkor a hullámos &#213; betű helyett
+ilyen szekvenciát (&amp;#213;) küld a Firefox.</p>
+
+<p><a name="Q0021"><b>K:</b></a> Szóval ez még böngészőfüggő is? Mi 
+lehet a megoldás?<br>
+<b>V:</b> Mondjuk az UTF-8 használata, amit persze kiegészíthetsz azzal,
+hogy szűröd a beérkezett inputot: pl. amit az iconv nem tud konvertálni
+a neked tetsző kódkészletre (windows-1250, mondjuk), azt elutasítod.</p>
+
+<div><a name="Q0234"><b>K:</b></a> Lehetséges, hogy az
+<a href="https://en.wikipedia.org/wiki/SAP">SAP</a> program egyedi számokat rendel a különféle kódolásokhoz?<br>
+<b>V:</b> Természetesen, anélkül nem vesznek komolyan egy enterprise rendszert.
+Külön bónusz, hogy teljes lista nem érhető el, néhány érték az internetről összevadászva:
+<pre>
+1100 ISO-8859-1
+1140 ISO-8859-1
+1160 Windows-1252
+1401 ISO-8859-2
+1404 Windows-1250
+4102 UTF-16BE
+4103 UTF-16LE
+4110 UTF-8
+</pre></div>
+
+<div style="text-align: center;"><a name="S0013"><b>&#8212; WinDos &#8212;</b></a></div>
+
+<div><a name="Q0022"><b>K:</b></a> A DOS-ablakban nem jól jelennek meg 
+az ékezetes
+betűim...<br>
+<b>V:</b> A DOS-ablakról azt kell tudnod, hogy ott a CP852
+nevű kódolás érvényesül, ha a text-editorod nem tudna bele/belőle
+konvertálni, az iconvra mindig számíthatsz:
+<pre>iconv -f latin2 -t cp852 &lt;winfile &gt;dosfile
+iconv -f cp852 -t utf-8 &lt;dosfile &gt;utf8file</pre>
+</div>
+
+<div><a name="Q0025"><b>K:</b></a> Nem lehet átállítani másra, pl win-1250-re?<br>
+<b>V:</b> De lehet, két dolog kell hozzá: az egyik, hogy a karakterkészlet
+ne a <i>Raster Fonts</i> legyen, hanem a <i>Lucida Console</i> (Tulajdonságok/Font/Font),
+a másik a <span class="quote">CHCP&nbsp;1250</span> parancs futtatása.
+A <B>CMD.EXE</B> esetében a registry-ben megadható, hogy ezt automatikusan
+futtassa: HKLM\SOFTWARE\Microsoft\Command&nbsp;Processor\AutoRun-ba: <span class="quote">CHCP&nbsp;1250&nbsp;>NUL</span>
+Egy másik lehetőség, hogy a saját programodból hívod meg: 
+<span class="quote">system ("CHCP 1250");</span>
+</div>
+
+<div><a name="Q0087"><b>K:</b></a> És ha nem globálisan akarom beállítani,
+hanem úgy, hogy csak a saját programomra vonatkozzon?<BR>
+<b>V:</b> Ha a programod egy Windows-alkalmazás, akkor az alábbi kódrészlet segít:
+<pre>
+<a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms686013%28v=vs.85%29.aspx">SetConsoleCP</a> (1250);
+<a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms686036%28v=vs.85%29.aspx">SetConsoleOutputCP</a> (1250);
+</pre>
+Egyéb esetben ezzel próbálkozhatsz:
+<pre>system ("CHCP 1250");</pre>
+<b>Kiegészítés:</b> A fenti
+<a href="https://docs.microsoft.com/en-us/windows/console/setconsolecp">SetConsoleCP</a> és
+<a href="https://docs.microsoft.com/en-us/windows/console/setconsoleoutputcp">SetConsoleOutputCP</a> és
+függvények lekérdező párja a
+<a href="https://docs.microsoft.com/en-us/windows/console/getconsolecp">GetConsoleCP</a> és 
+<a href="https://docs.microsoft.com/en-us/windows/console/getconsoleoutputcp">GetConsoleOutputCP</a>.
+</div>
+
+<div><a name="Q0048"><B>K:</B></a> Egyéb lehetőségek?<br>
+<b>V:</b> Például megteheted, hogy eleve DOS-os szövegszerkesztőben írod a programodat,
+amilyen pl. a NCEDIT. További lehetőség a konverzió, például a Windows beépített függvényeivel:
+<a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms647473%28v=vs.85%29.aspx">CharToOem</a>
+<a href="http://msdn.microsoft.com/en-us/library/windows/desktop/dd319646%28v=vs.85%29.aspx">CharToOemBuff</a>
+<a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms647493%28v=vs.85%29.aspx">OemToChar</a>
+<a href="http://msdn.microsoft.com/en-us/library/windows/desktop/ms647494%28v=vs.85%29.aspx">OemToCharBuff</a>.
+Vegyük észre, hogy ezeknél sem a forrás sem a cél karakterkészletet nem kell megadni,
+azt a Windows magától állapítja meg,
+a Területi beállítások (és talán a billentyűzetkiosztás(?)) alapján.
+Lásd még: 
+<a href="http://msdn.microsoft.com/en-us/library/windows/desktop/dd318070%28v=vs.85%29.aspx">GetACP</a>
+<a href="http://msdn.microsoft.com/en-us/library/windows/desktop/dd318114%28v=vs.85%29.aspx">GetOEMCP</a>
+<a href="http://msdn.microsoft.com/en-us/library/windows/desktop/dd317756%28v=vs.85%29.aspx">Code Page Identifiers</a>.
+</div>
+
+<div><a name="Q0178"><b>K:</b></a>
+A <a href="https://msdn.microsoft.com/en-us/library/x99tb11d.aspx">setlocale</a>
+függvényt hogyan használjam, hogy ezzel összhangban legyen (és jól működjenek az
+<span class="quote">isalpha</span>- és <span class="quote">toupper</span>-szerű
+makrók)?<br>
+Itt a <span class="quote">LC_CTYPE</span> beállítása számít, több lehetőség van, pl.:
+<pre>
+    setlocale (LC_CTYPE, ".1250");	/* fixen windows-1250 */
+    setlocale (LC_CTYPE, ".852");	/* fixen IBM-852 */
+    setlocale (LC_CTYPE, "");		/* a gép default kódolása, valószínűleg azonos a következővel: */
+    setlocale (LC_CTYPE, ".ACP");	/* a gép default "ANSI" kódolása */
+    setlocale (LC_CTYPE, ".OCP");	/* a gép default "OEM" kódolása */
+    setlocale (LC_CTYPE, "hu-HU");	/* alapértelmezett magyar kódolás, valószínűleg windows-1250
+					   kieg: ez egy másik Windows verzióban nem működött, ezért
+					   nem javaslom a használatát */
+    setlocale (LC_CTYPE, "hun");	/* alapértelmezett magyar kódolás, valószínűleg windows-1250 */
+</pre>
+<b>Megj:</b> Ezt persze a fenti <span class="quote">CHCP</span>-vel (és a programíráskor használt kódkészlettel)
+összhangban érdemes beállítani;
+ne felejtsük el, hogy a <span class="quote">LC_ALL</span> magában foglalja a
+<span class="quote">LC_CTYPE</span>-ot is, pl.:
+<pre>
+    setlocale (LC_ALL, "Hungarian_Hungary.1250");	/* Windows1250-hez */
+    setlocale (LC_ALL, "Hungarian_Hungary.852");	/* CP-852-höz */
+</pre>
+</div>
+
+<div><a name="Q0196"><b>K:</b></a> Milyen környezeti változókkal lehet befolyásolni
+a <span class="quote">setlocale</span> működését Windows-ban?<br>
+<b>V:</b> Ha a kísérleteim nem csalnak, akkor semmilyenekkel, tehát ha a második
+paraméter a <I>default</I>-ot jelentű üres string, akkor csak a registry-ből tájékozódik,
+nem környezeti változókból.
+</div>
+
+<div><a name="Q0091"><b>K:</b></a> UTF8-at is lehet használni a DOS-ablakban?<br>
+<b>V:</b> Igen, a beállítás: <span class="quote">system ("CHCP 65001");</span><br>
+<b>K:</b> Ez így biztos jó lesz?<br>
+<b>V:</b> Nem biztos. Nem teszteltem alaposan, de első kísérletre úgy tűnik,
+hogy minden billentyűzetről olvasó művelet (pl fgets, getline),
+egységesen nem tud beolvasni ékezetes betűt tartalmazó szöveget.<br>
+<b>K:</b> Más baj nincs vele?<br>
+<b>V:</b> Egyes régi Windows-ok (pl. XP) a
+<span class="quote">CHCP 65001</span>-et azzal nyugtázzák,
+hogy az illető CMD.EXE példány képtelenné válik batch-ek (.BAT, .CMD) futtatására.
+(Ha indítunk egy batch-et, hibaüzenet nem jön, de a batch sem hajtódik végre.)
+Például a TortoiseCVS CVS.EXE programja csinál ilyet.
+</div>
+
+<div><a name="Q0024"><B>K:</B></a> A Command Prompt-ban futtatott java ékezetei sem egészen jók...
+vagy egy magyar betű sem jó, vagy csak az ő/ű nem jó.<br>
+<B>V:</B> Próbálkozz meg az alábbiak valamelyikével (az első kettő nagyjából ugyanaz, akkor használhatóak,
+ha volt <span class="quote">CHCP&nbsp;1250</span> előtte, a harmadik akkor,
+ha az alapértelmezett <span class="quote">CHCP&nbsp;852</span> van érvényben,
+az utolsó pedig az UTF8 (<span class="quote">CHCP 65001</span>) esetére):
+<pre>java -Dfile.encoding=<b>iso-8859-2</b> <I>classname</I>
+java -Dfile.encoding=<b>windows-1250</b> <I>classname</I>
+java -Dfile.encoding=<b>cp852</b> <I>classname</I>
+java -Dfile.encoding=<b>utf-8</b> <I>classname</I>
+</pre>
+<b>Megj.:</b> természetesen ez a <span class="quote">file.encoding</span> opció
+nem csak Windows-ban használható.
+</div>
+
+<div><a name="Q0086"><b>K:</b></a> Jól látom, hogy Windows-ban szimlinket sem tudok
+csinálni?<br>
+<b>V:</b> NTFS fájlrendszeren tudsz könyvtárra mutató symlinket csinálni, a 
+<a href="http://technet.microsoft.com/en-us/sysinternals/bb896768.aspx">junction</a>
+nevű programmal. Példa a használatára:
+<pre>
+ JUNCTION C:\jdk "C:\Program Files\Java\jdk1.6.0_04"
+ SET JAVA_HOME=C:\jdk
+ PATH %JAVA_HOME%\bin;%PATH%
+</pre>
+Ha ezután új verziót telepítünk, csak a szimlinket kell átirányítanunk rá,
+minden más maradhat változatlan.<br>
+<b>Megj:</b> Újabb Windows-okon van erre beépített parancs is,
+a <span class="quote">mklink,</span>
+az nem csak könyvtárra, hanem fájlra mutató szimlinket is tud csinálni.</div>
+
+<div><a name="Q0092"><b>K:</b></a> Windows-ról szólva,
+a billentyűk kódjairól (VK_***) hol tudok tájékozódni?<br>
+<b>V:</b> Itt:
+<a href="http://msdn.microsoft.com/en-us/library/dd375731.aspx">msdn: Virtual-Key Codes</a><br>
+<b>K:</b> Pont a magyar billentyűzet magyar betűit nem látom ott...<br>
+<b>V:</b> Saját méréseim a következőt mutatják:
+<pre>
+<u>Bill</u> <u>Kód</u>  <u>Név</u>
+ É   BA   VK_OEM_1
+ Ó   BB   VK_OEM_PLUS
+ Ü   BF   VK_OEM_2
+ Ö   C0   VK_OEM_3
+ Ő   DB   VK_OEM_4
+ Ű   DC   VK_OEM_5
+ Ú   DD   VK_OEM_6
+ Á   DE   VK_OEM_7
+ Í   E2   VK_OEM_102
+</pre>
+</div>
+
+<div><a name="Q0118"><b>K:</b></a> És a 
+<a href="https://msdn.microsoft.com/en-us/library/windows/desktop/ms646276%28v=vs.85%29.aspx">WM_CHAR</a>
+üzenetnél milyen kódot kapok a <span class="quote">wParam</span>-ban?
+A Windows aktuális ANSI kódját (pl windows-1250),
+vagy unikódot?<br>
+<b>V:</b> A 
+<a href="https://msdn.microsoft.com/en-us/library/windows/desktop/ms633586%28v=vs.85%29.aspx">RegisterClass</a>
+milyenségén múlik: ha az <span class="quote">RegisterClassW</span> volt, akkor unikód,
+egyébként ANSI.<br>
+<b>Megj:</b> Az ablaknak ezt a tulajdonságát le is lehet kérdezni az
+<a href="https://msdn.microsoft.com/en-us/library/windows/desktop/ms633529%28v=vs.85%29.aspx">IsWindowUnicode</a>
+függvénnyel.
+</div>
+
+<DIV><A name="Q0124"><B>K:</B></A> Van Windows-ban egy olyan, hogy
+<span class="quote">Vezérlőpult</span> /
+<span class="quote">Terület és nyelv</span> /
+<span class="quote">Felügyelet</span> /
+<span class="quote">Unicode szabványt nem támogató programok nyelve.</span>
+Ez pontosan mit szabályoz?<BR>
+<B>V:</B> Azt nem tudom, de valószínűleg nem lesz baj belőle,
+ha <span class="quote">magyar (Magyarország)</span>-ra állítod.
+Vigyázz, ez globális beállítás,
+tehát a gépen minden felhasználóra és minden programra vonatkozik.</DIV>
+
+<DIV><A name="Q0194"><B>K:</B></A> Ennek van köze az alábbi registry-entrykhez?
+<pre>
+HKLM\SYSTEM\CurrentControlSet\Control\Nls\CodePage\ACP
+HKLM\SYSTEM\CurrentControlSet\Control\Nls\CodePage\OEMCP
+</pre>
+<B>V:</B> Valószínűleg van.</DIV>
+
+<DIV><A name="Q0195"><B>K:</B></A> Ugyanott a Vezérlőpulton (egyes Windows10 verziókban)
+van egy olyan rész is, hogy
+<pre>Béta: Unicode UTF-8 használata a globális nyelvi támogatáshoz</pre>
+Ez vajon mit csinál?<BR>
+<B>V:</B> Egyelőre annyit vettem észre, hogy ezt beállítva a
+<a href="#Q0178">setlocale</a> függvényben használható lesz
+az <span class="quote">UTF8</span>-at jelentő <span class="quote">65001</span> érték, pl:
+<pre>
+setlocale(LC_ALL, "hungarian_Hungary.65001");
+</pre>
+</DIV>
+
+<div><A name="Q0173"><B>K:</B></A> A
+<A href="https://msdn.microsoft.com/en-us/library/windows/desktop/dd374051(v=vs.85).aspx">SetThreadLocale</A>
+függvény pontosan mit szabályoz?<BR>
+<B>V:</B> Hát, szinte biztos, hogy valamire valamilyen hatása van, kivéve, ha nincs.
+Ha úgy érzed, hogy használni akarod, akkor
+<A href="https://msdn.microsoft.com/en-us/library/windows/desktop/dd318693(v=vs.85).aspx">ebből</A>
+a táblázatból válaszd ki a magyar beállításokat jelentő 1038 (0x040e) értéket.
+Ezt a számot így is előállíthatjuk:
+<pre>
+    MAKELCID
+	(MAKELANGID (LANG_HUNGARIAN, SUBLANG_HUNGARIAN_HUNGARY),
+	 SORT_HUNGARIAN_DEFAULT)
+</pre>
+</div>
+
+<div><A name="Q0206"><B>K:</B></A> Windows esetén van eszköz saját billentyűkiosztás
+létrehozására?<br>
+<b>V:</b> A <I>Microsoft Keyboard Layout Creator</I> (<span class="quote">MSKLC</span>) nevű program való
+erre, ingyen letölthető a Microsoft-tól; vannak gyenge pontjai, például kell neki a .NET framework
+valamelyik régi verziója, valamint hogy bizonyos képernyőfelbontásoknál nem (jól) működik.</div>
+
+<div><A name="Q0207"><B>K:</B></A> Ezzel tudom például a NumLock billentyűt letiltani?<br>
+<b>V:</b> Azt pont nem, de ügyes registry-haxolással ez is megoldható, lásd pl.
+<a href="http://atornblad.se/keep-numlock-on-permanently/">itt:</a>
+<pre>
+; <U>bekapcsoláskor NumLock=on</U>
+[HKEY_USERS\.DEFAULT\Control Panel\Keyboard]
+"InitialKeyboardIndicators"="2147483650"
+
+; <U>NumLock billentyű letiltása:</U>
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Keyboard Layout]
+"Scancode Map"=hex:00,00,00,00,00,00,00,00,02,00,00,00,00,00,45,00,00,00,00,00
+</pre>
+</div>
+
+<div><A name="Q0231"><B>K:</B></A> (Windows-hoz érintőlegesen kapcsolódó kérdés)
+A programom CSV-fájlt állít elő. Tudom befolyásolni, hogy Excel-ben
+hogyan jelenjen meg a tartalma?
+<br>
+<B>V:</B> Valamennyire igen, de vedd figyelmebe, hogy ezek nem valamilyen szabványon
+alapulnak (pl <a href="https://www.rfc-editor.org/rfc/rfc4180">RFC4180</A>),
+tehát nem garantálható, hogy minden kontextusban működnek.<br>
+
+&bull; Ha van a fájl legelején <A href="#Q0044">BOM</a>, akkor az Excel a tartalmat
+UTF8-ként értelmezni, egyébként a <I>default ANSI</I> kódolás (pl. Windows-1250) szerint.<br>
+
+&bull; Az elválasztókaraktert (tipikusan vessző vagy vesszőpont) megadhatod a fájl elején
+egy külön sorban, pl:
+<pre>sep=;</pre>
+
+&bull; Az egyes mezőket dátumként vagy számként értelmező mesterséges intelligencia
+semlegesíthető, ha időzőjelek közé tesszük az értéket, és egyenlőségjelet teszünk elé,
+pl.:
+<pre>
+head: OpenSSL;OpenSSH
+volt: 3.1.1; 8.7        -- ebből lehet pl. egy dátum és egy szám
+lett: ="3.1.1"; ="8.7"  -- ez megmarad
+</pre>
+</DIV>
+
+<div><A name="Q0232"><B>K:</B></A> Excel-ben a
+<span class="quote">KARAKTER</span> és <span class="quote">KÓD</span>
+(eredetileg <span class="quote">CHAR</span> és <span class="quote">CODE</span>)
+függvények milyen kódolás szerint működnek?<br>
+<b>V:</b> A kísérletek szerint <I>Default ANSI</I> kódolásban; a KÓD függvény
+az abban nem található karakterekre egységesen a kérdőjel kódját (63) adja.
+Újabban van már <span class="quote">UNIKARAKTER</span>
+(erdetileg <span class="quote">UNICHAR</span>) és
+<span class="quote">UNICODE</span> függvény is.
+Példa magyar Excel-ből (figyeljünk a magyar Ő és a hullámos &#213; közötti külünbségre):
+<pre>
+KARAKTER(213)=   Ő   KÓD("Ő")=213  UNICODE("Ő")= 336
+UNIKARAKTER(213)=&#213;   KÓD("&#213;")= 63  UNICODE("&#213;")= 213
+UNIKARAKTER(336)=Ő   KÓD("&#1071;")= 63  UNICODE("&#1071;")=1071
+</pre>
+</div>
+
+<div><A name="Q0233"><B>K:</B></A> És az Excelen belüli VBA-ban?<br>
+<b>V:</b> A fentiekkel összehasonlítható függvények az alábbiak:<br>
+<span class="quote">asc(char)</span> ANSI karakterkód (ha a karakter benne van a 'default ANSI'-ban,
+ha nincs, az eredmény meglepő lehet, pl. <span class="quote">Asc('&#213;')=Asc('O')</span>)<br>
+<span class="quote">ascW(char)</span> unikód (bármilyen karakteré)<br>
+<span class="quote">char(ansikód)</span> kód alapján karakter (default ANSI)<br>
+<span class="quote">charW(unikód)</span> unikód alapján karakter<br>
+Valamint, ha jól vélem látni, az editor-ablakban eleve csak <I>Default ANSI</I>
+karakterek használhatók.
+</div>
+
+<div style="text-align: center;"><a name="S0012"><b>&#8212; Linux &#8212;</b></a></div>
+
+<div><a name="Q0023"><b>K:</b></a> Gondolom linuxban nincs ilyen 
+probléma...<br>
+<b>V:</b> Ott is gondot okozhat, ha nem tudod,
+hogy a terminálon milyen karakterkódolás van érvényben
+(a leggyakoribb persze ott is a latin2 és az utf8). Az alábbiak
+valamelyike segíthet eligazodni:
+<pre>locale | grep LC_CTYPE
+echo ${LC_ALL-${LC_CTYPE-$LANG}}
+echo -n 'ő' | od -tx1 # f5-&gt;latin2, c591-&gt;utf8</pre></div>
+
+<div><a name="Q0179"><b>K:</b></a> Csak a <span class="quote">LC_CTYPE</span> beállítása
+fontos az ékezetes betűk szempontjából?<br>
+<b>V:</b> Azért ez sem egészen biztos: előfordulhat, hogy ha a lokalizáció valamelyik
+aspektusa (például a <span class="quote">LC_TIME</span>) nem jó, akkor a
+<a href="http://man7.org/linux/man-pages/man3/setlocale.3.html">setlocale(3)</a>
+függvény is hibával tér vissza, amitől egyik-másik program úgy dönthet,
+hogy el sem indul, vagy pedig hétbites ASCII módban működik.
+(Ez utóbbit pl. egy Midnight Commanderrel idéztem elő.)</div>
+
+<div><a name="Q0180"><b>K:</b></a> Említetted a <span class="quote">LC_TIME</span>-ot: ennél is számít,
+hogy <span class="quote">hu_HU.ISO-8859-2</span> vagy 
+<span class="quote">hu_HU.UTF-8</span> van-e benne?<br>
+<b>V:</b> Bizony számít: amikor egy program (pl. a <span class="quote">ls</span>)
+a hónapok nevét akarja kiírni, pl a <I>jún</I> rövidítés latin2-ben három bájt (6a fa 6e),
+utf8-ban négy (6a c3 ba 6e), ezt a <span class="quote">LC_TIME</span> határozza meg.<br>
+Példa:<pre>
+$ <b>LC_TIME=hu_HU.ISO-8859-2 date -d 2019-08-19 '+%A' | xxd</b>
+       0: 68 <u>e9</u> 74 66  <u>f5</u> 0a                                  h.tf.
+
+$ <b>LC_TIME=hu_HU.UTF-8      date -d 2019-08-19 '+%A' | xxd</b>
+       0: 68 <u>c3 a9</u> 74  66 <u>c5 91</u> 0a                            h..tf..
+</pre></div>
+
+<div><a name="Q0066"><b>K:</b></a> A linux virtuális termináljain (Alt+F1...Fn)
+mi van,
+UTF-8, vagy 8-bites kódolás (pl ISO-8859-2), vagy szabályozható?<br>
+<b>V:</b> Szabályozható, programból az
+<span class="quote">ioctl (KDSKBMODE, K_XLATE/K_UNICODE)</span>
+rendszerhívással (az első a 8-bites);<br>
+shell-ből a 
+<span class="quote">kbd_mode -a/-u</span> vagy az
+<span class="quote">unicode_stop/unicode_start</span> paranccsal;<br>
+rendszerinduláskor a 
+<span class="quote">vt.default_utf8=0/1</span> kernelparaméterekkel
+(lásd a lilo/grub append parancsát).</div>
+
+<div><a name="Q0067"><b>K:</b></a> És, gondolom,
+a <span class="quote">LC_CTYPE</span> változót is ezzel
+összhangban kell beállítanom... Ugye azt teljesen szabadon állíthatom be?<br>
+<b>V:</b> Teljesen szabadon a <span class="quote">localedef --list-archive</span>
+által felsoroltak közül érdemes választanod;
+ha az nem elég, bővitsd a <span class="quote">/etc/locale.gen</span> listát,
+és futtasd a <span class="quote">locale-gen</span>-t
+(mindez disztribúciófüggő lehet, olvasd el a locale-gen manuálját).</div>
+
+<div><a name="Q0177"><b>K:</b></a> De ha én mondjuk
+<a href="https://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/PC/CP852.TXT">IBM852</a>-es
+vagy <a href="http://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP1250.TXT">Windows-1250</a>-es
+kódolást szeretnék használni Linuxon, akkor megsemmisül a világegyetem, vagy ez is lehetséges?<br>
+<b>V:</b> Méréseim szerint ez is lehetséges, ha vannak ilyen fájlok a
+<span class="quote">/usr/share/i18n/charmaps</span> könyvtárban
+(ez persze disztribúciófüggő lehet), pl.:
+<pre>
+$ <B>cat /etc/locale.conf</B>
+...
+hu_HU        ISO-8859-2
+hu_HU.IBM852 IBM852
+hu_HU.CP1250 CP1250
+hu_HU.UTF-8  UTF-8
+...
+# <B>locale-gen</B>
+Generating locales (this might take a while)...
+...
+  hu_HU.ISO-8859-2... done
+  hu_HU.IBM852... done
+  hu_HU.CP1250... done
+  hu_HU.UTF-8... done
+...
+Generation complete.
+$ <B> LC_ALL=hu_HU.IBM852 mc</B> # nézzük meg a HELP-et (F1)
+</pre>
+</div>
+
+<div><a name="Q0241"><b>K:</b></a> Ha a rendszeremben (pl. Centos) nincs
+<span class="quote">locale-gen</span>, akkor mit tehetek?<br>
+<b>V:</b> A <span class="quote">locale-gen</span> csak egy script, a tényleges
+munkát a <span class="quote">localedef</span> végzi, például ebből a sorból
+<pre>hu_HU.win-1250 CP1250</pre>
+ez a localedef hívás lesz:
+<pre>localdef -i hu_HU -c -f CP1250 -A /usr/share/locale/locale.alias hu_HU.win-1250
+#   -i inputfile   (pl. /usr/share/i18n/locales/hu_HU)
+#   -c force (kisebb hibákon lépjen át)
+#   -f charmapfile (pl. /usr/share/i18n/charmaps/CP1252.gz)
+#   -A aliasfile
+#   a végén a teljes név</pre>
+Tehát ha nincs <span class="quote">locale-gen</span>, akkor
+a <span class="quote">localedef</span> közvetlen hívásával próbálkozhatsz.</div>
+
+<div><a name="Q0156"><b>K:</b></a> És az emulált terminálokon (xterm és vidéke)?<br>
+<b>V:</b> Az emulátor az indulásakor a LC_CTYPE alapján dönti el,
+hogy egybájtos vagy unikódos módban működjön-e. Valahogy így lehet kipróbálni:
+<pre>
+LC_CTYPE=hu_HU.ISO-8859-2 <b>xterm</b> -e sh -c 'showkey -a' &amp;
+LC_CTYPE=hu_HU.UTF-8      <b>xterm</b> -e sh -c 'showkey -a' &amp;
+</pre>
+A magyar ékezetes betűk billentyűit próbájuk ki, látni fogjuk a különbséget.
+</div>
+
+<div><a name="Q0157"><b>K:</b></a> Mit csinál az emulátor, ha a szervertől
+kapott adat nem olyan kódolású, mint amit elvár?<br>
+<b>V:</b> Ha egybájtos üzemmódban van, és a szervertől UTF8-at kap,
+akkor nincs semmi gond, csak a felhasználó látja, hogy baj van,
+például <span class="quote">tűzvész</span> helyett
+<span class="quote">t&#xc5;&#xb1;zv&#xc3;&#xa9;sz</span> (latin1)
+vagy <span class="quote">t&#x139;&#x105;zv&#x102;&#x0160;sz</span> (latin2)
+jelenik meg.<br>
+
+Ha UTF8-módban a szervertől egybájtos kódolású adat érkezik,
+akkor az emulátor döntésén múlik, hogy mit tesz az érvénytelen karakterekkel:
+eldobja őket, vagy helyettesíti kérdőjellel (vagy más 'hibajelző' karakterrel),
+vagy esetleg <I>segíteni akar</I> és latin1-ként értelmezve megjeleníti az inputot.
+Ez utóbbi esetben a latin2-es <span class="quote">tűzvész</span> helyett
+<span class="quote">t&#xfb;zvész</span> jelenik meg,
+amit a felhasználó esetleg észre sem vesz,
+vagyis nem szerez tudomást arról, hogy a kliens és a szerver beállításai
+nincsenek összhangban.
+</div>
+
+<div><a name="Q0158"><b>K:</b></a> Az emulátort futás közben is át lehet állítani
+egyik üzemmódból a másikba?<br>
+<b>V:</b> Egyes emulátorok (pl. xterm) esetén az alábbi escape-szekvenciákkal:
+<pre>
+    <b>ESC % G</b>	UTF8-mód
+    <b>ESC % @</b>	egybájtos kódolás
+</pre>
+</div>
+
+<div><a name="Q0094"><b>K:</b></a> A LC_CTYPE-ról szólva úgy látom,
+a különféle Unixok nem egészen
+értenek egyet abban, hogy az <span class="quote">ISO-8859-2</span>
+és az <span class="quote">ISO8859-2</span> közül melyik a jobb.<br>
+<b>V:</b> Én sem tudom, hogy melyik a jobb, csak azt, hogy a felhasználóknak
+gondot okozhat ez a kettősség,
+pl. ha távoli eléréssel (ssh) érkezik egyikből a másikba.
+Ilyesmit lehetne valamilyen 'profile' fájlba tenni:
+<pre>
+# ISO-8859 => ISO8859 irány,
+# a változók listája értelemszerűen bővítendő
+for var in LANG LC_CTYPE LC_ALL; do
+    eval "OLDVAL=\$$var"
+    TMPVAL=$(echo "$OLDVAL" | sed 's/ISO-8859/ISO8859/')
+    if [ "$TMPVAL" != "$OLDVAL" ]; then eval "$var='$TMPVAL'"; fi
+done</pre></div>
+
+<div><a name="Q0096"><b>K:</b></a> Még így is kapok egy warning-ot a bash-tól...<BR>
+<b>K:</b> Akkor keményebb eszközhöz kell nyúlni, a neve szimlink. Pl. AIX esetén:
+<pre>ln -s en_US.ISO8859-1 /usr/lib/nls/loc/en_US.ISO-8859-1
+ln -s hu_HU.ISO8859-2 /usr/lib/nls/loc/hu_HU.ISO-8859-2
+</pre>
+<b>Megj:</b> Ez nem az előző <I>helyett</I> ajánlom, csak annak kiegészítéseképpen.</div>
+
+<div><a name="Q0229"><b>K:</b></a> A <span class="quote">mcedit</span>-ben
+(illetve a <span class="quote">mcview</span>-ben) egyes
+ékezetes karakter rosszul jelennek meg,
+vagy <span class="quote">^A</span> szekvencia látszik helyettük,
+mit tegyek ez ellen?<br>
+<b>V:</b> Az a terminál(emulátor)od fajtájától (utf8 vagy 8-bites), és a fájl kódolásától függ.
+(Mindenesetre a <span class="quote">LC_CTYPE</span> enviró a terminál beállításával
+(pl. <a href="terminal.html#S0009">PuTTY</a> esetén ez a
+<span class="quote">Translation</span> funkció) összhangban kell legyen,
+különben garantált a hibás működés.)<br>
+&bull;
+utf8-as terminálon a <span class="quote">LC_CTYPE</span> enviró legyen
+<span class="quote">hu_HU.UTF-8</span> (vagy <span class="quote">en_US.UTF-8</span> stb.),
+a mcedit <span class="quote">Choose Codepage</span> (ALT+c billentyű) beállításánál
+pedig a fájl tartalmának megfelelő kódolást válaszd.<br>
+&bull;
+8-bites terminálon a <span class="quote">LC_CTYPE</span> enviró legyen összhangban
+a terminál kódolásával (pl. <span class="quote">hu_HU.ISO-8859-2</span> vagy
+<span class="quote">fr_FR.CP1252</span>), a <span class="quote">Choose Codepage</span>-nél
+pedig a fájl tartalma szerint vagy az <span class="quote">UTF-8</span>-at (c billentyű),
+vagy a megfelelő 8-bites kódolást válaszd.<br>
+Természetesen 8-bites terminálon semmiképp sem jelennek meg azok a karakterek,
+amelyek nincsenek benne a terminál kódkészletében
+(ilyenkor pontokat vagy ^A szekvenciákat jelenít meg az editor).
+Ha a fájl kódolása egyezik a termináléval (pl. mindkettő ISO-8859-2), akkor
+a <span class="quote">&lt; No translation &gt;</span> beállítást is használhatod).<br>
+
+<b>Megj:</b> A 4.8.20-as verzió előtt volt egy
+<a href="https://midnight-commander.org/ticket/3843">hiba</a>,
+ami zavart okozott, amikor utf8-as fájlt szerkesztettünk 8-bites terminál(emulátor)ban.</div>
+
+<div><a name="Q0230"><b>K:</b></a> Az <span class="quote">stty -a</span> kimenetében
+láttam egy <span class="quote">iutf8</span> (vagy <span class="quote">-iutf8</span>) részt.
+Azt jelenti ez, hogy a kernel is követi, hogy UTF8-at használok-e, vagy sem? Ha igen,
+miért?<br>
+<b>V:</b> Igen, a kernel (legalábbis Linux esetén) tudja, hogy UTF8-at használsz, ennek akkor
+van jelentősége, amikor 'főzött' (cooked) módban használod a billentyűzetet.
+Ez egyszerűbben mondva azt jelenti, hogy az Enter megnyomásáig a felhasználói program
+nem kap semmilyen inputot, akkor viszont egyszerre az egész sort.
+A gépelés közben szerkesztésre használhatod (egyebek mellett) a BackSpace billentyűt,
+ez törli az utolsó karaktert.
+No ehhez a művelethez van szükség arra az információra, hogy egy karakter egy bájtot,
+vagy egy utf8-szekvenciát jelent-e. Példa:
+<pre>$ cat | od -tx1
+Lő<I>&lt;BackSpace&gt;</I>
+<I>&lt;Control+D;</I>
+0000000 4c 0a    # helyes működés
+0000000 4c c5 0a # hibás működés: utf8-at használunk, de a 'stty iutf8' nincs érvényben
+</pre>
+<b>K:</b> És ha én egzotikus Unix-rendszert használok, ahhol nincs ilyen beállítás?<br>
+<b>V:</b> Az pech.
+</div>
+
+<div><a name="Q0093"><b>K:</b></a> Off-topik lenne, ha megkérdezném,
+hogyan állítsam be a <span class="quote">TZ</span> változót?<br>
+<b>V:</b> Hát, ha <i>magyar</i> időhöz akarod állítani, akkor nem annyira;
+a legfontosabb, hogy ha már működik a rendszered, akkor ne piszkálj hozzá,
+egyébként az alábbiak közül próbáld ki valamelyiket
+(az elsőhöz kell a
+<a href="http://en.wikipedia.org/wiki/Tz_database">timezone adatbázis</a>
+(avagy Olson-adatbázis, zoneinfo-adatbázis) a gépedre, a másodikhoz nem)
+<pre>
+export TZ=Europe/Budapest
+export TZ=CET-1CEST-2,M3.5.0/2,M10.5.0/3</pre>
+<a name="Q0093_2"><b>K:</b></a> És ha egy negyven évvel ezelőtti dátumról kellene megállapítani,
+hogy volt-e akkor nyári időszámítás? (Mert mondjuk a fájlrendszer UTC-ben
+tárolja a fájlok keletkezési idejét, de a <span class="quote">ls</span>-nek
+LT-ben (azaz helyi idő szerint) kellene kiírnia.)<br>
+<b>V:</b> Az első megoldással ez lehetséges, a másodikkal nem.<br>
+<a name="Q0093_3"><b>K:</b></a> Szóval nem lehet semmi baj, ha 
+<span class="quote">TZ=Europe/Budapest</span> beállítást használok?<br>
+<b>K:</b> <I>Elvileg</I> semmi, de a gyakorlatban zavart okozhatnak például azok az esetek,
+amikor a nyári időszámítással járó óraelőreállítást 23:00-kor vagy éppen éjfelkor tartották;
+az utóbbi miatt például az '1941-04-08 00:00:00' időpont nem is létezett.<BR>
+Néhány példa ilyen időpontokra (ezek 'téli időszámítás' szerint értendők):
+<pre>
+    1916-04-30 23:00:00
+    1941-04-08 00:00:00
+    1945-05-01 23:00:00
+    1954-05-23 00:00:00
+    1955-05-23 00:00:00
+    1956-06-03 00:00:00
+</pre>
+<b>Megj:</b> a nemlétező időpontokat egyes programok visszautasítják, mások esetleg 'jószándékúlag
+korrigálják'; ez végeredményben egy óraval nagyobb időpontot jelenthet, ami különösen akkor látványos,
+ha az óraátállítás 23:00-kor történik, amikor korrekció miatt a dátum-rész is változik (a következő napra).
+Ez kétszer fordult elő: 1916.04.30-án és 1945.05.01-én.
+</div>
+
+<div><a name="Q0181"><b>K:</b></a> Ha már így eltértünk a dátumok és idők felé, azt is megkérdezem,
+mit tegyek, ha <I>dátumokkal</I> szeretnék számolni (pl napokat hozzáadni/kivonni), de csak <I>időpontok</I>
+kezelésére való eszközöket használhatok? Ha megszorzom a napok számát 24*60*60-nal, hogy másodpercet
+kapjak, és azzal számolgatok, nem lehet bajom a nyári/téli időszámítás miatt?<br>
+<b>V:</b> Hogyne lehetne! A legjobb ötletem az, hogy a kérdéses dátumot egészítsd ki 00:00:00 időponttal,
+és úgy számolj vele, mint egy UTC-beli időponttal, pl egy bash-scriptben:
+<pre>
+    Now="$(date +%Y%m%d)"
+    Then="$(date --utc +%Y%m%d -d "$Now UTC -28203 days")"
+    echo "$Now" "$Then"
+    20180626 19410408
+</pre>
+</div>
+
+<div><A name="Q0208"><B>K:</B></A> X Window alatt hogy tudok saját billentyűkiosztást léterhozni?<br>
+<B>V:</B> Egy nagyon flexiblis, rugalmas, felhasználóbarát rendszerrel,
+melynek elemei pl. az <span class="quote">xkbcomp</span>, <span class="quote">setxkbmap</span>
+programok.<br>
+<B>K:</B> Ezzel azt akarod mondani, hogy nagyon bonyolult és dokumentálatlan?<br>
+<B>V:</B> Igen.<br>
+</div>
+
+<div><A name="Q0209"><B>K:</B></A> Ezzel tudom például a NumLock billentyűt letiltani?<br>
+<b>V:</b> Például ez a script megcseréli a NumLock és a nálunk nem létező "Kata" billentyűket:
+<pre>
+xkbcomp $DISPLAY proba.xkb
+sed -i.bak 's/&lt;NMLK&gt; = 77;/&lt;NMLK&gt; = 98;/
+            s/&lt;KATA&gt; = 98;/&lt;KATA&gt; = 77;/' proba.xkb
+xkbcomp proba.xkb $DISPLAY
+</pre></div>
+
+<div style="text-align: center;"><a name="S0009"><b>&#8212; Adatbázisok &#8212;</b></a></div>
+
+<p><b>K:</b> A PHP programom adatbázist is használ (pl. MySql-t), 
+szükségszerű-e,
+hogy az adatbázis ugyanazt a kódolást használja, mint a szájt egésze?<br>
+<b>V:</b> Egyszerűsíti a dolgokat, de nem szükségszerű, php-ban is 
+használhatod
+az <a href="http://php.net/manual/en/function.iconv.php">iconvot</a>
+(kivéve, ha szolgáltatód elfelejtette belefordítani, lásd a 
+<a href="http://php.net/manual/en/function.phpinfo.php">phpinfo</a>-t).</p>
+
+<p><a name="Q0076"><b>K:</b></A> Átállítottam az adatbázisom beállításait;
+az azóta bekerült adatok jók, de a régiek nem konvertálódtak át automatikusan!<BR>
+<b>V:</b> Elhiszem.<br>
+<b>K:</b> És mit csináljak, hogy jó legyen?<BR>
+<b>V:</b> Ha tesztrendszerről volt szó, akkor a 
+<span class="quote">DELETE FROM tábla;</span>
+utasítás a barátod;
+ha fontos adatokról, akkor az export + kézi&nbsp;javítás + import eljárást ajánlom.
+</p>
+
+<DIV><a name="Q0105"><b>K:</b></A> Ha nem tudom biztosan, hogy mi van az adatbázisban
+(például, hogy ahol kérdőjelet látok, ott tényleg kérdőjel van-e,
+vagy megjeleníthetetlen karakter), mit tegyek?<br>
+<b>V:</b> A tárolt érték hexa kódját kérdezd le, azt már tudod ellenőrizni.
+Bővebben lásd <a href="#Q0034">itt.</a>
+</DIV>
+
+<div style="text-align: center;"><a name="S0010"><b>&#8212; MySql &#8212;</b></a></div>
+
+<div><a name="Q0165"><b>K:</b></a> Hol lehetne olvasni a MySql idevágó beállításairól?<br>
+<b>V:</b> Például itt:
+<a href="http://dev.mysql.com/doc/refman/5.1/en/internationalization-localization.html">
+MySQL 5.1 Reference Manual :: 9 Internationalization and Localization</a>
+A&nbsp;MySql szerver képes konvertálni a programod által használt karakterkészletre/-ről,
+főleg, ha megmondod neki, hogy mi az. Példák:
+<pre>SET NAMES '<a href="#Q0216">utf8mb4</a>'
+SET NAMES 'latin2'</pre>
+Bővebben lásd itt: <a href="http://dev.mysql.com/doc/refman/5.1/en/charset-connection.html">
+9.1.4. Connection Character Sets and Collations</a>
+<BR>
+<a name="Q0165_1"><B>Kieg:</B></a> PHP esetén itt van ugyanerre a célra a
+<a href="http://www.php.net/manual/en/function.mysql-set-charset.php">mysql(i)_set_charset</a> is.
+Ezt a beállítást a lekérdezhetjük a
+<a href="http://www.php.net/manual/en/function.mysql-client-encoding.php">mysql_client_encoding</a>/<a href="http://php.net/manual/en/mysqli.character-set-name.php">mysqli_character_set_name</a>
+függvénnyel.<BR>
+<B>Kieg2:</B> Ez utóbbi az ajánlott módszer; mivel ekkor a MySql kliensoldali kódja
+is tudomást szerez a beállításról, nem csak a szerveroldal;
+ennek például a mysql(i)_real_escape_string függvény használatakor van jelentősége
+(egyes egzotikus kódolások esetén). Lásd még <a href="#Q0103_5">ezt a pontot.</a>
+</div>
+
+<p><a name="Q0068"><b>K:</b></a> Azt olvasom a php.net-en, hogy jó lenne elszakadni
+a <a href="http://www.php.net/manual/en/book.mysql.php">mysql</a>-től,
+és a <a href="http://www.php.net/manual/en/book.mysqli.php">mysqli</a> felé mozdulni.<br>
+<b>V:</b> Szerintem kapkodni nem érdemes, de azért gondolkodj el a dolgon,
+ne várd meg, míg kihúzzák alólad a szőnyeget.
+Én személyesen legfőbb előnyének nem azt látom,
+hogy objektumokat lehet benne orientálni,
+hanem azt, hogy <a href="#S0006">bind-változókat</a> használhatunk vele.</p>
+
+<p><a name="Q0065"><b>K:</b></a> A MySql világában az <span class="quote">utf8</span> az ugyanaz,
+mint amit mindenki más <span class="quote">UTF-8</span>-nak nevez?<br>
+<B>V:</B> Nem egészen, náluk az <span class="quote">utf8</span>
+a <a href="#Q0217">CESU-8</a>-at jelenti.</p>
+
+<div><a name="Q0216"><b>K:</b></a> És hogy mondják MySql nyelven azt,
+amit mindenki más <span class="quote">UTF-8</span>-nak nevez?<br>
+<B>V:</B> Annak pedig <a href="http://dev.mysql.com/doc/refman/5.5/en/charset-unicode-utf8mb4.html">utf8mb4</a>
+a neve.</div>
+
+<p><b>K:</b> Pótkérdés: és az biztos, hogy az UTF-8-ban legfeljebb négybájtosak a kódok?<br>
+<B>V:</B> A korábbi szabvány 
+(<a href="http://tools.ietf.org/html/rfc2279">RFC2779</a>)
+hatbájtos kódokat is megengedett,
+a későbbi 
+(<a href="http://tools.ietf.org/html/rfc3629">RFC3629</a>)
+ezt négy bájtra csökkentette.</p>
+
+<div><a name="Q0227"><b>K:</b></a> Kicsit pontosabban mit állít be a
+<span class="quote">SET NAMES</span>?<br>
+<B>V:</B> Alapvetően ezt a három session-specifikus rendszerváltozót:
+<pre>
+mysql> <b>set names utf8mb4;</b>
+mysql> <b>show variables where variable_name in
+       ('character_set_connection','character_set_client',
+        'character_set_results','collation_connection');</b>
++--------------------------+--------------------+
+| Variable_name            | Value              |
++--------------------------+--------------------+
+| <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_character_set_client">character_set_client</a>     | utf8mb4            |
+| <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_character_set_connection">character_set_connection</a> | utf8mb4            |
+| <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_character_set_results">character_set_results</a>    | utf8mb4            |
+| <a href="https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html#sysvar_collation_connection">collation_connection</a>     | utf8mb4_general_ci |
++--------------------------+--------------------+
+</pre>
+<B>K:</B> Nem alapvetően számolva ez <I>négy</I> darab, nem pedig három.<br>
+<B>V:</B> Hát igen, a három charset-en kívül itt van még a <I>collation,</I> vagyis string-összehasonlítási mód.
+A 'character_set_connection' automatikusan beállítja a 'collation_connection'-t is valamilyen default értékre,
+ezt így lehet felülbírálni:
+<pre>
+mysql> <b>set names utf8mb4 <u>collate utf8mb4_hungarian_ci;</u></b>
+mysql> <b>show variables where variable_name in
+       ('character_set_connection','character_set_client',
+        'character_set_results','collation_connection');</b>
++--------------------------+----------------------+
+| Variable_name            | Value                |
++--------------------------+----------------------+
+| character_set_client     | utf8mb4              |
+| character_set_connection | utf8mb4              |
+| character_set_results    | utf8mb4              |
+| collation_connection     | utf8mb4_hungarian_ci |
++--------------------------+----------------------+
+</pre>
+</div>
+
+<div style="text-align: center;"><a name="S0011"><b>&#8212; Oracle &#8212;</b></a></div>
+
+<div><a name="Q0108"><b>K:</b></a> Oracle-ről valamit?<br>
+<b>V:</b> Oracle-adatbázis esetén az Oracle kliensoldali programja végzi a koverziót
+a szerver és a felhasználó kódkészelete között,
+az előbbit értelemszerűen a szervertől tudja meg,
+az utóbbit (általános esetben) a <span class="quote">NLS_LANG</span> környezeti változóból
+(Windows esetén esetleg registry-entryből), pl.:
+
+<pre>export NLS_LANG=American_America.AL32UTF8
+putenv ("NLS_LANG=Hungarian_Hungary.EE8ISO8859P2");</pre>
+(Az első rész az üzenetek nyelvét, a második a területi beállításokat
+adja meg.)<br>
+Nem kell minden részt megadnunk, például csak a karakterkészlet beállítása:
+<pre>export NLS_LANG=.EE8MSWIN1250</pre>
+A valóság ennél egy kicsit bonyolultabb, van egy <span class="quote">NLS_NCHAR</span>
+nevű változó is. Bővebb tárgyalás helyett egyelőre annyit jegyezzünk meg,
+hogy új fejlesztésekhez az alábbi beállítás ajánlott:
+<pre>export NLS_LANG=.AL32UTF8
+export NLS_NCHAR=AL32UTF8</pre>
+
+<ul><b>Megjegyzések:</b>
+<li>Ezt a beállítást még az Oracle-connect előtt érdemes
+elvégezni, annál is inkább, mert (más beállításoktól eltérően)
+menet közben nem lehet módosítani <span class="quote">ALTER SESSION</span> paranccsal.</li>
+
+<li>Ha <span class="quote">Pro*C</span>-t használunk, csak a környezeti változót használhatjuk;
+<span class="quote">OCI</span> <I>(Oracle Call Interface)</I> használatánál
+az <span class="quote">OCIEnvNlsCreate</span> függvényt is használhatjuk,
+aminek paraméterként fogadja a karakterkészlet kódját (illetve két karakészlet kódját).)</li>
+
+<li> PHP esetén az <a href="http://php.net/manual/en/function.oci-connect.php">oci_connect</a>
+negyedik paraméterét használhatjuk erre a célra,
+ami egyszerűbb és biztosabb módszer a környezeti változók használatánál.
+(Megjegyzés: A PHP belsőleg a fentebb említett <span class="quote">OCIEnvNlsCreate</span>
+függvényt hívja, de ugyanazt az értéket adja mindkét karakterkészletnek.)</li>
+
+<li> Ne felejtsük el, hogy ha 64-bites Windows-ban
+32-bites Oracle-t használunk akkor a registry-ben
+nem a <span class="quote">HKLM\SOFTWARE\ORACLE</span>,
+hanem a <span class="quote">HKLM\SOFTWARE\Wow6432Node\ORACLE</span> a barátunk.
+(De még inkább a környezeti változó használata registry helyett.)
+</li>
+
+<li><b>Érdekesség:</b> A <span class="quote">NLS_LANG</span>-ot nem lehet <span class="quote">AL16UTF16</span>-ra állítani 
+(illetve lehet, de nem fog működni).
+A magyarázat az, hogy ez a <span class="quote">NLS_NCHAR</span> szokásos/alapértelmezett
+értéke. Ez kb annyira logikus, mint hogy az ég színe nem lehet kék,
+hiszen a tenger színe a kék.</li>
+</ul></div>
+
+<DIV><B><a name="Q0064">K:</A></B> Jól tudom, hogy az Oracle-nek van egy saját
+<a href="http://docs.oracle.com/cd/B28359_01/server.111/b28286/functions027.htm#i77037">CONVERT</A>
+függvénye?<BR>
+<B>V:</B> Igaz, használata:
+<span class="quote">CONVERT (<I>&lt;mit&gt;</I>, <I>&lt;mibe&gt;</I> [, <I>&lt;miből&gt;</I>])</SPAN><BR>
+Például, ha az Sql*Plus-t használod, és ISO-8859-2 a karakterkészleted
+(Oracle nyelven: EE8ISO8859P2), akkor így próbálhatod ki:
+<PRE>
+SQL> <B>select dump (convert ('árvíztűrő', 'UTF8', 'EE8ISO8859P2'), 16) 
+     as hexutf8 from dual;</B>
+HEXUTF8
+----------------------------------------------------
+Typ=1 Len=31: c3,a1,72,76,c3,ad,7a,74,c5,b1,72,c5,91
+</PRE></DIV>
+
+<DIV><a name="Q0193"><B>K:</B></A> Ha jól értem, a <span class="quote">CONVERT</span>
+harmadik paramétere <I>(from-charset)</I> opcionális: mi az alapértelmezés?<BR>
+<B>V:</B> Az adatbázis karakterkódolása (<a href="#Q0109">NLS_CHARACTERSET</a>),
+ezt felhasználva például egy ékezettelenítő utasítás így nézhet ki PL/SQL-ben:
+<pre>
+    v_ektelen := convert (v_ekezetes, 'US7ASCII');
+</pre>
+</DIV>
+
+<DIV><a name="Q0074"><B>K:</B></A> Jól látom, hogy az Oracle saját neveket használ
+a kódkészletekre?<BR>
+<B>V:</B> Igen, továbbá egy egyedi számot is hozzárendel.
+Az alábbi konverziós függvények lehetnek érdekesek:
+<a href="http://docs.oracle.com/cd/B19306_01/server.102/b14200/functions095.htm">NLS_CHARSET_ID</a>,
+<a href="http://docs.oracle.com/cd/B19306_01/server.102/b14200/functions096.htm">NLS_CHARSET_NAME</a>,
+<a href="http://docs.oracle.com/cd/E14072_01/appdev.112/e10577/u_i18n.htm">UTL_I18N</a>.
+<a href="http://docs.oracle.com/cd/E14072_01/appdev.112/e10577/u_i18n.htm#sthref16651">MAP_CHARSET</a>.
+Példa:
+<PRE>
+select nls_charset_name(2000),
+       nls_charset_id('ce8bs2000'),
+       utl_i18n.map_charset('ee8iso8859p2',0,0)
+from dual;
+AL16UTF16  233  ISO-8859-2
+</PRE>
+Néhány fontos kódkészlet:
+<PRE>
+   1 us7ascii     us-ascii
+  31 we8iso8859p1 iso-8859-1
+  32 ee8iso8859p2 iso-8859-2
+  10 we8pc850	  cp850
+ 150 ee8pc852	  cp852
+ 178 we8mswin1252 windows-1252
+ 170 ee8mswin1250 windows-1250
+ 870 al24utffss	  utf-8 (max. hárombájtos szekvenciák)
+ 871 utf8	  cesu-8
+ 872 utfe	  utf-8/ebcdic
+ 873 al32utf8	  utf-8
+1000 utf16	  utf-16
+2000 al16utf16	  utf-16be
+2002 al16utf16le  utf-16le
+</PRE>
+
+<B>K:</B> Akkor most hányszor van az UTF8? (870-873 kódok)<BR>
+<B>V:</B> A 870-es elavult (UniCode 1.1-nek megfelelő),
+maximum hárombájtos szekvenciák vannak benne;
+a 871-es igazából a
+<a href="https://en.wikipedia.org/wiki/CESU-8">CESU-8</a>-at
+jelenti, ami az U+FFFF feletti
+kódokat 2*3 bájton ábrázolja.
+Új fejlesztéshez ne használd. (Megjegyzés: hasonló jelenség
+<a href="#Q0065">MySql</a>-nél is van.)
+A 872-es <span class="quote">UTFE</span> <span class="quote">EBCDIC</span>-hez való;
+a 873-as <span class="quote">AL32UTF8</span> a 'közönséges' UTF-8-nak felel meg.
+</DIV>
+
+<DIV>
+<B>K:</B> És UTF16 is kétszer van?<BR>
+<B>V:</B> Úgy tűnik. A kettő között vagy van különbség, vagy nincs.
+Említsük meg, hogy az <span class="quote">oci.h</span>
+fájlban van egy ilyen definíció:
+<pre>
+#define OCI_UTF16ID 1000 /* UTF16 charset ID */
+</pre>
+</DIV>
+
+<DIV><a name="Q0095"><B>K:</B></A> Erről jut eszembe: a NLS_LANG
+ez egyetlen hasznos változó lokalizáció ügyben?<BR>
+<B>V:</B>
+<A href="http://docs.oracle.com/cd/B19306_01/server.102/b14225/ch3globenv.htm">Itt</A>
+olvashatsz mindegyikról, pl. a dátum formátumának beállítása:
+<PRE>export NLS_DATE_FORMAT=YYYYMMDD.HH24MISS</PRE>
+Ezen beállítások nagy része menet közben is megváltoztatható,
+például magyar ABC szerinti rendezés beállítása SQL paranccsal így történhet:
+<pre>alter session set nls_sort=hungarian;</pre>
+A session beállításainak lekérdezése:
+<pre>SQL&gt; <B>select * from nls_session_parameters;</B>
+PARAMETER               VALUE
+----------------------- ----------------------------
+NLS_LANGUAGE            AMERICAN
+NLS_TERRITORY           AMERICA
+NLS_SORT                BINARY
+...
+</pre>
+<a name="Q0095_1"><B>K:</B></A> Ebben pont nem látom a karakterkészletet.<BR>
+<B>V:</B> Azt még én sem találtam, sőt az Oracle leírásai sem mondanak semmi bíztatót.
+Itt van például a <span class="quote">sys_context('USERENV','LANGUAGE')</span>:
+amit visszaad,
+az úgy néz ki, mint a <span class="quote">NLS_LANG</span> tartalma
+(language_territory.charset), de benne a harmadik rész <I>nem</I>
+a kliensoldali karakterkódolás (hanem a szerveroldali).
+</DIV>
+
+<DIV><a name="Q0109"><B>K:</B></A> A szerver beállításait hogyan lehet lekérdezni?<BR>
+<B>V:</B>A <SPAN class="quote">NLS_DATABASE_PARAMETERS</SPAN> a barátunk:
+<PRE>
+SQL&gt; <B>select *  from nls_database_parameters;</B>
+PARAMETER                      VALUE
+------------------------------ ----------------------------------------
+<b>NLS_NCHAR_CHARACTERSET         AL16UTF16</b>
+NLS_LANGUAGE                   HUNGARIAN
+NLS_TERRITORY                  AMERICA
+NLS_CURRENCY                   $
+NLS_ISO_CURRENCY               AMERICA
+NLS_NUMERIC_CHARACTERS         .,
+<b>NLS_CHARACTERSET               EE8ISO8859P2</b>
+NLS_CALENDAR                   GREGORIAN
+NLS_DATE_FORMAT                DD-MON-RR
+NLS_DATE_LANGUAGE              HUNGARIAN
+NLS_SORT                       HUNGARIAN
+NLS_TIME_FORMAT                HH.MI.SSXFF AM
+NLS_TIMESTAMP_FORMAT           DD-MON-RR HH.MI.SSXFF AM
+NLS_TIME_TZ_FORMAT             HH.MI.SSXFF AM TZR
+NLS_TIMESTAMP_TZ_FORMAT        DD-MON-RR HH.MI.SSXFF AM TZR
+NLS_DUAL_CURRENCY              $
+NLS_COMP                       BINARY
+NLS_LENGTH_SEMANTICS           BYTE
+NLS_NCHAR_CONV_EXCP            FALSE
+NLS_RDBMS_VERSION              10.2.0.5.0
+
+20 rows selected.
+</PRE>
+</DIV>
+
+<DIV><a name="Q0122"><B>K:</B></A> Oracle esetében a string-literálokban használhatok
+hexa-szekvenciákat?<BR>
+<B>V:</B> A <I>közönséges</I> literálokban nem, de van egy külön
+<span class="quote">U'</span> szintaxis, amivel igen
+(a literál <span class="quote">NCHAR</span> tipusú lesz), pl.:
+<pre>SQL> <b>select u'\d83c\df54\20ac' from dual;</b>
+&#x1f354;&#x20ac;
+SQL> <b>select dump(u'\d83c\df54\20ac',1016) from dual;</b>
+Typ=96 Len=6 CharacterSet=AL16UTF16: d8,3c,df,54,20,ac
+</pre>
+Van továbbá egy
+<A href="http://docs.oracle.com/cd/B19306_01/server.102/b14200/functions204.htm">unistr</A> 
+függvény is erre.<BR>
+<B>K:</B> És mi ennek az <span class="quote">unistr</span> függvénynek az inverze?<BR>
+<B>V:</B> Még nem találtam ilyet, addig is össze lehet csapni valamit házilag:
+<PRE>
+function nchar_to_unistr (p_str in nvarchar2) return varchar2 is
+    v_out   varchar2(32767);
+    i       pls_integer;
+    v_chr   nchar;
+    v_code  pls_integer;
+    v_hex   varchar2(8);
+begin
+    v_out:= '';
+    for i in 1..length(p_str) loop
+        if i = 1 then v_out := 'unistr('''; end if;
+        v_chr  := substr (p_str, i, 1);
+        if v_chr between ' ' and '~' and v_chr not in ('''', '"', '\') then
+            v_out  := v_out || v_chr;
+        else
+            v_code := ascii (v_chr);
+            v_hex  := to_char (v_code, '0xxxx');
+            v_hex  := substr (v_hex, length (v_hex)-3, 4);
+            v_out  := v_out || '\' || v_hex;
+        end if;
+    end loop;
+    if length(v_out)&gt;0 then v_out := v_out || ''')';
+    else v_out := '''';
+    end if;
+    return v_out;
+end;
+</PRE>
+</DIV>
+
+<DIV><a name="Q0205"><B>K:</B></A> Az Oracle melyik függvényével tudok unikód és karakter-típus között konvertálni?<br>
+<B>V:</B> Úgy tűnik, <span class="quote">NCHAR</span>/<span class="quote">NVARCHAR</span> típusok
+estén erre is van lehetőség (legalábbis ha a
+<span class="quote">NLS_NCHAR_CHARACTERSET</span> paraméter értéke <span class="quote">AL16UTF16</span>)
+<pre>
+<b>declare</b>
+  nc nchar;
+  n  pls_integer;
+<b>begin</b>
+  nc:= <u>nchr</u>(369);   -- várhatóan &#369;
+  n := <u>ascii</u>(N'&#381;'); -- várhatóan 381
+<b>end;</b>
+</pre>
+<B>Megjegyzés:</B> vegyük észre, hogy <span class="quote">ASCII</span> függvénynek nincs
+<span class="quote"><s>NASCII</s></span> párja, hanem a paraméter típusától függ a működése, pl.:
+<pre>
+SQL> <b>select ascii('ű') charcode, ascii(to_nchar('ű')) ncharcode from dual;</b>
+  CHARCODE  NCHARCODE
+---------- ----------
+       251        369
+</pre>
+<B>K:</B> Hogyan tudom ezt <span class="quote">char</span> és <span class="quote">nchar</span>
+közötti konverzióval kombinálni?<br>
+<B>V:</B> Például így:
+<pre>
+<b>declare</b>
+  c char;
+  n pls_integer;
+<b>begin</b>
+  c:= <u>to_char</u>(<u>nchr</u>(369));   -- várhatóan &#369;
+  n:= <u>ascii</u>(<u>to_nchar</u>('&#381;')); -- várhatóan 381
+<b>end;</b>
+</pre>
+<B>Megjegyzés:</B> ha például egy CARON (U+02C7) karaktert akarunk ábrázolni,
+de úgy, hogy se a kliens, se a szerver karakter-beállítása ne számítson,
+azt így tehetjük meg:
+<pre>
+<b>declare</b>
+  caron char := to_char(nchr(711));
+<b>begin</b>
+  dbms_output.put_line(caron);
+  dbms_output.put_line(ascii(caron));
+  dbms_output.put_line(ascii(to_nchar(caron)));
+<b>end;</b>
+</pre>
+<B>K:</B> Ebben az utolsó példában az tűnt fel, hogy a második sor kimenete a
+szerver <span class="quote">NLS_CHARACTERSET</span> beállításától függően
+161, 183 vagy 52103 is lehet.<br>
+<B>V:</B> Ez sajnos igaz, emiatt talán nem is érdemes így használni az
+<span class="quote">ascii</span> függvényt. Az 52103 például a kétbájtos UTF8-szekvencia
+(<span class="quote">cb 87</span>) számmá alakításából származik.<br>
+A harmadik sorban szereplő változat fixen az unikódot adja meg.
+</DIV>
+
+<div><a name="Q0136"><B>K:</B></A> Ugorjunk most a Pro*C-re:
+Igaz, hogy a NLS_LANG állása befolyásolja a preccompiler működését?<br>
+<B>V:</B> Hogyne, például ellenőrizheti a forrásprogramot,
+hogy UTF-8-valid-e, ha úgy áll a NLS_LANG.
+Ha ezt elkerülnéd, akkor pl. ilyesmit írj a Makefile-ba:
+<pre>
+%.c: %.pc
+    NLS_LANG=american_america.EE8ISO8859P2 proc code=ansi lines=yes iname=$&lt; ...
+</pre>
+
+<B>K:</B> Miért nem magyarra állítjuk a nyelvet?<br>
+<B>V:</B> Megtehetjük, ha fordító félreértéseire vagyunk kiváncsiak
+a program valódi üzenetei helyett...<BR>
+
+<B>K:</B> És mit tegyek, ha Windowst használok?<br>
+<B>V:</B> Programozáshoz?!</div>
+
+<div><a name="Q0137"><B>K:</B></A> Ha jól értem,
+OCI-t használva mezőnként állíthatom a karakterkészletet (konverziót).
+Pro*C-ben is van erre mód?<br>
+<b>V:</b> A lehetőségek egy kicsit szűkebbek: először is, az első adatbázis-műveletnél
+beolvassa a <span class="quote">NLS_LANG</span> és <span class="quote">NLS_NCHAR</span> környezeti változókat,
+és minden kontextusban azokat használja (még akkor is, ha új CONTEXT-et hozol létre).<br>
+<b>K:</b> Ez miért baj?<br>
+<b>V:</b> Baj csak akkor lesz, ha különböző komponenseket akarunk egy executable-programba összegyúrni,
+és mondjuk az egyik pl. EE8ISO8859P2/AL16UTF16 kódolást szeretne, a másik meg AL32UTF8/AL32UTF8-at.<br>
+<b>K:</b> Mi is lenne ez a két kódolás az előző válaszban?<br>
+<b>V:</b> Pro*C-ben a host-változók deklarációjától függ, hogy milyen kódolás menjen a dróton,
+illetve milyen kódolás legyen a változóban (ez a kettő persze különbözhet,
+a konverziót az Oracle kliensprogramja végzi).
+Megpróbálom egy táblázattal szemlélteni:
+<pre>
+változódeklaráció                  dróton                  változó tartalma
+-----------------		   ------		   ---------------
+varchar				   NLS_CHARACTERSET        NLS_LANG
+varchar CHARACTER SET IS NCHAR_CS  NLS_NCHAR_CHARACTERSET  NLS_NCHAR
+uvarchar			   NLS_NCHAR_CHARACTERSET  UTF16
+</pre>
+<b>Megjegyzés:</b> ha nincs NLS_NCHAR, akkor ahelyett is NLS_LANG érvényesül;
+ha nincs NLS_LANG, akkor 7-bites ASCII-t kapunk.
+</div>
+
+<div><a name="Q0152"><B>K:</B></A> Az Oracle szerveren milyen karakter-konverzió történik?<br>
+<B>V:</B> Csak NLS_CHARACTERSET és NLS_NCHAR_CHARACTERSET közötti konverzió,
+ha szükség van rá (vagyis NCHAR/NVARCHAR/NCLOB mezőt a kliens "simán" akar kapni/küldeni;
+vagy fordítva, sima CHAR/VARCHAR/CLOB mezőt a kliens NCHAR-osan akar kapni/küldeni).<br>
+<B>K:</B> És ha ezen konverzió során karakterek vesznek el?<br>
+<B>V:</B> Akkor karakterek vesznek el.</div>
+
+<div><a name="Q0153"><B>K:</B></A> És minden más konverzió a kliensen történik?<br>
+<B>V:</B> Igen.<br>
+<B>K:</B> És ha olyan szűkített képességű kliensem van, ami nem ismeri a szerver
+(egzotikus) kódkészletét, akkor mit tegyek?<BR>
+<B>V:</B> Akkor azt nem tudod használni. Szerezzél egy okosabb klienst!
+(Még az InstantClient-nek is van mindenféle kódolást ismerő változata.)</div>
+
+<div><a name="Q0211"><B>K:</B></a> <span class="quote">OCI</span> esetén mi az
+<span class="quote">OCI_ATTR_CHARSET_FORM</span> és
+<span class="quote">OCI_ATTR_CHARSET_ID</span> jelentősége?<br>
+<B>V:</B> Az előbbi azt mondja meg, hogy milyen kódolás menjen a dróton,
+az utóbbi azt, hogy milyen kód van/legyen a kliensoldali változóban. Táblázatosan:
+<pre>
+OCI_ATTR_CHARSET_FORM  dróton                  változó tartalma     alapértelmezés
+---------------------  -----		       ----------------     --------------
+SQLCS_IMPLICIT	       NLS_CHARACTERSET        OCI_ATTR_CHARSET_ID  NLS_LANG enviró
+SQLCS_NCHAR	       NLS_NCHAR_CHARACTERSET  OCI_ATTR_CHARSET_ID  NLS_NCHAR enviró
+</pre>
+</div>
+
+<div><a name="Q0212"><B>K:</B></a> Csak az ismétlés kedvéért: ha elveszítem a görög vagy cirill
+betűimet, akkor melyik oldal a hibás, a kliens, vagy a szerver?<br>
+<B>V:</B> Mindkettő lehetséges, pontosabban mondva, csak akkor használhatsz minden unikódot,
+ha mindkét oldal unikód-képes (tipikusan AL32UTF8 vagy AL16UTF16).<br>
+Például az alábbi kombináció biztonságosnak tűnik:
+<pre>
+<U>szerveren:</U>
+  NLS_CHARACTERSET=(valami)
+  NLS_NCHAR_CHARACTERSET=AL16UTF16
+  mezők típusa: NCHAR, NVARCHAR2, NCLOB, ...
+<U>kliensen:</U>
+  NLS_LANG=(valami)
+  NLS_NCHAR=AL32UTF8
+  mezők típusa:
+    VARCHAR CHARACTER SET IS NCHAR_CS (Pro*C)
+    OCI_ATTR_CHARSET_FORM=SQLCS_NCHAR (OCI)
+</pre>
+</div>
+
+<div><a name="Q0154"><B>K:</B></A> Java-kliens (JDBC) esetén van valami különösebb aggódnivaló?<br>
+<B>V:</B> Például programfutáskor problémát okozhat, ha az
+<span class="quote">orai18n.jar</span> nem szerepel a classpath-on.
+Előfordulhat, hogy nincs hibaüzenet, "csak" hibás adatokat olvasunk ki az adatbázisból.
+Adott esetben elhelyezhetünk a 'main'-ben egy ilyen ellenőrzést:
+<pre>
+if (oracle.jdbc.driver.OracleDriver.class.getClassLoader().
+    getResource ("oracle/i18n/data/lx20020.glb") == null) {
+    System.out.println ("Úgy érzem, hogy nincs meg az orai18n.jar -- kilépek");
+    return;
+}
+</pre>
+</div>
+
+<div><a name="Q0167"><B>K:</B></A> JDBC-ről szólva, mi a különbség
+<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/PreparedStatement.html#setString(int,%20java.lang.String)">setString</a> 
+és 
+<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/PreparedStatement.html#setNString(int,%20java.lang.String)">setNString,</a>
+illetve 
+<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/ResultSet.html#getString(int)">getString</a>
+és 
+<a href="http://docs.oracle.com/javase/7/docs/api/java/sql/ResultSet.html#getNString(int)">getNString</a>
+között?<br>
+<B>V:</B> Az előbbi esetben ettől függ, hogy a dróton NLS_CHARACTERSET vagy NLS_NCHAR_CHARACTERSET
+menjen-e; NCHAR-os mezők esetén az utóbbi ajánlott (az előbbi a szerver beállításától függően
+karaktervesztést okozhat, pl. EE8ISO8859P2-be nem férnek bele a cirill/görög betűk).<br>
+Az utóbbi esetben nem látok különbséget, ugyanis a getString/getNString akkor fut,
+amikor az adat már megérkezett a kliensre, ahol fixen UTF-16-ra konvertálódik.
+</div>
+
+<DIV><a name="Q0172"><B>K:</B></A> JAVA/JDBC-esetén van-e valamilyen különleges szabály a
+<span class="quote">NLS_LANG</span> beállítására?<br>
+<B>V:</B> Ha méréseim nem csalnak, tetszés szerint beállíthatod, nem lesz hatása.
+Helyette a <span class="quote">user.language</span> és a <span class="quote">user.country</span> használható, 
+vagyis azok alapján állítja be az Oracle a NLS_LANGUAGE és a NLS_TERRITORY értékét. Pl.:
+<pre>
+java -Duser.language=hu -Duser.country=HU -Dfile.encoding=iso-8859-2 \
+    -cp /opt/lib/java/ojdbc6.jar:/opt/lib/java/orai18n.jar: \
+    ...
+</pre>
+<B>Kieg:</B> Érdekességként megemlítem, hogy a <span class="quote">10.2.0.1</span> verziójú Oracle kliens nem boldogul
+a <span class="quote">-Duser.country=hu -Duser.language=en</span> kombinációval,
+de a <span class="quote">10.2.0.5</span> verzióban ez is működik.
+</div>
+
+<div><a name="Q0197"><B>K:</B></A> Az Oracle adatbázisban mezőnként vagy táblánként tudom
+állítani a karakterkódolást (vö MySQL) ?<br>
+<B>V:</B> Adatbázisonként, mivel ezt a <span class="quote">CREATE DATABASE</span> parancs
+<span class="quote">CHARACTER SET</span> (és <span class="quote">NATIONAL CHARACTER SET</span>)
+záradékával tudod beállítani, és később megváltoztatni nem lehet.</div>
+
+<div><a name="Q0198"><B>K:</B></A> Ha változó hosszú karakterkódolást
+(értsd: <span class="quote">AL32UTF8-at</span>)
+állítok be, az járhat sebesség-csökkenéssel? És lehet gondom abból, hogy az ékezetes szöveg
+nem fér el abban a mezőben, amiben az ékezet nélküli elfér?<BR>
+<B>V:</B> Igen. (FixMe: ide kellene a <span class="quote">NLS_LENGTH_SEMANTICS</span> leírása.</div>
+
+<div style="text-align: center;"><a name="S0024"><b>&#8212; ODBC &#8212;</b></a></div>
+
+<DIV><a name="Q0138"><B>K:</B></A> ODBC-ről tudsz valamit mondani?<br>
+<B>V:</B> A <a href="http://www.unixodbc.org/">unixODBC</a> +
+<a href="#S0011">Oracle</a> kombinációt próbáltam,
+azt figyeltem meg,
+hogy a <span class="quote">SQL_C_CHAR</span> típus használata esetén
+a kódolás az <span class="quote">NLS_LANG</span>-nak megfelelően alakul,
+a <span class="quote">SQL_C_WCHAR</span> esetén pedig fixen UTF-16;
+ebből arra következtetek, hogy ha olyan ODBC-s programot akarnánk készíteni,
+amelynek a működése nem függ az éppen használt adatbáziskezelőtől
+(és annak beállításaitól), akkor az SQL_C_WCHAR-t érdemes használni.
+</DIV>
+
+<div style="text-align: center;"><a name="S0034"><b>&#8212; PDF &#8212;</b></a></div>
+
+<div>A PDF bináris fájlformátum, amiről egyelőre nincs itt sok adat,
+de az megnyugtató, hogy az ékezetes betűk itt is lehetnek problémásak.
+Adott esetben az is előfordulhat, hogy az Acrobat Reader-ben jól látszanak
+az őŐűŰ betűk, de a vágólapon át kimásolva már oOuU látszik.<br>
+Unixban a PDF-fájlokban használt betűtipusokat a <span class="quote">pdffonts(1)</span>
+programmal listázhatjuk, pl:
+<pre>
+$ <b>pdffonts test1.pdf</b> # ebben nyugat-európai õÕûÛ betűk vannak
+name                                 type              encoding         emb sub uni object ID
+------------------------------------ ----------------- ---------------- --- --- --- ---------
+Courier-Bold                         Type 1            WinAnsi          no  no  yes      6  0
+
+$ <b>pdffonts test2.pdf</b> # ebben magyar őŐűŰ betűk vannak
+name                                 type              encoding         emb sub uni object ID
+------------------------------------ ----------------- ---------------- --- --- --- ---------
+CourierNewPS-BoldMT                  TrueType          Custom           no  no  yes      7  0
+
+$ <b> pdffonts test3.pdf</b> # ebben magyar betűk vannak, de a copy+paste során 'elromlanak'
+name                                 type              encoding         emb sub uni object ID
+------------------------------------ ----------------- ---------------- --- --- --- ---------
+TimesNewRomanPS-BoldMT               TrueType          Custom           no  no  no       9  0
+</pre>
+</div>
+
+<div style="text-align: center;"><a name="S0004"><b>&#8212; FPDF &#8212;</b></a></div>
+
+<DIV><a name="Q0039"><B>K:</B></A> Mifene az az <a href="http://www.fpdf.org/">FPDF</A>?<BR>
+<B>V:</B> Egy PHP modul, PDF-ek előállítására szolgál.
+A továbbiakhoz az 1.8.6-os (vagy újabb) verziót használjuk.<BR>
+<B>K:</B> Hogyan és hová kell telepíteni?<BR>
+<B>V:</B> Erről nincs sok szó az install.txt-ben sem, Unixon valami ilyesmit
+lehetne javasolni:
+<pre>
+mkdir -p /usr/local/share/php
+cd /usr/local/share/php
+tar xzf /download/fpdf186.tgz # unzip /download/fpdf186.zip
+ln -s fpdf186 fpdf
+chmod -R o-w fpdf/ # az alapbeallitas nem egeszen biztonsagos ('world writable')
+</pre>
+</DIV>
+
+<P><B><a name="Q0072">K:</A></B> És a PHP meg fogja ott találni?<BR>
+<B>V:</B> Az a <SPAN class="quote">php.ini</SPAN> fájl beállításaitól függ, pontosabban az 
+<a href="http://php.net/manual/en/ini.core.php#ini.include-path">include_path</A>-tól;
+illetve használhatod a
+<a href="http://php.net/manual/en/function.set-include-path.php">set_include_path</A>
+függvényt is.</P>
+
+<P><a name="Q0040"><B>K:</B></A> No igen, és hogy lesznek az ezzel előállított PDF-ben helyes magyar ékezetek?<BR>
+<B>V:</B> Ahhoz, hogy a
+<a href="http://www.fpdf.org/en/doc/setfont.htm">SetFont</A>-tal
+kiválaszthass egy fontot, kell legyen egy megfelelő 
+<SPAN class="quote"><I>fontnév</I>.php</SPAN> fájl
+a */fpdf/font könyvtárban. A gyárilag szállított fájlok cp1252-hez
+(vagyis nyugat-európai betűkhöz) vannak kialakítva.
+
+<DIV><a name="Q0041"><B>K:</B></A> És honnan lesznek a cp1250-es
+(kelet-európai betűs) fájlok?<BR>
+<B>V:</B> Ehhez a mellékelt <SPAN class="quote">makefont.php</SPAN>-t
+kell használni, és kellenek hozzá a Windows-os ttf fájlok is. Példa:
+<pre>
+FPDF=/usr/local/share/php/fpdf # vagy ahol van
+WINFONT='/C/Windows/Fonts'     # vagy ahol vannak a fontok
+for FONT in arial ariali arialbd arialbi; do
+    php $FPDF/makefont/makefont.php "$WINFONT/$FONT.ttf" cp1250 false
+done
+</pre>
+</DIV>
+
+<DIV><a name="Q0082"><B>K:</B></A> Ugyanez Windows-on hogy lenne?<BR>
+<B>V:</B> Értelmszerűen módosítani kell a scriptet
+(vagyis batch-et, Windows-os szóval),
+valami ilyesmi lehetne:
+<PRE>
+@echo off
+
+set FPDF=C:\PHP-EXT\FPDF
+set WINFONT=C:\Windows\Fonts
+
+cd %FPDF%\font
+mkdir cp1250 2>nul:
+cd cp1250
+for %%I in (%WINFONT%\*.ttf) do php %FPDF%/makefont/makefont.php %%I cp1250 false
+</PRE>
+Megj: További Windows-os információkért lapozz vissza
+<a href="#Q0084">ide</a>.
+</DIV>
+
+<DIV><a name="Q0042"><B>K:</B></A> Ezt minden futásnál újra meg újra meg kell csinálni?<BR>
+<B>V:</B> Nem, a fájlok újrahasznosíthatóak;
+több megoldás képzelhető el, az egyik ez: az fpdf font-könyvtárában
+készítsünk egy <SPAN class="quote">cp1250</SPAN> nevű alkönyvtárat,
+és oda helyezzük el a létrehozott *.php fájlokat.
+<pre>
+FPDF=/usr/local/share/php/fpdf	# vagy ahol van
+WINFONT='/C/Windows/Fonts'	# vagy ahol vannak a fontok
+cd $FPDF/font
+mkdir cp1250
+cd cp1250
+for i in "$WINFONT"/*.ttf; do	# vagy nagybetűvel: *.TTF
+    php $FPDF/makefont/makefont.php "$i" cp1250 false
+done
+</pre>
+</DIV>
+
+<DIV><a name="Q0043"><B>K:</B></A> És a
+<a href="http://www.fpdf.org/en/doc/setfont.htm">SetFont</A>
+automatikusan az új fájlokat fogja használni?<BR>
+<B>V:</B> Nem, ehhez kell még egy
+<a href="http://www.fpdf.org/en/doc/addfont.htm">AddFont</A> is. Komplett példa:
+<PRE>#!/usr/local/bin/php
+&lt;?php /* fpdf-test.php encoding="iso-8859-2" */
+
+    require_once ('fpdf/fpdf.php');
+
+    $pdf = new FPDF();
+    $pdf->AddPage();
+    $pdf->AddFont('Arial','B','arialdb.php','font/cp1250');
+    $pdf->SetFont('Arial','B',16);
+    $pdf->Cell(40,10,'árvíztűrő tükörfúrógép');
+    $pdf->Output('fpdf-test.pdf', 'F');
+?&gt;
+</PRE>
+</DIV>
+
+<DIV><a name="Q0046"><B>K:</B></A> Ez volt a nem-beágyazott font, ugye?
+Mutatnál példát a beágyazottra is?<BR>
+<B>V:</B> Tegyük fel, hogy a csodas.ttf tartalmazza a CsodaSzep fontot
+(kerülném a konkrét neveket, mivel valaki más fontjának beágyazása
+esetleg jogsértés is lehet), ekkor valami ilyesmit tehetünk
+(ismétlem, a többféle lehetséges megoldás közül ez csak az egyik):
+<PRE>
+FPDF=/usr/local/share/php/fpdf # vagy ahol van
+$FPDF/makefont/makefont.php csodas.ttf cp1250 true
+cp csodas.php $FPDF/font/cp1250/
+cp csodas.z   $FPDF/font/cp1250/
+</PRE>
+
+Ezután a programban ugyanúgy használhatjuk:
+<PRE>
+    $pdf->AddFont('CsodaSzep','','csodas.php','fonts/cp1250');
+    $pdf->SetFont('CsodaSzep','',16);
+</PRE>
+</DIV>
+
+<P><a name="Q0047"><B>K:</B></A> Miért épp cp1250 és nem iso-8859-2?<BR>
+<B>V:</B> A leírt módszerrel mindkettőt megcsinálhatod (külön alkönyvtárakba),
+nem fogják zavarni egymást (ugyanebben a FAQ-ban találsz
+<a href="#Q0045">infót</A> arról,
+hogy mi a két kódkészlet között a különbség).</P>
+
+<div style="text-align: center;"><a name="S0014"><b>&#8212; TCPDF &#8212;</b></a></div>
+
+<P><a name="Q0069"><B>K:</B></A> És a
+<A href="http://www.tcpdf.org/">TCPDF</A>
+is valami hasonló?<BR>
+<B>V:</B> Igen, van hozzá
+<A href="http://www.tcpdf.org/docs.php">leírás</A>
+<A href="http://www.tcpdf.org/examples.php">példákkal</A>;
+részletesebb leírás magában a <span class="quote">tcpdf.php</span> fájlban van,
+kommentek formájában.</P>
+
+<P><a name="Q0070"><B>K:</B></A> Hogyan telepítsem?<BR>
+<B>V:</B> Az egyik lehetőség, hogy elolvasod a leírást, a másik,
+amit én alkalmaztam, hogy a letölthető .zip fájl tartalmát
+a <span class="quote">/usr/local/share/php/tcpdf</span> könyvtárba
+helyeztem, utána futtattam a
+<span class="quote">chmod -R g-w,o-w /usr/local/share/php/tcpdf</span> parancsot,
+mivel a jogbitek egy kicsit ijesztőek voltak (world-writeable fájlok).<BR>
+Érdemes gondoskodni arról is, hogy a php.ini-ben az include_path tartalmazza
+a /usr/local/share/php -t (ennek részleteit lásd az <a href="#Q0072">FPDF</a>-nél).</P>
+
+<DIV><a name="Q0071"><B>K:</B></A> Ez ugyebár UTF-8 kompatibilis,
+és egy csomó beépített fontja van...
+Akkor ezzel nyilván nagyon könnyű magyar nyelvű PDF-et csinálni.<BR>
+<B>V:</B> Nagyon, de ha mégis kérdőjel jelenne meg az 'ő' és 'ű' helyén
+egyes fontoknál;
+illetve ha olyan fontokat is használni akarsz, amik nincsenek
+benne gyárilag, akkor azért van egy kis gond.
+Ilyenkor egy pici programot futtatunk,
+amely a gépünkön meglévő 'jó-ékezetű' TTF fájlokból az AddTTFFont függvénnyel
+létrehozza az új/javított font-leíró fájlokat a tcpdf/fonts könyvtárban.
+<PRE>
+$ <b>cd /tmp</b>
+$ <b>cat >tcpdf-import.php &lt;&lt;DONE</b>
+#!/usr/local/bin/php
+&lt;?php /* tcpdf-import.php */
+
+    require_once ('tcpdf/tcpdf.php');
+
+    $pdf = new TCPDF (PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+    for ($i=1; $i<$argc; ++$i) {
+	$fontname= $pdf->AddTTFFont ($argv[$i], 'TrueTypeUnicode', 'UTF-8');
+	printf ("from file '%s' font '%s' created\n", $argv[$i], $fontname);
+    }
+    $pdf->Close ();
+?>
+DONE
+$ <b>su</b> # root-ként tudjuk írni a tcpdf/fonts könyvtárat
+# <b>TCPDF='/usr/local/share/php/tcpdf'</b> # vagy ahol van
+# <b>WINFONT='/C/WINDOWS/Fonts'</b> # vagy ahol van
+# <b>for font in trebuch times arial; do</b> # vagy amit jónak látunk
+#     <b>rm $TCPDF/fonts/$font*php</b> # hajlamos nem-felülírni a meglévőt
+#     <b>php tcpdf-import.php "$WINFONT/"*.ttf</b>
+# <b>done</b>
+# <b>ls -ltr $TCPDF/fonts</b> # a végén kell lássuk a szép új fájlokat
+</PRE>
+</DIV>
+
+<DIV><a name="Q0073"><B>K:</B></A> Egy tesztprogramot kaphatok?<BR>
+<B>V:</B> Véletlenül épp csináltam egyet (fájlba ír):
+<PRE>#!/usr/local/bin/php
+&lt;?php /* tcpdf-test.php encoding="iso-8859-2" */
+
+    require_once ('tcpdf/tcpdf.php');
+
+    $pdf = new TCPDF (PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+    $pdf->AddPage ();
+
+    $txt= 'Árvíztűrő tükörfúrógép';
+    $utxt= iconv ('ISO-8859-2', 'UTF-8', $txt); /* nem kell, ha eleve UTF-8-ban vagyunk */
+
+    $pdf->SetFont ('times', 'BI', 20);
+    $pdf->Write (0, $utxt);
+
+    $pdf->SetFont ('trebuc', 'BI', 20);
+    $pdf->Write (0, $utxt);
+
+    $pdf->SetFont ('arial', 'BI', 20);
+    $pdf->Write (0, $utxt);
+
+    // close and write to file
+    $pdf->Output ('test.pdf', 'F');
+?>
+</PRE>
+</DIV>
+
+<div style="text-align: center;"><a name="S0016"><b>&#8212; HTML2PDF &#8212;</b></a></div>
+
+<DIV><a name="Q0078"><b>K:</b></a> Ha jól értem, a
+<A href="http://html2pdf.fr/en/default">html2pdf</a> is a TCPDF-et használja.<BR>
+<b>V:</b> Úgy látom én is. A telepítését is ahhoz hasonlóan végeztem:
+unzip a /usr/local/share/php/html2pdf-be. Most jön egy érdekes lépés:
+a beledolgozott TCPDF-et töröljük, és helyettesítjük a saját,
+kijavított fontú példányunkkal:
+<PRE>
+# <b>cd /usr/local/share/php</b>
+# <b>ls -ld html2pdf/_tcpdf_5.0.002 tcpdf</b>
+drwxr-xr-x 8 root root 4096 May 27  2011 html2pdf/_tcpdf_5.0.002 # ezt fogjuk helyettesíteni
+drwxr-xr-x 8 root root 4096 Mar  4 21:57 tcpdf			 # ezzel
+# <b>mv html2pdf/_tcpdf_5.0.002 html2pdf/orig_tcpdf_5.0.002</b>
+# <b>ln -s ../tcpdf html2pdf/_tcpdf_5.0.002</b>
+</PRE>
+</DIV>
+<DIV><a name="Q0079"><b>K:</b></a> És a tesztprogram?<BR>
+<B>V:</B> Itten van; ha kipróbálod, láthatod, hogy az Arial nem jól jelenik meg,
+mivel azt belsőleg valamilyen lelki okból Helveticá-ra cseréli,
+amiben nem jó a magyar 'ű' és 'ő'.
+<PRE>
+#!/usr/local/bin/php
+&lt;?php /* tcpdf-test.php encoding="iso-8859-2" */
+
+    $kPathUrl = 'No random notices, pls';
+    require_once ('html2pdf/html2pdf.class.php');
+
+    $content = "&lt;page>\n".
+        "&lt;h1>Árvíztűrő tükörfúrógép&lt;/h1>\n".
+        "&lt;p style=\"font-family: times;\">Öt szép szűzlány őrült írót nyúz.&lt;/p>\n".
+        "&lt;p style=\"font-family: trebuc;\">Öt szép szűzlány őrült írót nyúz.&lt;/p>\n".
+        "&lt;p style=\"font-family: arial;\">Öt szép szűzlány őrült írót nyúz.&lt;/p>\n".
+        "&lt;/page>\n";
+    $ucontent= iconv ('ISO-8859-2', 'UTF-8', $content);
+    /* nem kell, ha eleve UTF-8-ban vagyunk */
+
+    $html2pdf = new HTML2PDF ('P', 'A4', 'en');
+    $html2pdf->WriteHTML ($ucontent);
+
+    $html2pdf->Output ('html2pdf-test.pdf', 'F');
+?>
+</PRE>
+</DIV>
+<DIV><a name="Q0080"><b>K:</b></a> És ha mégis szeretném, hogy az Arial
+megmaradjon Arialnak?<BR>
+<B>V:</B> Ezt a patch-et próbáld ki:
+<PRE>
+--- html2pdf/_class/parsingCss.class.orig       2011-05-26 18:01:10.000000000 +0200
++++ <b>html2pdf/_class/parsingCss.class.php</b>        2013-04-11 12:42:33.000000000 +0200
+@@ -318,3 +318 @@
+-            if($family=='arial')
+-                $family='helvetica';
+-            elseif($family=='symbol' || $family=='zapfdingbats')
++            if($family=='symbol' || $family=='zapfdingbats')
+@@ -328,3 +326 @@
+-        if($family=='arial')
+-            $family='helvetica';
+-        elseif($family=='symbol' || $family=='zapfdingbats')
++       if($family=='symbol' || $family=='zapfdingbats')
+</PRE>
+</DIV>
+
+<div style="text-align: center;"><a name="S0008"><b>&#8212; E-mail &#8212;</b></a></div>
+
+<DIV><a name="Q0062"><b>K:</b></a>
+Ha egy email fejrészében ékezetes betűk vannak,
+az hogyan továbbítódik?<BR>
+<b>V:</b> Hét bites ASCII-re kódolva az 
+<a href="http://tools.ietf.org/html/rfc2047">RFC2047</A>-ban
+leírt módszerrel. Példa magyar szövegek és ISO-8859-2 használatával:<BR>
+
+<PRE><U>ezt látod:</U>
+     To: Őrült Író &lt;lzsiga@domain.hu&gt;
+Subject: Árvíztűrő tükörfúrógép</PRE>
+
+<PRE><U>ez van mögötte:</U>
+     To: =?ISO-8859-2?Q?=D5r=FClt_=CDr=F3?= &lt;lzsiga@domain.hu&gt;
+Subject: =?ISO-8859-2?Q?=C1rv=EDzt=FBr=F5_t=FCk=F6rf=FAr=F3g=E9p?=
+</PRE>
+</DIV>
+
+<DIV><a name="Q0063"><b>K:</b></a>
+Ez a levél törzsére is vonatkozik?<BR>
+<b>V:</b> Nem, a levél törzse a fejrészben lévő
+<a href="http://tools.ietf.org/html/rfc2045#section-5">Content-Type</a>
+és 
+<a href="http://tools.ietf.org/html/rfc2045#section-6">Content-Transfer-Encoding</a>
+értékektől függ. ISO-8859-2 használata esetén a legtisztább eset ez:
+<PRE>
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: 8bit
+</PRE>
+Ekkor az üzenetben az ékezetes betűk úgy mennek át, ahogy megjelennek.
+Ennél csúnyább a következő megoldás:
+
+<PRE>
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: quoted-printable
+</PRE>
+
+<PRE><U>a levétörzsben ezt látod:</U>
+Kérjük tájékoztass, hogy a szolgáltatás működőképes-e.</PRE>
+
+<PRE><U>ez van mögötte:</U>
+K=E9rj=FCk t=E1j=E9koztass, hogy a szolg=E1ltat=E1s m=FBk=F6d=F5k=E9pes-e.
+</PRE>
+
+Ennél már csak az csúnyább,
+ha a bináris fájlok átvitelére való base64-kódolást
+használjuk szövegekre:
+
+<PRE>Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: base64
+</PRE>
+
+Ebben az esetben a tartalom (vagyis a levél "forráskódja") olvashatatlan
+&ndash; ez persze a hétköznapi felhasználásban nem probléma, 
+hiszen a levelezőprogram tökéletesen eligazodik a különféle formátumok
+között, de ha valamiért saját programból akarjuk kezelni a levelet,
+fel kell készülnünk a levéltörzs különböző lehetséges formáinak kezelésére
+a Content-Transfer-Encoding függvényében.</DIV>
+
+<p><a name="Q0077"><b>K:</b></a> HTML (vagy PDF/GIF/etc) formátumú levelet csináltam,
+tök szép is lett, de valaki (pl. a spam-szűrő), azt mondja,
+hogy jobb lenne, ha plain-text-ben is meglenne ugyanaz.
+Ez miért lenne jó?<BR>
+<b>V:</b> Egyrészt azoknak kedvezne, akik csak szöveges formátumot olvasnak,
+vagy valamilyen digest-formában olvassák a levelet,
+esetleg nem (jól) látnak, és egy program olvassa fel nekik a leveleket;
+másrészt megbékítené a spamszűrőt.<br>
+<b>K:</b> És akkor kétszer jelenik meg a levél szövege a címzettnél?<br>
+<b>V:</b> Szó sincs róla, azért hívják ezt 
+<span class="quote">multipart/alternatives</span>-nek, hogy jelezzék,
+ezek egymás alternatívái, csak az egyiket kell megjeleníteni.</p>
+
+<div><a name="Q0226"><b>K:</b></a> Valamelyik levelezőprogram
+(most nem akarom az androidos Outlookot nevesíteni)
+minden ékezetes betű helyett egy ilyen szekvenciát jelenít meg:
+<span class="quote">&#x10f;&#x17c;&#x2dd;</span>
+Mi lehet ennek az oka?<br>
+<b>V:</b> Az email
+<a href="https://unicode.org/Public/MAPPINGS/ISO8859/8859-2.TXT">ISO-8859-2</a>-ben
+van, de a program egyik agyféltekéje
+UTF8-ban gondolkodik, ezért az ékezetes betűket <i>'hibás UTF8-szekvencia'</i>-ként
+azonosítja, és lecseréli őket &#xfffd; -re
+<span class="quote">(REPLACEMENT CHARACTER, U+FFFD, UTF8-ban EFBFBD)</span>
+A program másik agyféltekéje tudja, hogy ISO-8859-2-ben
+kellene működni, ezért az <span class="quote">EF,BF,BD</span> bájtokat eszerint is jeleníti meg:
+<span class="quote">U+10f,U+17c,U+2dd</span> azaz
+<span class="quote">&#x10f;&#x17c;&#x2dd;</span>).<br>
+<b>K:</b> És ha olyan szekvenciát látok, hogy
+<span class="quote">&#xef;&#xbf;&#xbd;</span>, mire gondoljak?<br>
+<b>V:</b> Ez az előbbi esettel analóg, csak 
+<a href="https://unicode.org/Public/MAPPINGS/ISO8859/8859-1.TXT">ISO-8859-1</a> kódolással:
+<span class="quote">U+ef,U+bf,U+bd</span> azaz
+<span class="quote">&#xef;&#xbf;&#xbd;</span><br>
+<b>K:</b> És mi lenne a megoldás?<br>
+<b>V:</b> Nincs megoldás, a levél küldőjének kellene UTF8-ra áttérnie.
+</div>
+
+<div style="text-align: center;"><a name="S0017"><b>&#8212; SMS &#8212;</b></a></div>
+
+<div><a name="Q0088"><b>K:</b></a> 7-bites, 160-karakteres 'ékezetnélküli' üzemmódban
+milyen ékezetes betűket használhatok?<br>
+<b>V:</b> Ez a
+<a href="http://en.wikipedia.org/wiki/GSM_03.38">wiki oldal</a>
+írja le, kiemelem belőle a nekünk fontos betűket:
+<pre>
+    <u>SMS-kód</u> <u>karakter</u> <u>unikód/latin1</u>
+    05      &#xe9;	     e9
+    06      &#xf9;	     f9
+    07      &#xec;	     ec
+    08      &#xf2;	     f2
+    1f      &#xc9;	     c9
+    5b      &#xc4;	     c4
+    5c      &#xd6;	     d6
+    5e      &#xdc;	     dc
+    7b      &#xe4;	     e4
+    7c      &#xf6;	     f6
+    7e      &#xfc;	     fc
+    7f      &#xe0;	     e0 
+</pre></div>
+
+<div><a name="Q0089"><b>K:</b></a> 8-bites, 140-karakteres üzemmódban
+milyen ékezetes betűket használhatok?<br>
+<b>V:</b> Fogalmam sincs, nincs olyan készülékem,
+amivel ilyet lehetne küldeni.</div>
+
+<div><a name="Q0090"><b>K:</b></a> 16-bites, 70-karakteres üzemmódban
+milyen ékezetes betűket használhatok?<br>
+<b>V:</b> Ez megfelel az UCS2-nek, tehát minden magyar betű benne van
+(meg minden más karakter is, aminek az unikódja elfér 16 biten...
+persze az nem garantált, hogy a címzett készüléke mindet meg is tudja
+jeleníteni).</div>
+
+<div style="text-align: center;"><a name="S0026"><b>&#8212; Samba &#8212;</b></a></div>
+
+<div><a name="Q0144"><b>K:</b></a> 
+A <a href="https://www.samba.org/">Samba</a>-nak
+is van köze ehhez a FAQ-hoz?<br>
+<b>V:</b> Bizonyos értelmeben igen: az én esetemben a
+<span class="quote">/etc/passwd</span>-ben volt ékezetes magyar szöveg,
+latin2-es kódolással, ami megakadályozta a Samba-4.4.2 elindulását.
+Az egyik lehetőség a fájl utf8-asítása lett volna,
+a másik a smb.conf módosítása az alábbiak szerint:
+<pre>
+unix charset = iso-8859-2
+dos charset = cp852
+</pre>
+(ebből az első sor a lényeges)
+</div>
+
+<div><a name="Q0145"><b>K:</b></a> 
+Ha már itt tartunk, mi a legfontosabb tudnivaló
+az ékezetes fájl- és könyvtárnevekkel kapcsolatban?<br>
+<b>V:</b> Hát az, hogy ne használjunk ilyeneket.
+Ugyanez vonatkozik a szóközökre és speciális jelekre.
+(Ha valaki azzal állna elő, hogy a fájlnévben
+kell az ékezet/szóköz, mert az jelenik meg a felhasználó
+böngészőjében, akkor magyarázzuk el neki,
+hogy a fájlnév egyáltalán nem arra való,
+hogy megjelenjen a felhasználó böngészőjében.</div>
+
+<div style="text-align: center;"><a name="S0022"><b>&#8212; RSA-kulcspár &#8212;</b></a></div>
+
+<div><a name="Q0131"><b>K:</b></a> Ez a rész vajon hogy került ide?!<BR>
+<b>V:</b> Fogalmam sincs. Lehet, hogy valaki valamit rosszul csinált.</div>
+
+<div><a name="Q0132"><b>K:</b></a> Hogyan generálok RSA-kulcspárt az OpenSSL programmal?<BR>
+<b>V:</b> Két lépésben, az első a privát kulcsot hozza létre,
+a második abból a publikust (látszik, hogy a kettő nem szimmetrikus,
+a privát több információt tartalmaz, mint a publikus)
+<pre>
+openssl genrsa -out hugo.rsaprv.key 2048
+openssl rsa -in hugo.rsaprv.key -RSAPublicKey_out -out hugo.rsapub.key
+openssl rsa -in hugo.rsaprv.key -pubout -out hugo.pub.key
+</pre>
+<b>K:</b> Ez nem <I>három</I> lépés volt egészen véletlenül?<BR>
+<b>V:</b> Hát igen, úgy tűnik, hogy a publikus kulcsnak két formája is lehetséges;
+egyes programok esetleg az egyiket szeretik, mások a másikat.
+Maga az openssl a 'pub'-ot látszik szeretni (csak azzal működik a következő):
+<pre>
+<b>echo 'Malacvacsora' |\
+openssl rsautl -encrypt -out titkos -pubin -inkey hugo.pub.key</b>
+<b>openssl rsautl -decrypt -in titkos -inkey hugo.rsaprv.key</b>
+Malacvacsora
+</pre>
+Másik példa:
+<pre>
+<b>openssl pkey -pubin -in hugo.rsapub.key -text</b>
+unable to load Public Key
+<b>openssl pkey -pubin -in hugo.pub.key -text</b>
+(kiírja a kulcs adattartalmát)
+</pre>
+<b>Megj:</b> Tudományosan mondva az 'rsapub' 
+<a href="https://en.wikipedia.org/wiki/PKCS_1">PKCS#1</a>
+formában van,
+a 'pub' pedig
+<a href="https://en.wikipedia.org/wiki/PKCS_8">PKCS#8</a>
+formában.
+</DIV>
+
+<DIV><a name="Q0133"><b>K:</b></a> Ez a két változat egymásból is előállítható?<br>
+<b>V:</b> Valami ilyesmi lenne:
+<pre>
+<b>openssl rsa -pubin -in hugo.pub.key -RSAPublicKey_out -out test.rsapub.key</b>
+<b>openssl rsa -RSAPublicKey_in -in hugo.rsapub.key -pubout -out test.pub.key</b>
+</pre>
+</DIV>
+
+<div><a name="Q0134"><b>K:</b></a> Szemmel belenézve úgy látom,
+hogy különbözik a szöveges fejrész, illetve a 'pub' változatban
+az adattartalom hosszabb, mint a 'rsapub' változatban.<BR>
+<b>V:</b> Ez így van, sőt a hosszabb változat a rövidebbtől
+csak egy fejrészben különbözik, ami (legalábbis az én esetemben)
+az alábbi 32 bájt (base64 nélkül 24 bájt):
+<PRE>
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A
+</PRE>
+</div>
+
+<div><a name="Q0135"><b>K:</b></a> Ha történetesen C-programból szeretnék
+kulcspárt generálni, milyen függvényeket használhatok?<br>
+<b>V:</B> Ezeket javasolnám:
+<a href="https://www.openssl.org/docs/manmaster/crypto/RSA_generate_key.html"><span class="quote">RSA_generate_key,</span></a>
+<span class="quote">i2d_RSAPrivateKey</span> ('prv'-hez), 
+<span class="quote">i2d_RSAPublicKey</span> ('rsapub'-hoz), 
+<span class="quote">i2d_RSA_PUBKEY</span> ('pub'-hoz).
+Az utóbbi három leírása
+<a href="https://www.openssl.org/docs/manmaster/crypto/d2i_RSAPublicKey.html">itt olvasható.</a>
+</div>
+
+<div><a name="Q0186"><b>K:</b></a> Ha közben fejlődtek a verziók, akkor a fentiket parancsokat lehet "korszerűbben"
+is használni?<br>
+<b>V:</B> Például:
+<pre>
+openssl genpkey -out demo_rsa.prvkey.pem -algorithm rsa -pkeyopt rsa_keygen_bits:2048
+openssl pkey -pubout -in demo_rsa.prvkey.pem -out demo_rsa.pubkey.pem
+echo 'String to hash' |\
+openssl pkeyutl -encrypt -pubin -inkey demo_rsa.pubkey.pem |\
+openssl pkeyutl -decrypt -inkey demo_rsa.prvkey.pem
+</pre></div>
+
+<div><a name="Q0187"><b>K:</b></a> Egy on-topic kérdés: az OpenSSL-t certificate-request (CSR)
+előállítására akarom használni
+(<span class="quote">openssl -req</span>),
+de nem nagyon látszik figyelembe venni a <span class="quote">LC_CTYPE</span>-ot,
+fixen ISO-8859-1-szerint értelmezi az inputot.<br>
+<b>V:</B> Ezt én is így látom; egy további lehetőség találtam: UTF8-at használni, és megadni az
+<span class="quote">-utf8</span> opciót.
+</div>
+
+<div style="text-align: center;"><a name="S0027"><b>&#8212; Makefile &#8212;</b></a></div>
+
+<div><a name="Q0148"><b>K:</b></a> Off-topik, de hátha elfér:
+egy Makefile-ban hogy lehet szóközökkel kavarni,
+különös tekintettel arra, hogy a stringeket ott nem teszük idézőjelek közé?<br>
+<b>V:</b> Egy szóközt tartalmazó változót lehet használni erre a célra;
+kicsit mesterkélt megoldás, de működik.<br>
+Az alábbi példában a 'CLASSPATH' változó értékét folytatósorok használatával adjuk meg,
+ami viszont szóközöket iktat be, tehát azoktól meg kell szabadulni a 'subst' függvénnyel:
+<pre>
+CLASSPATH := \
+    /itt/elso.jar:\
+    /ott/masodik.jar:\
+    /amott/harmadik.jar
+
+EMPTY :=
+SPACE := ${EMPTY} ${EMPTY}
+
+<b>CLASSPATH := $(subst ${SPACE},,${CLASSPATH})</b>
+
+run:	main.class
+	java -cp=${CLASSPATH} main.class
+</pre>
+</div>
+
+<div style="text-align: center;"><a name="S0029"><b>&#8212; Docker &#8212;</b></a></div>
+
+<div><a name="Q0182"><b>K:</b></a> A <span class="quote">docker</span> program paraméterezésénél
+illetve a <span class="quote">Dockerfile</span>-ban
+milyen karakterkódolást használhatok?<br>
+<b>V:</b> Nekem nem sikerült <span class="quote">UTF-8</span>-tól különböző kódolást használni,
+minden ékezetes betű helyett <span class="quote">EF-BF-BD</span> szekvencia lett,
+ami az <span class="quote">U+FFFD</span> kódú <i>replacement character</i>-t jelenti.
+</div>
+
+<div><a name="Q0183"><b>K:</b></a> A konténerben futó programmal is lehet gond?<br>
+<b>V:</b> A <span class="quote">LC_CTYPE</span>-ot (és a többi érintett környezeti változót),
+a megszokott módon kell beállítani, de gondot okozhat, ha a "konténeres rendszerünkben"
+nincs/hiányos a <span class="quote">locale</span>. Debian-alapú rendszerekhez
+megoldási lehetőség a Dockerfile-ban:
+<pre>
+RUN apt-get update &amp;&amp; \
+    apt-get install -y locales &amp;&amp; \
+    printf 'en_US ISO-8859-1\nen_US.UTF-8 UTF-8\nhu_HU ISO-8859-2\nhu_HU.UTF-8 UTF-8\n' >>/etc/locale.gen &amp;&amp; \
+    /usr/sbin/locale-gen
+</pre>
+Centos esetén ilyesmit próbálhatunk:
+<pre>
+RUN sed -i.bak 's/override_install_langs=.*$/override_install_langs=en_US,hu_HU/' /etc/yum.conf &amp;&amp; \
+    yum -y -q reinstall glibc-common
+</pre>
+</div>
+
+<div><a name="Q0185"><b>K:</b></a> A <span class="quote">docker build</span> futása alatt
+jellegzetes <a href="#Q0184">Perl hibaüzeneteket</a> kapok lokalizációügyben.<br>
+<b>V:</b> Azt javaslom, hogy a LC_CTYPE beállítását (pl.: <span class="quote">ENV LC_CTYPE hu_HU.UTF-8</span>)
+halaszd a <a href="#Q0183">lokalizáció telepítése</a> utánra.
+</div>
+
+<div><a name="Q0188"><b>K:</b></a> Ha már úgyis a telepítek a virtuális gépbe,
+érdemes a <span class="quote">tzdata</span> komponenst is telepíteni?<br>
+<b>V:</b> Hát valószínűleg nem árt. Ilyesmi lenne:<pre>
+Debian: <b>RUN apt-get install -y tzdata</b>
+RedHat: <b>RUN yum install tzdata</b>
+Alpine: <b>RUN apk --no-cache add tzdata</b>
+</pre>
+</div>
+
+<div style="text-align: center;"><a name="S0031"><b>&#8212; Tipushibák &#8212;</b></a></div>
+
+<div><a name="Q0200"><b>K:</b></a> Minden ékezets magyar betű helyett <i>két</i>
+'furcsa karaktert' látok, mi lehet a baj?<br>
+<b>V:</b> Az adatod <a href="#Q0150">UTF8</a>-ban van, de valamelyik program azt hiszi,
+hogy egybájtos kódolásban.<br>
+<b>Kieg:</b> Egy másik lehetőség, hogy UTF8-ban kódolt adatot tévedésből még egyszer UTF8-ra konvertáltál,
+így pl. az <span class="quote">ű</span> betűt jelentő
+<span class="quote">C5B1</span> szekvenciából
+például <span class="quote">C4B9C485</span> szekvencia lehetett,
+ami <span class="quote">&#x0139;&#x0105;</span>-ként
+jelenhet meg.<br>
+<b>Kieg:</b> MySql esetén a <span class="quote">SET NAMES</span> maradt ki.
+</div>
+
+<div><a name="Q0201"><b>K:</b></a> Minden ékezetes magyar betű egyformán kérdőjel
+(vagy valamilyen speciális jel) látszik, mi lehet a baj?<br>
+<b>V:</b> Az adatod egybájtos kódolásban van, de valamelyik program azt hiszi,
+hogy UTF8-ban (viszont annak persze hibás).<br>
+<b>Kieg:</b> MySql esetén a <span class="quote">SET NAMES</span> maradt ki.
+</div>
+
+<div><a name="Q0202"><b>K:</b></a> Az ékezetes magyar betűk jól jelennek meg,
+kivéve az <b>őŐűŰ</b> betűket, amelyek helyett <b>oOuU</b> vagy <b>&#xf5;&#xd5;&#xfb;&#xdb;</b>
+esetleg kérdőjelek látszanak.<br>
+<b>V:</b> Valamilyen beállítás <span class="quote">iso-8859-2</span> kellene legyen,
+de ehelyett <span class="quote">iso-8859-1</span> van. Hasonló párok (mindegyikben
+az első a jó):
+<span class="quote">latin2</span> és <span class="quote">latin1</span>,
+<span class="quote">windows-1250</span> és <span class="quote">windows-1252</span>,
+<span class="quote">cp852</span> és <span class="quote">cp850</span>,
+<span class="quote">ee8iso8859p2</span> és <span class="quote">we8iso8859p1</span>,
+<span class="quote">ce8bs2000</span> és <span class="quote">we8bs2000</span>.
+</div>
+
+<div><a name="Q0203"><b>K:</b></a> Esetleg egyéb magyarázata is lehet az <a href="#Q0202">előbbinek?</a><br>
+<b>V:</b> Igen, az hogy minden jól van beállítva, csak a használt font nem tartalmazza
+ezeket a betűket. Egyes programok ilyenkor valamilyen helyettesítő fontot használhatnak
+az említett a betűkhöz, így a betűk helyesen, de a környezetüktől eltérően jelennek meg,
+'kirínak' a szövegből.
+(Persze ez más ritkább betűkkel is előfordulhat, például az eszperantó nyelv ékezetes betűivel:
+<b>&#x109;&#x108;&#x11d;&#x11c;&#x125;&#x124;&#x135;&#x134;&#x15d;&#x15c;&#x16d;&#x16c;</b>.) </div>
+
+<div><a name="Q0214"><b>K:</b></a> PHP-ban olyan hibaüzenetet kapok, hogy
+<I>Cannot modify header information - headers already sent by
+output started at&hellip; in&hellip; on line&hellip;</I>
+akkor mi a gond?<br>
+<b>V:</b> A
+<a href="https://www.php.net/manual/en/function.http-response-code.php">http_response_code</a>,
+<a href="https://www.php.net/manual/en/function.header.php">header</a>,
+<a href="https://www.php.net/manual/en/function.session-start.php">session_start</a>,
+<a href="https://www.php.net/manual/en/function.setcookie.php">setcookie</a> és hasonló
+függvények a HTTP-fejrészbe tartozó információkat (magyar szóval: metainformációkat) tartalmaznak,
+amelyeket a "közönséges" (tehát a HTTP-törzsrészbe tartozó) információk előtt kell megadni.
+A hibaüzenetben benne van az is, hogy hol lépett fel a hiba, és az is, hogy hol volt már
+korábban kimenet. Ahogy <a href="#Q0215">fentebb</a> is említettük, egy szóköz vagy BOM
+is kimenetnek számít, úgyszintén az is, ha egy függvény esetleg hibaüzenetet ír ki.
+</div>
+
+<div><a name="Q0225"><b>K:</b></a> Az ékezetes betűk helyén furcsa szekvenciákat látok,
+esetleg ezekből lehet következtetni valamire?<br>
+<b>V:</b> Ez is lehetséges, nézzünk egy példát, amelyben tévedésből utf8-ra konvertálunk valamit,
+ami már amúgy is utf8 volt:
+<pre>
+Bemenet: őű (c591 c5b1)
+<u>konverzió</u>        <u>eredmény</u>
+win1252->utf8    &#xc5;&#x2018;&#xc5;&#xb1; (c385 e28098 c385 c2b1)
+win1250->utf8    &#x0139;&#x2018;&#x0139;&#xb1; (c4b9 e28098 c4b9 c2b1)
+iso88591->utf8   &#xc5;&#x91;&#xc5;&#xb1; (c385 c291 c385 c2b1)
+iso88592->utf8   &#x0139;&#x91;&#x0139;&#x0105; (c4b9 c291 c4b9 c485)
+</pre>
+<b>Megjegyzés:</b> az <span class="quote">U+91 (PU1, <U>&#x91;</U> UTF8-ban c291, HTML-ben &amp;#x91;)</span>
+egy nem nyomtatható vezérlőkaraker, de attól még a böngésző símán megjelenítheti
+helyette az
+<span class="quote">U+2018 (LEFT SINGLE QUOTATION, <U>&#x2018;</U> UTF8-ban e28098, HTML-ben &amp;#x2018;)</span>
+karaktert, hogy windows1252-kompatibilis legyen.<br>
+<U><A name="Q0225_1">Egy másik példa:</A></U> Egy bizonyos programban az ékezetes betűk helyett
+<span class="quote">&#xBFEF;&#x00BD;</span>
+(<span class="quote">U+BFEF, U+00BD</span>) szekvencia jelenik meg.
+A valószínű magyarázat az, hogy az előállító program <i>Unicode Replacement Character</i>-t
+(&#xfffd; <span class="quote">U+0FFD</span>,
+UTF8-ban <span class="quote">EF-BF-BD</span>) akart írni,
+de valamilyen furcsa hiba miatt az UTF-8 szekvenciát (négy bájtra kiegészítve
+egy bináris nullával) értelmezte két UTF-16LE karakternek:
+<span class="quote">EF-BF-BD-00 => BFEF, 00BD</span>
+</div>
+
+<div style="text-align: center;"><a name="S0001"><b>&#8212; Hibakeresés &#8212;</b></a></div>
+
+<p><a name="Q0030"><b>K:</b></a> Ha kérdőjeleket vagy krixkraxokat látok
+ a magyar ékezetes
+betűk helyett, hogyan debuggoljak?<br>
+<b>V:</b> Például mentsd le fájlba (wget), és egy hex-viewerrel 
+ellenőrizd,
+hogy mi is van ott (ezen lap alján van egy táblázat, ami segíthet).
+És ha már a wget-et használod, a <b>-S</b> opciót
+is használd, amit már az előbb ajánlottam, hogy a HTTP-fejrészt is
+lássad.</p>
+
+<div><a name="Q0031"><b>K:</b></a> További ötlet?<br>
+<b>V:</b> Próbáld megállapítni, hogy minden ékezetes betű egyformán
+rossz-e, vagy másképp rosszak/jók attól függően, hogy mi a forrásuk:<br>
+<ul><li>statikus fájl (HTML, TXT stb)
+</li><li>PHP (echo, print, printf stb)
+</li><li>Adatbázis
+</li><li>JavaScript
+</li><li>egyéb</li></ul></div>
+
+<p><a name="Q0032"><b>K:</b></a> Már összevissza kapkodtam, mint majom a
+ farkához,
+de bármit is állítgatok, valami mindig elromlik:
+vagy a html, vagy a php, vagy az adatbázisból jövő szöveg lesz rossz...<br>
+<b>V:</b> Akkor talán csináld sorrendben: először a konstans fájlok
+(html, txt, js, css...) tartalma jelenjen meg jól, azután a 
+php-ból/cgi-ből
+származó tartalom, és végül az, ami az adatbázisból jön.</p>
+
+<p><a name="Q0033"><b>K:</b></a> Arra gondoltam, hogy egy internetes 
+levlistán vagy fórumon kérek
+segítséget. Az vajon jó lesz, hogy 'Nem mennek az ékezetek a szájtomon,
+segítsetek!'<br>
+<b>V:</b> Szinte tökéletes, de ha egészen profi akarsz lenni,
+akkor valahogy így fogalmazz (a változó részeket értelemszerűen 
+behelyettesítve):<br>
+'Hosszas megfontolás után elhatároztam,
+hogy az <i>&lt;X&gt;</i> kódolást fogom használni, ehhez állítottam
+a .htaccess-t, a html.head.meta-t, a header-t, az adatbázist,
+és még mindig gondom van.<br>
+Tesztelésiből 'wget -S'-sel letöltöttem az oldalam, a Content-Type 
+fejrész
+<i>&lt;jó/rossz&gt;;</i> az elmentett tartalomban hex-viewerrel megnézve
+az ékezetes betűk kódját, azok <i>&lt;olyanok/nem olyanok&gt;</i>,
+mint amit várok (ha nem olyanok, akkor milyenek:
+<i>&lt;XXH&gt;</i>-et vártam az <i>&lt;Ű&gt;</i> helyett,
+jött helyette <i>&lt;YYH&gt;,</i> lásd a függelékben a táblázatot).'</p>
+
+<p><a name="Q0035"><b>K:</b></a> Az oldalam az X gépen jól működik,
+az Y gépen meg nem. Mi lehet a baj az Y géppel?<br>
+<b>V:</b> Nyomozd ki! Pont arról szól ez a 'Hibakeresés' rész.<br>
+<b>K:</b> Mindenestre az biztos, hogy az oldalam jó, hiszen az X gépen
+jól jelenik meg!<br>
+<b>V:</b> Ez tévedés, a hibás működés bizonyítja a hibát, de a hibátlan
+működés nem bizonyít semmit, lehetséges például, hogy a hibák 
+semlegesítik
+egymást. Szóval: debuggolj!</p>
+
+<div><a name="Q0034"><b>K:</b></a> Ha nem vagyok biztos abban, hogy 
+pontosan mi van az adatbázisomban,
+hogyan kérdezhetem le a hexakódokat?<br>
+<b>V:</b> Az adatbáziskezelődtől függ, pl.:<br>
+<pre>MySql:  SELECT HEX (mezonev) FROM ...
+Oracle: SELECT DUMP (mezonev, 16) FROM ...
+  vagy: SELECT RAWTOHEX (mezonev) FROM ...
+Pgsql:  SELECT ENCODE (mezonev, 'hex') FROM ...
+MSSQL:  SELECT CAST (mezonev AS VARBINARY) FROM ...</pre></div>
+
+<div><a name="Q0036"><b>K:</b></a> PHP-ban hogyan lehet debuggolni?<br>
+<b>V:</b> Főleg teszt-kiíratásokkal, lásd 
+<a href="http://php.net/manual/en/function.print.php">print</a>,
+<a href="http://php.net/manual/en/function.printf.php">printf</a>, 
+<a href="http://php.net/manual/en/function.print-r.php">print_r</a>, 
+<a href="http://php.net/manual/en/function.var-dump.php">var_dump</a>,
+illetve, ha nem látszik a kimenet (pl. Ajax esetén), akkor fájlba:
+<a href="http://php.net/manual/en/function.error-log.php">error_log</a>.
+Hasznos lehet a hexás kiíratás is a
+<a href="http://php.net/manual/en/function.bin2hex.php">bin2hex</a> függvénnyel,
+pl.:<br>
+<pre>    $s= $_REQUEST['input_mezo'];
+    printf ("bin2hex(%s)=%s\n", $s, bin2hex ($s));
+
+    $s= iconv ('ISO-8859-2', 'UTF-8', $s);
+    printf ("utf8-ra kódolva: bin2hex(%s)=%s\n", $s, bin2hex ($s));
+</pre></div>
+
+<div><a name="Q0055"><b>K:</b></a> Ha kiírattam a HTML-ben, és láttam, hogy jó, akkor...?<br>
+<b>V:</b> Az nem feltétlenül elég, jobb lenne hexásan is megnézni.
+Ha mondjuk az van ott, hogy <span class="quote">&amp;#x151;</span>,
+az a böngészőben úgy fog megjelenni, mint <span class="quote">&#x151;</span>,
+de még sokkal jobb, ha ténylegesen az van ott, hogy
+<span class="quote">ő</span>.<br>
+<b>K:</b> Miért is? Hiszen úgyis csak HTML-hez kell, akkor meg mindegy, nem?<br>
+<b>V:</b> Nem, mert lehet, hogy holnap már adatbázisba akarod írni, és keresni akarsz benne...
+holnapután meg esetleg egy text-fájlt kell előállítani,
+ahol az &amp;-szekvenciák nem használhatóak.</div>
+
+<div><a name="Q0056"><b>K:</b></a> Hibakeresésről szólva, 
+melyek azok a hibák,
+amelyeket a hagyományok szerint
+minden kezdő köteles újra meg újra elkövetni?<BR>
+<b>V:</b> Itt van rögtön a warningok figyelmen kívül hagyása.
+Néhány példa, néhány programozási nyelvhez / fordítóhoz, amit csinálni <i>kellene</i>:
+<BR>
+C/C++ fordítás gcc-vel: <span class="quote"> gcc -W -Wall -Wextra -pedantic ...</span><br>
+PHP script elejére: <span class="quote"> error_reporting (E_ALL | E_STRICT);</span><br>
+Perl futtatáshoz: <span class="quote"> perl -w script</span><br>
+Perl script elejére: <span class="quote"> use strict;</span><br>
+</div>
+
+<div><a name="Q0057"><b>K:</b></a> Az is ide tartozik,
+ha az egyes adatbázisműveletek után 'elfelejtem' a hibaellenőrzést?
+Vagy beteszem, de csak annyit írok ki, hogy 'baj van'?<br>
+<b>V:</b> Nagyon is jó, még elfáradnál!
+Két példa PHP/MySql-ból egy kezdős, meg egy haladós.<BR>
+<PRE>$stmt = mysql_query ("SELECT fields FROM table WHERE field='$valtozo'");
+while ($row= mysql_fetch_row ($stmt)) ...</PRE>
+
+<PRE>$sql = sprintf ("SELECT fields FROM table WHERE field='%s'",
+    mysql_real_escape_string ($valtozo));
+$stmt = mysql_query ($sql);
+if ($stmt === FALSE) {
+    printf ("&lt;H1>scriptneve.rutinneve: MySql error %s on %s&lt;/H1>\n",
+	htmlspecialchars (mysql_error (), ENT_NOQUOTES, 'ISO-8859-1'),
+	htmlspecialchars ($sql, ENT_NOQUOTES, 'ISO-8859-1'));
+    exit;
+}
+while ($row= mysql_fetch_row ($stmt)) ...</PRE>
+<B>Kieg:</B> További hasznos függvények: 
+<a href="http://php.net/manual/en/function.mysql-affected-rows.php">mysql_affected_rows</a>
+&ndash; hány sort érintett a legutóbi módosítás (pl UPDATE),
+<a href="http://www.php.net/manual/en/function.mysql-insert-id.php">mysql_insert_id</a>
+&ndash; ha a legutóbbi parancs INSERT volt, és abban egy AUTO_INCREMENT típusú kulcs töltődött,
+annak értékét adja vissza.
+<br><B>Kieg:</B> <a href="oci.txt">Itt van</a> Oracle-hez egy minta a hibavizsgálatra.
+</div>
+
+<div><a name="Q0060"><b>K:</b></a> További lehetőségek?<br>
+<b>V:</b> Például, ha azt hajtogatod, hogy <I>'nem érdekelnek a részletek, csak
+azt szeretném, hogy jó legyen'.</I>
+Telitalálat, ha bosszantani akarod a potenciális segítőket.
+Egy másik ilyen, hogy ha valaki javasol valamit, azt feleled:
+<I>'kipróbáltam, nem vált be'.</I><BR>
+
+<b>K:</b> De ha tényleg nem vált be?<BR>
+<b>V:</b> Akkor idézd be a kódot, amit próbáltál (pontosan, nem emlékezetből)
+és a hibaüzenetet/hibajelenséget.
+És ha egy mód van rá, a hibaüzenetek nyelvét állítsd angolra,
+mert nem a fordító félreértéseire vagyunk kiváncsiak,
+hanem az igazi hibaüzenetre.<BR>
+
+<b>K:</b> Én aztán nagyon szívesen beidézem a programomat, mind a sokezer sort...<BR>
+<b>V:</b> Legyél szíves előzőleg mindent kiszedni belőle,
+ami nem nélkülözhetetlen a probléma bemutatásához;
+viszont ami marad, az legyen komplett, fordítható, tesztelhető.<BR>
+
+<b>K:</b> Dehát ez sok munkával járna...<BR>
+<b>V:</b> Vagy pedig fizess meg egy programozót.</DIV>
+
+<div style="text-align: center;"><a name="S0028"><b>Függelék<br>Magyar billentyűkiosztás:</b></a></div>
+
+<div><b>PC, 101/104 gombos:</b>
+<pre>
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+----------+
+| íÍ0 | 1'~ | 2"&#x02c7; | 3+^ | 4!˘ | 5%° | 6/˛ | 7=˛ | 8(˙ | 9)´ | öÖ˝ | üÜ&#xA8; | óÓ&#xB8; | BkSpc    |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+-----+--+--+--+--+-------+
+| Tab    | qQ\ | wW| | eEÄ | rR  | tT  | zZ  | uU&#x20ac; | iIÍ | oO  | pP  | őŐ÷ | úÚ× | Enter |
++--------+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+-----+-----+--+--+--+--+    |
+| CapsLock  | aAä | sSđ | dDĐ | fF[ | gG] | hH  | jJí | kKł | lLŁ | éÉ$ | áÁß | űŰ¤ |    |
++-----------+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+-----+----+
+| Shift        | yY> | xX# | cC&amp; | vV@ | bB{ | nN} | mM< | ,?; | .:> | -_* | Shift       |
++--------------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-------------+
+</pre>
+Az egyes mezőkben látható három karakter jelentése: billentyű önmagában, Shift-tel, AltGr-vel.<br>
+A 'z' és 'y' gyakran fordítva, vagyis az angol kiosztás szerint helyezkedik el.
+</div>
+
+<div><b>PC, 102/105 gombos:</b>
+<pre>
++-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+----------+
+| 0§  | 1'~ | 2"&#x02c7; | 3+^ | 4!˘ | 5%° | 6/˛ | 7=˛ | 8(˙ | 9)´ | öÖ˝ | üÜ&#xA8; | óÓ&#xB8; | BkSpc    |
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+-------+
+| Tab    | qQ\ | wW| | eEÄ | rR  | tT  | zZ  | uU&#x20ac; | iIÍ | oO  | pP  | őŐ÷ | úÚ× | Enter |
++--------+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+-----+-----+--+--+--+--+    |
+| CapsLock  | aAä | sSđ | dDĐ | fF[ | gG] | hH  | jJí | kKł | lLŁ | éÉ$ | áÁß | űŰ¤ |    |
++--------+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+-----+----+
+| Shift  | íÍ< | yY> | xX# | cC&amp; | vV@ | bB{ | nN} | mM< | ,?; | .:> | -_* | Shift       |
++--------+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-----+-------------+
+</pre>
+</div>
+
+<div style="text-align: center;"><a name="S0007"><b>Függelék<br>A magyar betűk kódja néhány kódkészletben:</b></a></div>
+
+<pre style="text-align: center;">+------+----------+----------+--------------+--------------+
+| Betű |    852   |  Latin2  |   Unicode    |     UTF-8    |
++------+----------+----------+--------------+--------------+
+| á  Á |  A0  B5  |  E1  C1  |    E1    C1  |  C3A1  C381  |
+| é  É |  82  90  |  E9  C9  |    E9    C9  |  C3A9  C389  |
+| í  Í |  A1  D6  |  ED  CD  |    ED    CD  |  C3AD  C38D  |
+| ó  Ó |  A2  E0  |  F3  D3  |    F3    D3  |  C3B3  C393  |
+| ö  Ö |  94  99  |  F6  D6  |    F6    D6  |  C3B6  C396  |
+| ő  Ő |  8B  8A  |  F5  D5  |  0151  0150  |  C591  C590  |
+| ú  Ú |  A3  E9  |  FA  DA  |    FA    DA  |  C3BA  C39A  |
+| ü  Ü |  81  9A  |  FC  DC  |    FC    DC  |  C3BC  C39C  |
+| ű  Ű |  FB  EB  |  FB  DB  |  0171  0170  |  C5B1  C5B0  |
+| ä  Ä |  84  8E  |  E4  C4  |    E4    C4  |  C3A4  C384  |
++------+----------+----------+--------------+--------------+
+</pre>
+<p style="text-align: center;">Kiegészítés: Egy nem-magyar betű:</p>
+<pre style="text-align: center;">
++------+----------+----------+--------------+--------------+
+| Betű |    852   |  Latin2  |   Unicode    |     UTF-8    |
++------+----------+----------+--------------+--------------+
+| ô  Ô |  93  E2  |  F4  D4  |    F4    D4  |  C3B4  C394  |
++------+----------+----------+--------------+--------------+
+</pre>
+<p style="text-align: center;">Kiegészítés: Még két nem-magyar betű:</p>
+<pre style="text-align: center;">
++------+----------+----------+--------------+--------------+
+| Betű |    850   |  Latin1  |   Unicode    |     UTF-8    |
++------+----------+----------+--------------+--------------+
+| &#xF5;  &#xD5; |  E4  E5  |  F5  D5  |    F5   D5   |  C3B5  C395  |
+| &#xFB;  &#xDB; |  96  EA  |  FB  DB  |    FB   DB   |  C3BB  C39B  |
++------+----------+----------+--------------+--------------+
+</pre>
+
+<div style="text-align: center;"><a name="S0002"><b>További olvasmányok</b></a></div>
+<ul>
+<li><a href="http://weblabor.hu/cikkek/karakterkodolasiproblemakkikuszobolese">WebLabor
+ &#8211; Hodicska Gergely: Karakterkódolási problémák kiküszöbölése</a>
+</li>
+<li><a href="http://forum.index.hu/Article/showArticle?t=9105981">forum.index.hu
+ &#8211; Ékezetek HTML-ben és URL-ben</a>
+</li>
+<li><a href="http://www.unicode.org/faq/utf_bom.html">unicode.org
+ &#8211; UTF-8, UTF-16, UTF-32 &amp; BOM</a>
+</li>
+<li><a href="http://www.unicode.org/charts/">unicode.org
+ &#8211; Kódtáblák</a>
+</li>
+<li><a href="https://www.unicode.org/Public/MAPPINGS/">https://www.unicode.org/Public/MAPPINGS/</a>
+</li>
+<li><a href="http://www.iana.org/assignments/character-sets">IANA
+ &#8211; Kódkészletek listája</a>
+</li>
+<li><a href="http://www.joelonsoftware.com/articles/Unicode.html">Joel Spolsky
+ &#8211; The Absolute Minimum Every Software Developer Absolutely, Positively Must Know About Unicode and Character Sets (No Excuses!)</a>
+</li>
+<li><a href="http://utf8everywhere.org/">UTF-8 Everywhere</a>
+</li>
+</ul>
+
+<div style="text-align: center;"><a name="S0023"><b>Off-topik, de hasznos olvasmányok</b></a></div>
+<ul>
+<li><a href="http://www.catb.org/esr/faqs/smart-questions.html">How To Ask Questions The Smart Way</a>
+<li><a href="http://stackoverflow.com/help/mcve">How to create a Minimal, Complete, and Verifiable example</a>
+<li><a href="http://mywiki.wooledge.org/XyProblem">XyProblem</a>
+<li><a href="http://www.joelonsoftware.com/AboutMe.html">Joel on Software</a>
+<li><a href="http://yosefk.com/c++fqa/index.html">C++ Frequently Questioned Answers</a>
+<li><a href="http://quotes.cat-v.org/programming/">Programming Quotes</a>
+</ul>
+
+</body></html>
