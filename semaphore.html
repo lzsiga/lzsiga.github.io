@@ -1,0 +1,109 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<STYLE type=text/css>
+th { text-align: left;
+     vertical-align: top;
+     padding-left: 0.2em;
+     padding-right: 0.2em; }
+td { text-align: left;
+     vertical-align: top;
+     padding-left: 0.2em;
+     padding-right: 0.2em; }
+</STYLE>
+<TITLE>Szemaforok Unixban</TITLE>
+</HEAD><BODY>
+<P style="text-align: center; font-size: 1.2em">Szemaforok Unixban</P>
+<TABLE align=center border=1 cellspacing=0 summary="szemaforok összehasonlítása">
+<TR><TD>&nbsp;
+    <TH>adattípus
+    <TH>műveletek
+    <TH>használat AIX-en
+    <TH>használat Linuxon
+
+<TR><TH>systemV IPC
+    <TD>int
+    <TD>semget<br>semop(sem_op=-1)<br>semop(sem_op=1)<br>semctl(IPC_RMID)
+    <TD>szálak és processzek
+    <TD>szálak és processzek 
+
+<TR><TH>POSIX szemaforok<br>(névtelen)
+    <TD>sem_t
+    <TD>sem_init<br>sem_wait,sem_trywait,sem_timedwait
+    <br>sem_post<br>sem_destroy
+    <TD>szálak és processzek<br>(1. megjegyzés)
+    <TD>szálak és processzek<br>(1. és 2. megjegyzés)
+
+<TR><TH>POSIX szemaforok<br>(névvel)
+    <TD>sem_t *
+    <TD>sem_open<br>sem_wait<br>sem_post<br>sem_close,sem_unlink
+    <TD>szálak és processzek
+    <TD>szálak és processzek
+
+<TR><TH>pthread
+    <TD>pthread_mutex_t
+    <TD>pthread_mutex_init<br>
+    pthread_mutex_lock,pthread_mutex_trylock<br>
+    pthread_mutex_unlock<br>
+    pthread_mutex_destroy<br>
+    <TD>csak szálak
+    <TD>csak szálak
+</TABLE>
+Megjegyzések:<BR>
+<OL>
+<LI>A névtelen POSIX-szemaforok akkor használhatók processzek közötti
+szinkronizációra, ha a processzek közös szülőtől (őstől) származnak,
+és a <i>sem_init</i>-et a szülő (ős) hajtotta végre, mégpedig úgy,
+hogy a <I>pshared</i> paramétere 1 volt.
+<LI>Linuxon további feltétel az is, hogy a programozónak kell gondoskodnia arról,
+hogy a <i>sem_t</i> típusú szemaforváltozó osztott memóriában legyen
+(lásd <I>shmget, shm_open, mmap).</I>
+<LI>Linuxon a POSIX-szemaforok és a thread-mutexek a <I>futex</I> rendszerhívást
+használják.
+<LI>Linux esetén a 'neves' POSIX-szemaforokat a /dev/shm könyvtárban
+fájlként látjuk viszont, akár ACL-t is használhatunk rajtuk.
+<LI>A SystemV IPC-ben az inicializálás problémásnak tűnik,
+mivel a 'számláló' nulla értékkel születik,
+ami egy már létező szemafor esetén a 'foglalt' állapotot jelezné,
+tehát azt is hihetnénk, hogy valaki éppen 'fogja' a szemafort,
+ezért meg kell várni, míg elengedi.<BR>
+Egy áthidaló megoldás: három-számlálós szemafort használunk
+(semget: nsems=3), az egyik az igazi szemafor, a második
+1 értéke jelzi az inicializálás megtörténtét, a harmadik azért kell,
+<S>mert a három fontos meseszám,</S> mert az inicializálás három műveletből
+áll, de a műveletek száma nem lehet több a számlálókénál:
+<PRE>
+    sem_op op[3] = {
+    0:	sem_num=1 sem_op=0 sem_flg=IPC_NOWAIT	ha már inicializáltuk, akkor itt kilépünk
+    1:	sem_num=1 sem_op=1 sem_flg=IPC_NOWAIT	egyébként most megtesszük
+    2:	sem_num=0 sem_op=1 sem_flg=IPC_NOWAIT	ez az igazi inicializálás
+    }
+</PRE>
+
+<LI>Tovább probléma az, hogy itt név helyett számmal <I>(key_t)</I> kell azonosítani
+a létrehozandó szemafort (kivéve értelmeszerűen az IPC_PRIVATE esetet);
+az <I>ftok</I> függvényt használhatjuk ilyen szám előállítására, de persze
+az sem lesz <i>garantáltan</i> egyedi.
+
+<LI>Ugyanitt az is gond lehet, hogy a szemafor nem semmisül meg automatikusan attól,
+hogy az összes használó folyamat kilépett.
+Az <I>ipcs</I> és <I>ipcrm</I> programok használhatók tájékozódásra és törlésre.
+
+<LI>Határozott előnye viszont a SEM_UNDO opció létezése: ha minden hívásnál 
+használjuk, nem tudjuk egy hibás programfutással 'zárolt' állapotban hagyni
+magunk után a szemafort.
+
+<LI>Minden verzióban van 'várakozás nélküli lefoglalás' művelet
+<I>(IPC_NOWAIT, sem_trywait, pthread_mutex_trylock);</I>
+korlátozott idejű várakozásra csak  a POSIX-szemaforoknál van lehetőség <I>(sem_timedwait).</I>
+
+<LI>A SystemV és POSIX szemaforok nem egy szabad/foglalt jelzőbitet, hanem egy számlálót használnak,
+így ha (például programhiba miatt) <I>post</I> után újabb <I>post</I> következik, a számláló értéke kettő lesz,
+két <I>wait</I>-et lehetővé téve. A mutexek esetén ez implementációfüggő, Linuxon lásd a
+PTHREAD_MUTEX_NORMAL, PTHREAD_MUTEX_ERRORCHECK, PTHREAD_MUTEX_RECURSIVE, PTHREAD_MUTEX_DEFAULT opciókat.
+
+<LI>További szinkronizálási lehetőség fájlok zárolása <I>(flock, lockf, fcntl)</I>
+</OL>
+</BODY>
+</HTML>

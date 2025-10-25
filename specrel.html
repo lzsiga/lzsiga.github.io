@@ -1,0 +1,513 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Elemi számítások specrel-ügyben</title>
+<style type="text/css">
+pre {
+    background: lightgrey; 
+    margin: 0.1em 0 0.1em 0;
+    padding-left: 1em; }
+div, p { margin: 0 0 1em 0; }
+span.quote { 
+    background: lightgrey; font-family: monospace; 
+    padding-left: 1px; padding-right: 1px; }
+th.thl {
+    text-align: left;
+    padding: 0 0.2em 0 0.2em;
+}
+td.tdl {
+    text-align: left;
+    padding: 0 0.2em 0 0.2em;
+}
+td.tdc {
+    text-align: center;
+}
+</style>
+
+</head><body>
+<p><b>Elemi számítások specrel-ügyben</b></p>
+
+<div><a name="Q0001"><b>K:</b></a> Kezdjük a jelölésekkel;
+mit jelentsenek az alábbi rendezett párok:
+<span class="quote">(t,x)</span>, <span class="quote">(t,x,y)</span>,
+<span class="quote">(t,x,y,z)</span><br>
+<b>V:</b> Idő és térbeli koordinátákat;
+értelemszerűen egyetlen idő- és 1-3 térkoordinátát.<br>
+
+<b>K:</b> Ezek mindig rögzített értékek, vagy lehetnek bennük változók is?<br>
+<b>V:</b> Például ha egy <i>eseményről</i> van szó,
+amit pontszerűnek és pillanatszerűnek tekintünk,
+akkor a koordináták rögzített értékek;
+ha egy pont(szerű test) mozgását akarjuk leírni,
+akkor az időt szabad változónak vesszük fel, és a térkoordinátá(ka)t
+az idő függvényében adjuk meg. Példák:
+<pre>
+O(0,0)			    egydimenziós tér origója
+A(t,0), B(t,5)		    egydimenziós térben álló pontok
+C(t,(4/5)t), D(t,(4/5)t-3)  egydimenziós térben haladó pontok
+C(t,Rcos(wt),Rsin(wt))	    kétdimenziós térben körmozgást végző pont
+</pre>
+
+<b>K:</b> Hová lettek a mértékegységek?<br>
+<b>V:</b> Az egyszerűség kedvéért egyezzünk meg,
+hogy a mértékegységeket úgy választjuk meg,
+hogy a fénysebesség éppen egységnyi legyen,
+és az egyéb sebességeket úgy ehhez viszonyítva adjuk meg.
+</div>
+
+<div><a name="Q0013"><b>K:</b></a> És még egy kérdés:
+amikor egy mozgó pontot írunk le,
+mindig az idő lesz a független változó ('t')?<br>
+<b>V:</b> Igen, legalábbis törekedni fogunk rá;
+elannyira, hogy ha valamilyen számítás után
+olyan képletet kapnánk, ahol az idő nem független
+változó, akkor egy ilyesféle transzformációt végzünk:
+<pre>
+(at+b,ct+d) =>
+(&tau;,c((&tau;-b)/a)+d) =>
+(&tau;,(c/a)&tau;-(cb/a)+d) =>
+(t,(c/a)t-(cb/a)+d)
+</pre>
+<b>K:</b> Na most ha '&tau;' az új változó jele, akkor miért van az utolsó
+sorban ismét 't'?<br>
+<b>V:</b> Igazából nincs értelme újabb és újabb betűket
+használni, csak az a fontos, hogy magát a transzformációt helyesen végezzük el.
+Példák:
+<pre>
+(t-1,20) => (t,20)
+((t-1)/2,3t+4) => (t,6t+7)
+(t-t<sub>0</sub>,vt+x<sub>0</sub>) => (t,vt+vt<sub>0</sub>+x<sub>0</sub>)
+(t+t<sub>0</sub>,vt+x<sub>0</sub>) => (t,vt-vt<sub>0</sub>+x<sub>0</sub>)
+</pre>
+</div>
+
+<div><a name="Q0022"><b>K:</b></a> Namostan a számítások során
+mindenki ugyanazt a koordináta-rendszert használja? Mert ha nem,
+akkor valahogy jelölni kellene, hogy melyik rendszerben érvényes
+koordinátákról beszélünk!<br>
+<b>V:</b> Jó meglátás! Ha mondjuk az 'A' megfigyelő
+szempontjából adjuk meg 'B' koordinátáit, azt jelölje 
+<span class="quote">[B]<sub>A</sub></span>.
+(Megjegyzés: ha esetleg helyenként elfelejtjük kiírni a szögletes zárójeleket,
+de ott van az alsó index, akkor is erre gondoljunk:
+<span class="quote">B<sub>A</sub> := [B]<sub>A</sub></span>.)
+Egyezzünk meg abban is, hogy saját magát mindenki állónak tekinti, vagyis
+<span class="quote">[X]<sub>X</sub>=(t,0)</span>.
+</div>
+
+<div><a name="Q0023"><b>K:</b></a> Egyéb jelölések, ha már így benne vagyunk?<br>
+<b>V:</b> Például, jelölje 
+<span class="quote">T<sub>UV</sub></span> vagy röviden
+<span class="quote">UV</span> az 
+<span class="quote">U</span> és
+<span class="quote">V</span> mozgó pontok találkozási pontját
+(persze csak ha találkoznak egyáltalán).
+Egy példa-számítás egydimenziós esetre:
+<pre>
+[U]<sub>X</sub>=(t,at+b)
+[V]<sub>X</sub>=(t,ct+d)
+[T<sub>UV</sub>]<sub>X</sub>=((b-d)/(c-a),(ad-bc)/(c-a))
+</pre>
+</div>
+
+<div><a name="Q0002"><b>K:</b></a> Akkor most jöjjön a legegyszerűbb példa
+a specrel-es számításra!<br>
+<b>V:</b> Legyen adott egy egydimenziós térben két megfigyelő, 'A' és 'C',
+akik inerciális mozgást végeznek, és úgy egyeztetik az a koordináta-rendszereiket,
+hogy a találkozásuk a (0,0) pontban (vagyis t=0 időben, x=0 helyen) történjen.
+Legyen A szerint C sebessége 4/5, és C szerint A sebessége -4/5
+(vagyis a koordináta-rendszerük irányítottsága is azonos).
+Ekkor az 'A' rendszerében érvényes koordinátákat a 'C' rendszerbe
+egy mátrix-szal való szorzással lehet kiszámolni:
+<pre>
+( 5/3 -4/3)
+(-4/3  5/3)
+</pre>
+
+<b>K:</b> Lássunk példákat!<br>
+<b>V:</b> Rendben, néhány példa
+a mátrix-szorzás szokás jelölését használva
+(baloldalt a mátrix, fölül a szorzandó (oszlop)vektorok 
+(nevük is van, pl.: O=Origo, V=Vége), alattuk az eredmények,
+szintén oszlopvektorként):
+<pre>
+                O      V     I   J   A         B            C        D
+               (0)   (10)   (5) (5) (t)       (t)          (t)      (t)
+               (0)   ( 5)   (1) (4) (0)       (5)          ((4/5)t) ((4/5)t-3)
+               --- ------- ---- --- --------- ---          -------- ----------
+ ( 5/3 -4/3) | (0)   (10)  ( 7) (3) (&tau;)       (&tau;)          (&tau;)      ( &tau;)
+ (-4/3  5/3) | (0)   (-5)  (-5) (0) ((-4/5)&tau;) ((-4/5)&tau;+3)  (0)      (-5)
+</pre>
+<a name="Q0016"><b>K:</b></a> Namostan itt nyilvánvaló csaláson értelek,
+például a 'B' transzformáltja igazából
+<span class="quote">((5/3)t,(-4/3)t+25/3)</span> nem pedig
+<span class="quote">(&tau;,(-4/5)&tau;+3)</span><br>
+<b>V:</b> Erről korábban volt szó, lásd <a href="#Q0013">itt.</a>
+Ezt a továbbiakban annyival fogjuk súlyosbítani, hogy átnevezéssel
+sem fáradunk, hanem egységesen 't'-vel jelöljük az időt,
+amikor szabad változóként szerepel.
+</div>
+
+<div><a name="Q0003"><b>K:</b></a> Hogy lenne a visszafelé számolás;
+vagyis a C-rendszerében érvényes koordináták átszámítása A-rendszerébe?<br>
+<b>V:</b> A következő mátrixot kell használni (ami történetesen az előzőnek
+az inverze):
+<pre>
+(5/3 4/3)
+(4/3 5/3)
+</pre>
+Példák (egyes pontoknak <a href="#Q0023">kétbetűs</a> neve van,
+ne ijedj meg tőlük):
+<pre>
+              AC    AD     BC    AD        E        F      EF
+             (0) (25/4) (15/4)  (10) (     t) (     t)  (   5)
+             (0) (  -5) (   0)  (-5) (t-15/2) (-t+5/2)  (-5/2)
+             --- ------ ------- ---- --------- ------- ------
+ (5/3 4/3) | (0) (15/4) (25/4)  (10) (     t) (      t) (   5)
+ (4/3 5/3) | (0) (   0) (   5)  ( 5) ( t-5/2) (-t+15/2) ( 5/2)
+</pre>
+Javasolnám, hogy mindezt papíron
+rajzold is le magadnak, mégpedig külön ábrára az 'A' rendszeréből
+érvényes adatokat, és egy másik ábrára a 'C' rendszeréből érvényeseket.
+</div>
+
+<div><a name="Q0004"><b>K:</b></a> Fogadjunk, hogy ehhez valami metaforát
+akarsz illeszteni...<br>
+<b>V:</b> Hát jó, legyen ez a vonat/alagút probléma, az alábbi jelölésekkel:
+<pre>
+A,B -- vonat eleje, vége;
+       a vonat saját magát 5 egység hosszúnak tartja,
+       az alagút szerint a vonat 3 egység hosszú
+
+C,D -- alagút eleje, vége
+       az alagút saját magát 5 egység hosszúnak tartja,
+       a vonat szerint az alagút 3 egység hosszú
+
+AC  -- a vonat eleje belép az alagútba
+AD  -- a vonat vége belép az alagútba
+BC  -- a vonat eleje kilép az alagútból
+BD  -- a vonat vége kilép az alagútból
+</pre>
+</div>
+
+<div><a name="Q0005"><b>K:</b></a> És mi is a probléma?<br>
+<b>V:</b> Hát hogy a vonat szerint nincs olyan pillanat,
+amikor teljes egészében benne lenne az alagútban,
+az alagút szerint meg van.<br>
+<b>K:</b> És akkor melyiküknek van igaza?<br>
+<b>V:</b> Mindkettőnek; a gond az egyidejűséggel illetve
+az események sorrendjével van, például 'I' és 'J'
+egyidejűek az alagút szerint, de nem egyidejűek a vonat szerint
+(4 időegység van közöttük);
+az alagút szerint 'BC' után 5/2 időegységgel következik be
+a 'AD', a vonat szerint éppen fordítva.</div>
+
+<div><a name="Q0006"><b>K:</b></a> De én nem tudom elfogadni,
+hogy nincs abszolút egyidejűség!<br>
+<b>V:</b> Ezt szívesen tudomásul veszem, de nem tudok rajta
+változtatni. Talán azt javasolhatom, hogy tekintsd az egészet
+egyfajta szellemi játéknak, gondolatkísérletnek, tisztán
+elméleti matematikának.
+</div>
+
+<div><a name="Q0007"><b>K:</b></a>
+Na jó, van még valami megfigyelni való ebben a példában?<br>
+<b>K:</b> Itt van az 'E' meg az 'F'. Legyenek ezek fotonok
+(most tegyük félre a kérdést, mi az a <i>foton,</i>
+maradjunk abban, hogy valami pontszerű dolog, ami fénysebességgel
+megy), figyeljük meg, hogy a sebességük minden megfigyelő
+szerint egységnyi, akárhogy is transzformáljuk.<br>
+Mondjuk 'E' és 'F' akkor indulnak (T<sub>EF</sub>),
+amikor a vonat közepe találkozik az alagút közepével,
+'E' előre halad, 'F' meg hátrafelé.<br>
+Könnyen kiszámíthatjuk, hogy az egyes megfigyelők szerint mikor és hol találkoznak
+a fotonok az A, B, C, D pontokkal:
+<pre>
+találkozás vonat_szerint alagút_szerint
+EF         (   5,5/2)    (   5,-5/2)
+FD         (35/6,5/3)    (15/2,  -5)
+FA         (15/2,  0)    (25/2, -10)
+EB         (15/2,  5)    (35/6,-5/3)
+EC         (25/2, 10)    (15/2,   0)
+</pre>
+</div>
+
+<div><a name="Q0008"><b>K:</b></a> És hogy visszatérjünk az elmélethez,
+honnan is kaptuk ezt a transzformációs márixot?<br>
+<b>V:</b> A teljes alakja ez lenne:
+<pre>
+( 1/sqrt(1-(v/c)<sup>2</sup>) -v/c<sup>2</sup>/sqrt(1-(v/c)<sup>2</sup>))
+(-v/sqrt(1-(v/c)<sup>2</sup>)  1/sqrt(1-(v/c)<sup>2</sup>))
+</pre>
+de a mi speciális esetünkben, ahol c=1, így egyszerűsödik:
+<pre>
+( 1/sqrt(1-v<sup>2</sup>) -v/sqrt(1-v<sup>2</sup>))
+(-v/sqrt(1-v<sup>2</sup>)  1/sqrt(1-v<sup>2</sup>))
+</pre>
+<a name="Q0018"><b>K:</b></a> Milyen sebességeket érdemes választani gondolatkísérletekhez,
+hogy ne kapjak irracionális számokat?<br>
+<b>V:</b> Pithagoraszi számhármasokat érdemes megcélozni,
+amilyen például a 3,4,5 vagy az 5,12,13; az előbbiből a 3/5 és 4/5,
+az utóbbiból az 5/13 és 12/13 sebesség adódik. Az illetékes mátrixok:
+<pre>
+  v=3/5       v=4/5      v=5/13         v=12/13
+( 5/4 -3/4) ( 5/3 -4/3) (13/12 -5/12) ( 13/5 -12/5)
+(-3/4  5/4) (-4/3  5/3) (-5/12 13/12) (-12/5  13/5)
+</pre>
+<a name="Q0014"><b>K:</b></a> És ha a sebesség negatív?<br>
+<b>V:</b> A mellékátlóban lévő elemek előjelét kell megfordítani,
+pl. a 7,21,25 és a 9,40,41 számhármasok alapján:
+<pre>
+ v=-7/25       v=-21/25    v=-9/41       v=-40/41
+(25/21  7/21) (25/7 21/7) (41/40  9/40) (41/9 40/9)
+( 7/21 25/21) (21/7 25/7) ( 9/40 41/42) (40/9 41/9)
+</pre>
+</div>
+
+<div><a name="Q0009"><b>K:</b></a> Még valami matematikai érdekesség?<br>
+<b>V:</b> Ha ezt a (v-től függő) mátrixot elnevezzül 'L<sub>v</sub>'-nek,
+az egységmátrixot 'I'-nek, és determinánst 'det'-tel jelöljük,
+akkor mondhatjuk, hogy:
+<pre>
+L<sub>v</sub> * L<sub>-v</sub> = I
+det L<sub>v</sub> = 1
+</pre>
+Továbbá, ha az <span class="quote">1/sqrt(1-v<sup>2</sup>)</span>-t
+elnevezzük <span class="quote">ch &alpha;<sub>v</sub></span>-nak
+(lásd a ch-t és sh-t <a href="https://hu.wikipedia.org/wiki/Hiperbolikus_f%C3%BCggv%C3%A9nyek">itt</a>),
+akkor:
+<pre>
+L<sub>v</sub> = (ch(&alpha;<sub>v</sub>) sh(&alpha;<sub>v</sub>))
+     (sh(&alpha;<sub>v</sub>) ch(&alpha;<sub>v</sub>))
+
+L<sub>v</sub> * L<sub>w</sub> = (ch(&alpha;<sub>v</sub>+&alpha;<sub>w</sub>) sh(&alpha;<sub>v</sub>+&alpha;<sub>w</sub>))
+          (sh(&alpha;<sub>v</sub>+&alpha;<sub>w</sub>) ch(&alpha;<sub>v</sub>+&alpha;<sub>w</sub>))
+</pre>
+</div>
+
+<div><a name="Q0010"><b>K:</b></a> És vissza lehet ebből kapni a klasszikus mechanikában
+használt Galilei-transzformációt?<br>
+<b>V:</b> Ehhez a mátrix <a href="#Q0008">eredeti alakját</a> kell használni,
+és megvizsgálni a c-&gt;&infin; esetet. Azt a mátrixot kapjuk, hogy:
+<pre>
+( 1 0)
+(-v 1)
+</pre>
+amit a következő transzformációt jelenti:
+<pre>
+t' = t
+x' = x - vt
+</pre>
+</div>
+
+<div><a name="Q0011"><b>K:</b></a>
+És ha egy olyan esetet néznénk,
+ahol nem a koordináta-rendszerek origói esnek egybe,
+hanem általános pontok?<br>
+<b>V:</b>
+Jelölja a találkozás (T) pontjának A-szerinti
+koordniátáit (T<sub>A,t</sub>,T<sub>A,x</sub>),
+B szerinti koordinátáit (T<sub>B,t</sub>,T<sub>B,x</sub>).
+Ekkor egy általános pont P-pontnak A-szerinti koordináit
+így lehet B-szerintiekre konvertálni:
+<pre>
+(P<sub>B,t</sub>)   (T<sub>B,x</sub>)        (P<sub>A,t</sub> - T<sub>A,t</sub>)
+(    ) = (    ) + L<sub>v</sub> * (           )
+(P<sub>B,x</sub>)   (T<sub>B,x</sub>)        (P<sub>A,x</sub> - T<sub>A,x</sub>)
+</pre>
+Illetve, ha szabad koordináta-vektorokat használni 
+(T<sub>A</sub>, T<sub>B</sub>, P<sub>A</sub>, P<sub>B</sub>), 
+akkor így is írhatjuk:
+<pre>
+P<sub>B</sub> = T<sub>B</sub> + L<sub>v</sub> * (P<sub>A</sub> - T<sub>A</sub>)
+</pre>
+</div>
+
+<div><a name="Q0012"><b>K:</b></a> Nézzünk egy konkrét példát!<br>
+<b>V:</b> Egy nagyon könnyű eset: 'B' és 'C' találkoznak,
+a találkozás koordinátái mindkettejük szerint (t=15,x=0),
+B szerint C sebessége 40/41 (tehát C szerint B sebessége -40/41,
+a transzformáció mátrixát <a href="#Q0014">lásd itt</a>).
+Számoljuk ki, hogyan kell transzformálni
+B-nek, C-nek és egy önkényesen felvett A-nak a koordinátáit
+B-rendszeréből C-ébe (minden lépénél alkalmazzuk a
+<a href="#Q0013">fentebb leírt változó-helyettesítést</a>,
+de csak ez első lépésnél írjuk ki külön).
+Egyben számítsuk ki ezen három pont találkozásainak
+koordinátáit is (<a href="#Q0023">jelölésük:</a> T<sub>AB</sub>, T<sub>BC</sub>,T<sub>CA</sub>
+illetve röviden AB, AC, CA).
+<pre>
+X                           B                  C              A       AB   BC       CA
+             ----------------- ------------------ -------------- -------- ---- --------
+X<sub>B</sub>           (              t) (               t) (           t) (     0) (15) ( 250/3)
+             (              0) (-(40/41)t+600/41) (     -(4/5)t) (     0) ( 0) (-200/3)
+
+X<sub>B</sub>-T<sub>B</sub>        (           t-15) (            t-15) (        t-15) (   -15) ( 0) ( 205/3)
+             (              0) (-(40/41)t+600/41) (     -(4/5)t) (     0) ( 0) (-200/3)
+
+"változó-    (              t) (               t) (           t)
+ váltás"     (              0) (       -(40/41)t) (  -(4/5)t-12)
+
+L<sub>v</sub>(X<sub>B</sub>-T<sub>B</sub>)    (              t) (               t) (           t) (-205/3) ( 0) (    15)
+             (       (40/41)t) (               0) (   (4/5)t-12) (-200/3) ( 0) (     0)
+
+L<sub>v</sub>(X<sub>B</sub>-T<sub>B</sub>)+T<sub>C</sub> (              t) (               t) (           t) (-160/3) (15) (    30)
+=X<sub>C</sub>          ((40/41)t-600/41) (               0) (   (4/5)t-24) (-200/3) ( 0) (     0)
+</pre>
+Javaslom, hogy készíts ismét két ábrát a két megfigyelő
+szemszögéből nézve.
+</div>
+
+<div><a name="Q0017"><b>K:</b></a>
+Lehet még tovább fokozni ezt a kavarást?<br>
+<b>V:</b> A koordinátákat átszámíthatjuk C rendszeréből A rendszerébe;
+ehhez azt kell magadnunk, hogy A (saját ideje szerint) mikor találkozik
+C-vel. Mondjuk önkényesen a t=50 pillanatot választjuk
+(korább jelöléseinkkel: [AC]<sub>A</sub>=(50,0)). A transzformációt
+mátrixát <a href="#Q0018">itt</a> találod (v=4/5).
+<pre>
+X	                    B            C           A       AB    BC   CA
+--------     ----------------- ------------ ----------- -------- ----- ----
+[X]<sub>C</sub>         (              t) (         t) (        t) (-160/3) ( 15) (30)
+             ((40/41)t-600/41) (         0) ((4/5)t-24) (-200/3) (  0) ( 0)
+
+X<sub>C</sub>-[CA]<sub>C</sub>     (              t) (         t) (        t) (-250/3) (-15) ( 0)
+             ((40/41)t+600/41) (         0) (   (4/5)t) (-200/3) (  0) ( 0)
+
+L(X<sub>C</sub>-[CA]<sub>C</sub>)  (              t) (         t) (        t) (   -50) (-25) ( 0)
+	     (      (4/5)t+40) (     -4/5t) (        0) (     0) ( 20) ( 0)
+
+[X]<sub>A</sub>         (              t) (         t) (        t) (     0) ( 25) (50)
+	     (         (4/5)t) (-(4/5)t+40) (        0) (     0) ( 20) ( 0)
+</pre>
+Javaslom, hogy 'A' nézőpontjából is rajzold le az eseményeket,
+ez az ábra szép szimmetrikus lesz: először 'A' találkozik 'B'-vel (0,0),
+azután 'B' találkozik 'C'-vel (25,20), végül 'C' találkozik 'A1-val (50,0).
+'B' sebessége 4/5, 'C' sebessége pedig -4/5.
+</div>
+
+<div><a name="Q0019"><b>K:</b></a> Ehhez az számításhoz is tartozik valamilyen "mese"?<br>
+<b>V:</b> Felfogható egy jóárasított, akarom mondani 'gyorsulásmentesített' ikerparadoxonnak:
+'A' szempontjából 50 év (mondjuk most éppen egy év az időegység)
+telik el 'B' indulása és 'C' érkezése között,
+viszont 'B' és 'C' adatait összesítve csak 30 év telt el
+(amikor találkoztak, az mindkettejüknek a t=15 időpont volt).</div>
+
+<div><a name="Q0020"><b>K:</b></a> Szóval ebben a példában nem volt gyorsulás,
+és mégis fellépett az ikerparadoxon?<br>
+<b>V:</b> Gyorsulás nem volt, csak éppen <i>két</i> szereplő helyett <i>három</i> volt
+a történetben. A 'rendes' ikerparadoxonban az elutazó iker mozgása nem inerciális,
+hiszen visszafodul.</div>
+
+<div><a name="Q0021"><b>K:</b></a> De a visszafordulás nagyon rövid idő alatt
+is megtörténhet, akár el is hanyagolhatnánk...<br>
+<b>V:</b> Ezt a kifogást sajnos nem tudom elfogadni; a visszafordulást csak akkor
+tudnám figyelmen kívül hagyni, ha az utazó változatlan irányban és változatlan
+sebességgel haladna tovább... vagyis ha nem lenne semmiféle visszafordulás.
+</div>
+
+<div><a name="Q0024"><b>K:</b></a>
+Lehetne ezen a példán szemléltetni az <i>idődilatációt?</i><br>
+<b>V:</b> Próbáljuk meg! 
+Mondjuk a történet szereplői évente fényjelet küldenek egymásnak.
+Ha a hagyományos mechanika szerint működne a világ,
+akkor 'A' az első 45 év alatt 25 fényjelet kapna B-tól
+(tehát 45/25 = 1.8 évente egyet),
+a specrel szerint viszont csak 15-öt (tehát 45/15 = 3 évente egyet).
+C-től az utolsó öt év alatt 25 fényjelet várnánk
+a hagyományos mechanika szerint (tehát évente ötöt),
+a specrel szerint csak 15-öt (tehát évente hármat).
+Ha akarjuk, ezt mondhatjuk úgy, hogy 'B' és 'C' le vannak lassulva
+'A'-hoz képest.
+</div>
+
+<div><a name="Q0025"><b>K:</b></a>
+De miért nem 'A' van lelassulva 'B'-hez és 'C' hez képest?<br>
+<b>V:</b> Hogyne lenne lelassulva! Visszanézve az előbbieket,
+azt látjuk, hogy 'B' szempontjából a következőképpen történtek a dolgok:
+<pre>
+[T<sub>AB</sub>]<sub>B</sub>=(    0,     0) -- A és B találkozása
+[T<sub>BC</sub>]<sub>B</sub>=(   15,     0) -- B és C találkozása
+[T<sub>CA</sub>]<sub>B</sub>=(250/3,-200/3) -- C és A találkozása
+</pre>
+Vagyis 'B' szerint az egész történet 83 évig és 4 hónapig tartott,
+ezalatt 'A' mindössze 50 évet öregedett (és 50 fényjelet bocsátott ki),
+nyilván azért, mert 3/5 arányban le van lassulva.<br>
+Ugyanilyen eredményt kapunk C-szempontjából nézve:
+<pre>
+[T<sub>AB</sub>]<sub>C</sub>=(-160/3,-200/3) -- A és B találkozása
+[T<sub>BC</sub>]<sub>C</sub>=(    15,     0) -- B és C találkozása
+[T<sub>CA</sub>]<sub>C</sub>=(    30,     0) -- C és A találkozása
+</pre>
+Az eltelt idő 'C' szempontjából is 83 év és 4 hónap.
+</div>
+
+<div><a name="Q0028"><b>K:</b></a> Ennyi konkrét példa után levezethetjük a
+relativisztikus sebességösszeadás általános képletét (legalábbis egydimenziós esetre)?<br>
+<b>V:</b> Legyen adott 'A' és 'B' inerciális megfigyelő, valamint 'C' valami;
+az alábbi paraméterekkel: 'A'-hoz képest 'B' 'v' sebességgel halad,
+'B'-hez képest 'A' '-v' sebességgel, 'C' pedig 'B'-hez képest 'w' sebességgel,
+ahol -1&lt;v&lt;1, -1&#x2264;w&#x2264;1.<br>
+Kiszámítandó 'C' sebessége a szerint.<br>
+'B' szerint 'A' mozgása <span class="quote">(t,-vt)</span>, 'C'-é
+<span class="quote">(t,wt)</span>. A Lorentz-transzformációt elvégezve
+megkapjuk 'C' mozgását 'A' koordináta-rendszerében:
+<pre>
+       (1/sqrt(1-v<sup>2</sup>) v/sqrt(1-v<sup>2</sup>))   (t )                   (1-vw)   (&tau;            )
+[C]<sub>A</sub> = (                         ) * (  ) = (t/sqrt(1-v<sup>2</sup>) * (    ) = (             )
+       (v/sqrt(1-v<sup>2</sup>) v/sqrt(1-v<sup>2</sup>))   (tw)                   (v+w )   (&tau;(v+w)/(1+vw))
+</pre>
+A &tau; egy új független változó (lásd <a href="#Q0013">fentebb</a>), ami szintén az időt jelenti.
+Tehát a végeredmény: 'A' rendszerében 'C' sebessége <span class="quote">(v+w)/(1+vw)</span>.
+Abban az esetben, ha nem a c=1 értékkel számolunk, a képlet így alakul:
+<span class="quote">(v+w)/(1+vw/c<sup>2</sup>)</span>.
+<br>
+Említsük meg, hogy az általános (háromdimenziós) eset képlete sokkal bonyolultabb, és nem is szimmetrikus.
+</div>
+
+<div><a name="Q0026"><b>K:</b></a> Ha adott két inerciális megfigyelő
+(mondjuk 'A' és 'B'), akik egymáshoz képest 'v' sebességgel mozognak,
+és koordináta-rendszereik origója egyezik,
+valamint adott két esemény ('A' szerint koordinátáik (t<sub>1</sub>,x<sub>1</sub>)
+és (t<sub>2</sub>,x<sub>2</sub>), 'B' szerint (t'<sub>1</sub>,x'<sub>1</sub>)
+és (t'<sub>2</sub>,x'<sub>2</sub>)), akkor ugyebár a <a href="#Q0008">fenti képlet</a>
+szerint t<sub>1</sub>&#x2260;t'<sub>1</sub>, t<sub>2</sub>&#x2260;t'<sub>2</sub>,
+x<sub>1</sub>&#x2260;x'<sub>1</sub>, x<sub>2</sub>&#x2260;x'<sub>2</sub>,
+t<sub>2</sub>-t<sub>1</sub>&#x2260;t'<sub>2</sub>-t'<sub>1</sub> és
+x<sub>2</sub>-x<sub>1</sub>&#x2260;x'<sub>2</sub>-x'<sub>1</sub>.
+Van egyáltalán valami, ami egyenlő?<br>
+<b>V:</b> A fenti képlet szerint van, mégpedig ez:
+<pre>
+(t<sub>2</sub>-t<sub>1</sub>)<sup>2</sup> - (x<sub>2</sub>-x<sub>1</sub>)<sup>2</sup> = (t'<sub>2</sub>-t'<sub>1</sub>)<sup>2</sup> - (x'<sub>2</sub>-x'<sub>1</sub>)<sup>2</sup>
+</pre>
+<b>K:</b> Namost egyáltalán ez az érték pozitív vagy negatív?<br>
+<b>V:</b> Mindkettő előfordulhat; ha pozitív, akkor lehetséges, 
+hogy oksági kapcsolat van a két esemény között, vagyis egy fénysebességnél
+lassabb valami eljuthatott egyik eseményből a másikba.
+Ha a szám negatív, akkor ez lehetetlen.<br>
+<b>K:</b> És ha éppen nulla?<br>
+<b>V:</b> Akkor egy fénysebességgel haladó valami éppen eljuthat egyik eseményből a másikba.<br>
+</div>
+
+<div><a name="Q0027"><b>K:</b></a> Valami frappáns alkalmazása ennek?<br>
+<b>V:</b> Ha mondjuk x<sub>i</sub>=vt<sub>i</sub>, akkor x'<sub>i</sub>=0,
+és a képlet így egyszerűsödik:
+<pre>
+(t'<sub>2</sub>-t'<sub>1</sub>)<sup>2</sup> = (t<sub>2</sub>-t<sub>1</sub>)<sup>2</sup> - (x<sub>2</sub>-x<sub>1</sub>)<sup>2</sup> =
+= (t<sub>2</sub>-t<sub>1</sub>)<sup>2</sup>(1-v<sup>2</sup>)
+</pre>
+Amit úgy is mondhatunk, hogy
+<pre>
+T'=T*sqrt(1-v<sup>2</sup>)
+</pre>
+Ahol <span class="quote">T</span> az álló 'A' megfigyelő szerint a két esemény között
+eltelt idő, <span class="quote">T'</span> pedig a 'v' sebességű 'B' megfigyelő szerint
+eltelt idő.<br>
+Ha a sebesség nem állandó, hanem az idő függvénye, akkor <span class="quote">T'</span>
+integrálással számolható ki:
+<pre>
+T' = &#x222b; sqrt(1-v<sup>2</sup>) dt
+</pre>
+</div>
+
+</body></html>
