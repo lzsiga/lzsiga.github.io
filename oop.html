@@ -1,0 +1,300 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Objektumorientált FAQ</title>
+
+<style type="text/css">
+pre {
+    background: lightgrey; 
+    margin: 0.1em 0 0.1em 0;
+    padding-left: 1em; }
+div, p { margin: 0 0 1em 0; }
+span.quote { 
+    background: lightgrey; font-family: monospace; 
+    padding-left: 1px; padding-right: 1px; }
+</style>
+
+</head><body>
+
+<p><b>Objektumorienált FAQ</b></p>
+
+<div><b><a name="Q0005">K:</a></b> Igaz, hogy az öröklés az OOP egyik fontos eleme?<br>
+És igaz, hogy az öröklés egyik fontos eleme az, hogy a leszármazott osztály,
+képes legyen az alaposztály összes funkciójára?<br>
+Tehát pl. egy <span class="quote">Derived</span> tipusú elemet használhassunk mindenhol,
+ahol egy <span class="quote">Base</span> tipusú elemet kérnek tűlünk?<br>
+<b>V:</b> Ez mind igaz, de azért némi óvatosságot vegyítsünk a dologba, különben ilyesmiket
+fogunk alkotni:
+<pre>
+    Base *b= new Derived [2];
+
+    b[0].intro ();
+    b[1].intro ();
+</pre>
+<b>K:</b> Mit is kellene itt lássak?<br>
+<b>V:</b> Mivel a 'Base' és a 'Derived' mérete különböző, a 'b[1]' hivatkozás nem a második
+'Derived' elemet fogja megcélozni, hanem az első elem valamelyik adatterületét,
+és azt fogja 'vtable'-ként értelmezni.<br>
+<b>K:</b> Akkor el lehetne képzelni egy olyan modellt, ahol objektumok 'tömbösítve' nem,
+csak 'önállóan' létezhetnek?<br>
+<b>V:</b> Igen, így működik pl. a Java nyelv. Ott a programozó az objektumokat csak pointereken
+át éri el (még ha nem is tud erről); ha pl. egy objektumtömböt (SomeClass []) hoz létre,
+valójában az is pointerek tömbje lesz.
+</div>
+
+<div><b><a name="Q0001">K:</a></b> A C++-beli referenciák on-topiknak számítanak itt?<br>
+<b>V:</b> Nem, azok semmit sem tesznek hozzá a C++ OOP-mivoltához.</div>
+
+<div><b><a name="Q0002">K:</a></b> Azt hallottam, hogy a C++-beli referencia <i>'nem pointer, hanem maga az objektum'.</i>
+Ha ez igaz, akkor hogyan létezhet érvénytelen (dangling) referencia?<br>
+<b>V:</b> Nyilván sehogy. A jegyzőkönyv kedvéért rögzítsük, hogyan készül az érvénytelen referencia:
+<pre>
+    int &amp;ref1= *(int *)0;
+    int &amp;ref2= *new int; delete &amp;ref2;
+    int &amp;ref3= *(int *)malloc (sizeof (int)); free (&amp;ref3);
+</pre>
+</div>
+
+<div><b><a name="Q0003">K:</a></b> Oké, lehet, hogy a referencia <i>jelenleg</i> csak egy speciális
+szintaxisú módosíthatatlan pointer, de a jövőben ez változhat, tehát a referencia akár tényleg
+az <i>'objektum szinonímájává'</i> válhat?<br>
+<b>V:</b> Én is ettől félek: adott egy 35 éve létező progamozási nyelv, amiben nem kizárt,
+hogy a jövőben alapvető dolgokban koncepcionális változások következzenek be.
+</div>
+
+<div><b><a name="Q0004">K:</a></b> Ha a referencia igazából pointer,
+akkor nem lehetne megszüntetni a pointereket, hogy egy duplikált featúrával kevesebb legyen?<br>
+<b>V:</b> Nem, mert a referenciák korlátozott képességű (magyar szóval: <i>crippled)</i> pointerek:
+az inicializálás után nem lehet megváltoztatni őket.
+</div>
+
+<div><b><a name="Q0009">K:</a></b> Azért a <A href="#Q0002">fentiek</a> elég mesterkélt példák,
+ugyebár 'normális' használatban ilyesmi nem fordulhat elő?<br>
+<b>V:</b> De igen, például egy ilyen esetben:
+<pre>
+MyObject *array = malloc (16 * sizeof (MyObject));
+MyObject &amp;elem = array[3];
+MyObject *elemptr = &amp;array[3];
+array = realloc (array, 32 * sizeof (MyObject));
+</pre>
+
+<b>K:</b> Mit is kellene itt látni?<br>
+<b>V:</b> A 'realloc' elmozgathatja a tömböt, és ha ez történik, akkor az 'elemptr' érvénytelen
+pointerré válik. Az 'elem' viszont nem érvénytelen pointerré, hanem <I>érvénytelen referenciává</I> 
+(magyarul <I>dangling reference)</I> válik.<br>
+
+<b>K:</b> Na most ez lehet, hogy ez bizony mértékig igaznak látszik, de ha nem elavult
+tömböt használnál, hanem valamilyen korszerű STL-konténert (például vektort),
+akkor ilyen 'elmozdulás' nem fordulhat elő.<br>
+<b>V:</b> Ebben biztos vagy? Tudod, hogy azok belsőleg hogyan működnek?<br>
+
+<b>K:</b> Ööö. Nem.<br>
+</div>
+
+<div style="text-align: center;"><a name="S0001"><b>&#8212; Előkészítés &#8212;</b></a></div>
+
+<div><b><a name="Q0006">K:</a></b> Az a szó, hogy <I>pointer</I> mit jelent?
+Típust, típus-konstrukciót, változót, konstanst, literált?<br>
+<b>V:</b> Igen, ezek mindegyikét, ez egy kellően általános szó, tehát a fentiek mindegyikére vonatkozhat.
+</div>
+
+<div><b><a name="Q0007">K:</a></b> Fogadjunk, hogy az <I>integer</I> is ilyen 'sokjelentésű fogalom' szerinted!<br>
+<b>V:</b> Hát igen, az egy típus (vagy típus-család, int8_t-től uintmax_t-ig), aminek vannak értékei (literálok),
+valamint vannak ilyen típusú változók és konstansok.
+</div>
+
+<div><b><a name="Q0008">K:</a></b> Dehát végül is ez olyan, mint a matematikában a <I>halmaz</I> meg az <I>elem:</I>
+van az egész számok halmaza, annak elemei az egyes számok. Vagy van a 'négyzetek halmaza', egy konkrét ABCD
+négyzet ennek egy eleme. Nem ugyanígy van ez a programozásban is?<br>
+<b>V:</b> Majdnem. A programozásban használt <I>változó</I> fogalma nem létezik a matematikában.
+Ott, ha definiáljuk az <I>x</I> számot, az <I>e</I> egyenest, a <I>k</I> kört vagy az <I>f</I> függvényt,
+akkor az abban a számításban/levezetésben úgy is marad; nincs olyan, hogy pl. 'x:=x+2' vagy
+'nagyítsuk fel a k kört kétszeresése'; csak olyan van, hogy 'x<sub>1</sub>:=x+2' vagy
+'k<sup>*</sup> legyen k kétszeresére felnagyítva'.<br>
+<b>Megj:</b> Lentebb a 'matematika off-topik' résznél van egy <a href="#Q0011">egyszerű példa</a>.
+</div>
+
+<div style="text-align: center;"><a name="S0003"><b>&#8212; Öröklődés &#8212;</b></a></div>
+
+<div><b><a name="Q0012">K:</a></b> Ugyebár az öröklődés nagyon alkalmas hierarchikus fogalmak
+reprezentálására?<br>
+<b>V:</b> A legnagyobb mértékben!
+</div>
+
+<div><b><a name="Q0013">K:</a></b> És vajon az egyszerűbb elemből származtatjuk a bonyolultabbat
+(például körből az ellipszist, négyzetből a téglalapot); vagy fordítva:
+a bonyolultabból az egyszerűbbet?<br>
+<b>V:</b> Hát az igazszág az, hogy mindkettővel vannak problémák.
+</div>
+
+<div><b><a name="Q0014">K:</a></b> Mondjuk azt választjuk, hogy a téglalapból származtatjuk
+a négyzetet, ellipszisből a kört. Ez pont megfelel a matematikai hierarchiának:
+a téglalap egy speciális négyzet, a kör egy speciális ellipszis.
+Milyen gond lehet itt?<br>
+<b>V:</b> Az <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">OO-egyik eszméje</a>
+szerint a leszármazott osztálynak tudnia kell helyettesíteni a szülőosztályt.
+Mondjuk az ellipszisnek vannak olyan metódusai, <i>'tengelyek lekérdezése',</i>
+és <i>'tengelyek beállítása'.</i><br>
+A körnek ugyebár csak sugara van. Ez a lekérdezésnél nem gond,
+viszont az értékadásnál mit csináljunk, ha a két érték nem egyforma?
+Például vehetjük a két érték mértani közepét sugárnak, vagy megtagadhatjuk a művelet
+végrehajtását, esetleg az objektumunk típusát 'Kör'-ről 'Ellipszis'-re változtathatjuk
+(ha az adott környezetben egyáltalán van ilyen opció).</div>
+
+<div><b><a name="Q0015">K:</a></b> De a másik iránnyal biztos nincs gond, ugye?
+Ez közelebb is áll a programozói intuicíóhoz: a négyzetnek csak egy paramétere van
+('a'), a téglalap ennek egy kibővítése, két paraméterrel ('a' és 'b'),
+a paralelogrammának még egy paramétere van, a két szomszédos oldal szöge (mondjuk
+a két lehetséges érték közül a kisebbet tároljuk).<br>
+<b>V:</b> Valóban, ez közelebb áll a programozói gondolkodásmódhoz,
+de azért lehetnek buktatók: a négyzetnek van olyan művelete,
+ami az (általános) téglalapnak nincs, és a téglalapnak is van olyan művelete,
+ami az általános paralelogrammának nincs.<br>
+<b>K:</b> Mégpedig?<br>
+<b>V:</b> Például a négyzetnek lehet olyan művelete, hogy <I>'add meg az átlót tartalmazó
+szimmetriatengely irányvektorát',</I> a téglalapnak meg olyan, hogy <i>'add meg a körülírt kör
+sugarát'.</i>
+</div>
+
+<div><b><a name="Q0016">K:</a></b> Várjunk csak, a matematikusnak miért nincs ilyen gondja?
+Mondjuk egy téglalapon végrehajt egy transzformációt, amitől az paralelogramma lesz, és &ndash;<br>
+<b>V:</b> Nem, a derék téglalap megmarad téglalapnak, csak létrejön egy paralellogramma is.
+</div>
+
+<div><b><a name="Q0017">K:</a></b> Na jó, akkor van egy nagy ötletem: minden objektum legyen konstans;
+ha valamilyen változás történne vele, akkor ehelyett jöjjön létre egy új objektum,
+esetleg különböző típussal (négyzetből 'széthúzással' téglalap lehet,
+ellipszisből 'összenyomással' kör).<br>
+<b>V:</b> Hát, ez nagyon derék dolog lenne a triviális mintapéldák világában,
+de valós alkalmazásoknál nem nagyon tudom elképzelni.
+Ugyebár a gyakorlati alkalmazásokban az objektumok kapcsolati hálóban vannak egymással,
+ha tehát a módosíthatatlan objektumokat folyton megszüntetnénk és újra-létrehoznánk,
+akkor az történne, hogy ha átfestenek egy autót, akkor kell egy új autó-objektum,
+meg egy új autótulajdonos objektum is (hiszen az autóját kicseréltük egy másikra,
+ez pedig változás).<br>
+<b>K:</b> Szerintem ezt most sarkítottan eltúloztad, illetve túlzottan kisarkítottad...<br>
+<b>V:</b> Ellenkezőleg, leegyszerűsítettem: a valós példákban ugyanis gyakori a kétirányú (avagy körkörös)
+kapcsolat, vagyis az autó felől is haladhatunk a tulajdonos felé, meg fordítva is,
+vagyis mindkét (pontosabban: az összes érintett) objektumot egyszerre kellene valamiképpen módosítani...
+Nem látom be, hogy ez vezetne valahová.
+</div>
+
+<div><b><a name="APP0000">Mintaosztályok a programrészletekhez</a></b>
+<pre>
+class <b>Base</b> {
+public:
+    long base;
+    Base (long b): base (b) {};
+    virtual void intro () { printf ("Base; base=%ld\n", base); }
+};
+
+class <b>Derived:</b> public Base {
+private:
+    static long cnt;
+public:
+    long derived;
+    Derived (): Base (++cnt), derived(++cnt) {};
+    Derived (long b, long d): Base (b), derived(d) {};
+    virtual void intro () { printf ("Derived; base=%ld derived=%ld\n", base, derived); }
+};
+long Derived::cnt= 0;
+</pre></div>
+
+<div style="text-align: center;"><a name="S0004"><b>&#8212; Opaque type in C &#8212;</b></a></div>
+<div>Example for opaque type in pure C. Header-file:
+<pre>
+/* mytype.h */
+
+#ifndef MYTYPE_H
+#define MYTYPE_H
+
+typedef struct MyType MyType; /* opaque */
+
+MyType *MyType_Alloc (int par);
+void    MyType_Release (MyType *mp);
+
+int MyType_Operation1 (MyType *mp, int par1, int par2);
+
+#endif
+</pre>
+source code:
+<pre>
+/* mytype.c */
+
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+#include "mytype.h"
+
+struct MyType {
+    int somedata;
+};
+
+MyType *MyType_Alloc (int par) {
+    MyType *mp= malloc (sizeof *mp);
+    mp->somedata= par;
+    return mp;
+}
+
+void MyType_Release (MyType *mp) {
+    memset (mp, 0, sizeof *mp);
+    free (mp);
+}
+
+int MyType_Operation1 (MyType *mp, int par1, int par2) {
+    return mp->somedata + par1 + par2;
+}
+</pre>
+test:
+<pre>
+/* mytypetest.c */
+
+#include &lt;stdio.h&gt;
+
+#include "mytype.h"
+
+int main (void) {
+    MyType *mp= MyType_Alloc (20200000);
+    int sum= MyType_Operation1 (mp, 100, 25);
+    printf ("sum=%d\n", sum);
+    MyType_Release (mp);
+    return 0;
+}
+</pre></div>
+
+<div style="text-align: center;"><a name="S0002"><b>&#8212; Matematika off-topik &#8212;</b></a></div>
+
+<div><a name="Q0010"><b>K:</b></a> Hogyan definiáljuk 'matematikusan' például egy 'A' alaphalmaz feletti bináris fák halmazát?<br>
+<b>V:</b> Lehet <i>konstruktívan</i> (egy végtelen halmazsorozat uniójaképpen),
+vagy pedig <i>axiomatikusan.</i>
+Az utóbbi azt jelenti, hogy igazából nem definiálunk semmit, hanem téged kérünk meg, hogy képzelj
+el bármit, ami teljesít néhány feltételt, avagy axiómát (programozósan: kielégíti a specifikációt).<br>
+Nézzük meg az utóbbit:<br>
+Adott az 'A' halmaz, most kérünk tőled valamilyen 'T' halmazt, annak egy 'u' elemét,
+valamint egy 'f' és egy 'h' nevű függvényt az alábbi feltételekkel:
+<pre>
+u &#x2208; T
+f: TxAxT &#x2192; T\{u} bijekció
+h: T &#x2192; N (N: nemnegatív egészek halmaza)
+   h(u)=0
+   &#x2200;t<sub>1</sub>&#x2208;T,a&#x2208;H,t<sub>2</sub>&#x2208;T: h(f(t<sub>1</sub>,h,t<sub>2</sub>))=1+max(h(t<sub>1</sub>),h(t<sub>2</sub>))
+</pre>
+<b>Megj:</b> Itt 'u' az üres fát jelenti; az 'f'-re vonatkozó feltétel azt mondja ki, hogy
+két fából és egy alaphalmazból összeáll egy újabb fa, illetve fordítva: egy nemüres fa
+felbontható két fára és egy alaphalmazbeli elemre; 'h' a fa mélysége, rá azért van szükség, hogy
+ne legyenek se végtelen, se önmagukat tartalmazó fák.
+</div>
+
+<div><a name="Q0011"><b>K:</b></a> Hát... azért kérhetném a konstruktív definíciót is?<br>
+<b>V:</b> Parancsolj:
+<pre>
+T<sub>0</sub>:={0}, S<sub>0</sub>:=T<sub>0</sub>
+T<sub>i+1</sub>:={(t<sub>1</sub>,a,t<sub>2</sub>):t<sub>1</sub>,t<sub>2</sub>&#x2208;S<sub>i</sub>,a&#x2208;A}, S<sub>i+1</sub>:=S<sub>i</sub> U T<sub>i</sub>
+T:=U<sub>(i&#x2208;N)</sub>T<sub>i</sub>
+</pre>
+Értelemszerűen itt az üres halmaz (0) reprezentálja az üres fát; egy 't' fa mélységét itt az mutatja,
+hogy melyik T<sub>i</sub> halmaznak eleme; minden T<sub>i</sub> halmaz véges (mélységű) fákat tartalmaz,
+ezért az uniójuk (T halmaz) is csak véges fákat tartalmaz.
+</div>
+
+</body></html>
