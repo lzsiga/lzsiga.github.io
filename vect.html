@@ -1,0 +1,420 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Elemi vektorszámítások</title>
+<style type="text/css">
+pre {
+    background: lightgrey; 
+    margin: 0.1em 0 0.1em 0;
+    padding-left: 1em; }
+div, p { margin: 0 0 1em 0; }
+span.quote { 
+    background: lightgrey; font-family: monospace; 
+    padding-left: 1px; padding-right: 1px; }
+dt {
+    font-weight: bold;
+    margin-top: 0.5em;
+}
+</style>
+
+</head><body>
+<p><b>Elemi vektorszámítások</b></p>
+
+<div><b>Jelölések, definíciók</b><br>Lehetnek közöttük teljesen önkényes, szabványon kívüliek is,
+ezért előre is elnézést kérek.
+<dl>
+  <dt>Automatikus összegzés:
+  <dd>Ha egy szorzatban egy index kettő vagy több alkalommal szerepel, akkor automatikusan összegezni kell az illető index szerint, pl.:
+      <span class="quote">A<sub>il</sub> := B<sub>ij</sub>C<sub>jk</sub>D<sub>kl</sub></span> esetén a jobboldalon
+      <i>j</i> és <i>k</i> szerint kell összegezni.
+      Ez nem vonatkozik  'kötött' indexekre, mint pl. itt az i-re:
+      <span class="quote">a<sub>i</sub> = b<sub>i</sub>c<sub>i</sub></span>
+
+  <dt>Derivált, egyváltozós (skalárváltozós) függvényé
+  <dd>skalárértékű függvény deriváltja skalárértékű függvény,
+      vektorértékű függvény deriváltja vektorértékű függvény<br>
+      jelölése: <span class="quote">f' = df/dt</span>,
+      <span class="quote"><b>g</b>' = d<b>g</b>/dt = [<b>g</b><sub>i</sub>']<sub>i</sub></span>
+
+  <dt>Derivált, többváltozós (vektorváltozós) függvényé, parciális
+  <dd>skalárértékű függvény parciális deriváltja skalárértékű függvény,
+      vektorértékű függvény parciális deriváltja vektorértékű függvény<br>
+      jelölése: <span class="quote">∂<sub>i</sub>f = ∂<sub>x<sub>i</sub></sub>f
+      = ∂f/∂x<sub>i</sub></span>,
+      <span class="quote">∂<sub>i</sub><b>g</b> =
+      ∂<sub>x<sub>i</sub></sub><b>g</b> =
+      ∂<b>g</b>/∂x<sub>i</sub> =
+      [∂<sub>i</sub><b>g</b><sub>j</sub>]<sub>j</sub></span>
+
+  <dt>Derivált, teljes
+  <dd>egy vektor-vektor függvény teljes deriváltja (avagy Jacobi mátrixa):<br>
+      <span class="quote">d<b>f</b> =
+      J<sub><b>f</b></sub> = [∂<sub>j</sub><b>f</b><sub>i</sub>]<sub>ij</sub> = (∇<b>f</b><sup>T</sup>)<sup>T</sup>
+      = (∇⊗<b>f</b>)<sup>T</sup></span><br>
+      Ha az <span class="quote"><b>f</b></span> függvény <span class="quote"><b>R</b><sup>n</sup></span>-ről
+      <span class="quote"><b>R</b><sup>m</sup></span>-re képez, akkor
+      a <span class="quote">d<b>f</b></span> függvény <span class="quote"><b>R</b><sup>n</sup></span>-ről
+      <span class="quote"><b>R</b><sup>mxn</sup></span>-re képez.
+
+  <dt>Derivált, gradiens
+  <dd>skalárértékű vektorváltozós függvény gradiense egy vektorváltozós vektorértékű függvény:
+      <span class="quote">grad f = [∂<sub>i</sub>f]<sub>i</sub></span><br>
+      Jelölése nabla operátorral: <span class="quote">grad f = ∇f</span>,<br>
+      Kapcsolat a teljes deriválttal: <span class="quote">grad f = (df)<sup>T</sup></span>
+
+  <dt>Derivált, divergencia
+  <dd>vektorértékű vektorváltozós függvény divergenciája egy vektorváltozós skalárértékű függvény:
+      <span class="quote">div <b>f</b> = ∂<sub>i</sub><b>f</b><sub>i</sub></span><br>
+      Jelölése nabla operátorral: <span class="quote">div <b>f</b> = ∇⋅<b>f</b> = ∇<sup>T</sup><b>f</b></span><br>
+      Kapcsolat a teljes deriválttal: <span class="quote">div <b>f</b> = trace(d<b>f</b>)</span>
+
+  <dt>Derivált, rotáció
+  <dd>csak háromdimenziós térben értelmezett operátor;
+      vektorértékű vektorváltozós függvény rotációja egy vektorváltozós vektorértékű függvény:<br>
+      <span class="quote">rot <b>f</b> =
+      [ε<sub>ijk</sub>∂<sub>j</sub><b>f</b><sub>k</sub>]<sub>i</sub></span><br>
+      Jelölése nabla operátorral: <span class="quote">rot <b>f</b> = ∇×<b>f</b></span><br>
+      Kapcsolat a teljes deriválttal: <span class="quote"> rot <b>f</b> = twist(∇⊗<b>f</b>)
+      = -twist(d<b>f</b>)</span>
+
+  <dt>Egyenlőségfüggvény
+  <dd>Legyen i és j egészek esetén <span class="quote">e<sub>ij</sub></span> értéke 1,
+      ha i=j és 0 egyébként.
+      Példa a használatára: <span class="quote">∂<sub>i</sub>x<sub>j</sub> =
+      e<sub>ij</sub></span>,
+      <span class="quote">I = [e<sub>ij</sub>]<sub>ij</sub></span>
+
+  <dt>Egymásmellé írás (jelöletlen szorzás)
+  <dd>skalár szorzása skalárral <span class="quote">λκ</span><br>
+      skalár és vektor szorzata <span class="quote">λ<b>v</b></span><br>
+      skalár és mátrix szorzata <span class="quote">λA</span><br>
+      mátrixszorzás <span class="quote">A<b>b</b></span>
+      vagy <span class="quote"><b>b</b><sup>T</sup>A<b>c</b></span>
+      vagy <span class="quote"><b>b</b><sup>T</sup><b>c</b></span>
+      vagy <span class="quote"><b>b</b><b>c</b><sup>T</sup></span><br>
+      tovább lásd lentebb az 'Operátor szorása' részt
+
+  <dt>Hosszúság, avagy abszolút érték
+  <dd>Egy vektor hossza vagy abszolút értéke az önmagával vett skalárszorzat
+      négyzetgyöke:
+      <span class="quote">|<b>r</b>| = abs(<b>r</b>) = sqrt(<b>r</b>⋅<b>r</b>)</span>
+      <br>Egy skalár hossza a hagyományos értelmben vett abszolút értéke.
+
+  <dt>Identitásfüggvény
+  <dd>skalár-skalár vagy vektor-vektor függvény, a függvényérték azonos
+      a paraméterrel; jele <span class="quote">id</span>,
+      <span class="quote"><b>id</b></span>,
+      <span class="quote"><b>id</b><sub>n</sub></span> ahogy az egyértelműség
+      megkívánja.
+
+  <dt>Levi-Civita epsilon
+  <dd>n-változós függvény, aminek a (rendszerint alsóindexként jelölt) paraméterei 1-n közötti egészek,
+      a függvényérték pedig 0 vagy ±1. Nulla, ha a paraméterek között van ismétlődő érték;
+      1, ha a paraméterek páros számú cserével átrendezhetőek az 1..n sorozattá;
+      -1 ha ehhez páratlan sok csere kell. pl.: <span class="quote">ε<sub>123</sub> = 1, </span>
+      <span class="quote">ε<sub>321</sub> = -1</span><br>
+      Példa: <span class="quote">ε<sub>kij</sub> = -ε<sub>ikj</sub> = ε<sub>ijk</sub></span>,
+      <span class="quote">ε<sub>kji</sub> = -ε<sub>ijk</sub></span>
+
+  <dt>Mátrix elemeinek elérése
+  <dd>Két alsóindexszel jelöljük a kívánt elemet, pl.: 
+      <span class="quote">A<sub>ij</sub> = <b>u</b><sub>i</sub> + <b>v</b><sub>3-i</sub></span>
+
+  <dt>Mátrix sorainak elérése
+  <dd>Egy alsóindexszel jelöljük a kívánt sort, így megadva egy sorvektort:
+      <span class="quote">[A<sub>i</sub>]<sub>j</sub> = A<sub>ij</sub></span>
+
+  <dt>Mátrix oszlopainak elérése
+  <dd>Az alábbi speciális jelöléssel válasszuk ki a kívánt oszlopot, így megadva egy oszlopvektort:
+      <span class="quote">[A<sub>col=j</sub>]<sub>i</sub> = A<sub>ij</sub></span><br>
+      <span class="quote">A<sub>col=j</sub> = ((A<sup>T</sup>)<sub>j</sub>)<sup>T</sup></span>
+
+  <dt>Mátrix leírása komponensenként
+  <dd>Egyszerűsített lehetőség egy mátrix elemeinek megadására: <span class="quote">A = [<i>képlet(i,j)</i>]<sub>ij</sub></span>
+      pl. <span class="quote">A<sup>T</sup> = [A<sub>ji</sub>]<sub>ij</sub></span>
+
+  <dt>Mátrixszorzás
+  <dd>asszociatív de nem kommutatív művelet, melyet egymásmellé írás jelöl.
+      Két mátrix összeszorozható, ha az első oszlopai száma megegyezik a második sorai számával.
+      Az oszlopvektor n×1-es, a sorvektor 1×n-es mátrixnak tekintendő.<br>
+      Definíció: <span class="quote">[AB]<sub>ij</sub> := A<sub>ik</sub>B<sub>kj</sub></span><br>
+      Egyes műveletek visszavezethetők mátrixszorzásra, pl.:
+      <span class="quote"><b>a</b>⋅<b>b</b> = <b>a</b><sup>T</sup><b>b</b></span>,
+      <span class="quote"><b>a</b>⊗<b>b</b> = <b>ab</b><sup>T</sup></span><br>
+
+  <dt>Egységmátrix
+  <dd>Olyan nxn-es mátrix, melyre <span class="quote">I<sub>ij</sub> = e<sub>ij</sub></span>,
+      vagyis a főátlóban csupa egy van, a többi eleme null. Szükség esetén a dimenzióját
+      indexszel jelöljük: <span class="quote">I<sub>1</sub></span>,
+      <span class="quote">I<sub>3</sub></span>,
+      <span class="quote">I<sub>n</sub></span>
+
+  <dt>Mátrix nyoma
+  <dd>Egy négyzetes mátrix <I>nyoma</I> a főátló elemeinek összege:
+  <span class="quote">trace(A) = A<sub>jj</sub></span>
+
+  <dt>Mátrix csavarodása
+  <dd>Egy 3x3-es mátrix <I>csavarodása</I> a következő oszlopvektor:
+  <span class="quote">twist(A) = [ε<sub>ijk</sub>A<sub>jk</sub>]<sub>i</sub>
+      = (A<sub>23</sub>-A<sub>32</sub>, A<sub>31</sub>-A<sub>13</sub>, A<sub>12</sub>-A<sub>21</sub>)<sup>T</sup></span><br>
+      <span class="quote">twist(A<sup>T</sup>) = -twist(A)</span>
+
+  <dt>Nabla operátor (∇)
+  <dd>egy differenciáloperátor, amit formálisan oszlopvektorként ábrázolunk <span class="quote">∇ = [∂<sub>i</sub>]<sub>i</sub></span><br>
+      kontextustól függően jelölhet például gradienst (∇g), divergenciát (∇⋅<b>f</b>)
+      vagy rotációt (∇×<b>f</b>) is.
+
+  <dt id="I0006">Operátor szorzása
+  <dd>operátor alkalmazását egymás mellé írás jelöli:
+      <span class="quote">∂<sub>i</sub><b>f</b></span> vagy <span class="quote">∇g</span>
+      (figyelem, ez a művelet nem kommutatív)<br>
+      Az operátor és az operandus között további szorzásjel is állhat,
+      ilyenkor annak a szorzásnak a definícióját kell figyelembe venni, pl:<br>
+      <span class="quote">∇⋅<b>g</b> = ∂<sub>i</sub><b>g</b><sub>i</sub></span>,
+      <span class="quote">∇×<b>b</b> = [ε<sub>ijk</sub>∂<sub>j</sub><b>b</b><sub>k</sub>]<sub>i</sub></span>
+      <br>
+      Ha viszont az operátor a szorzás jobboldalán szerepel, az eredmény is operátor,
+      amit úgy definiálunk, hogy megadjuk az eredményét egy általános operandusra pl.:<br>
+      <span class="quote">(<b>a</b>⋅∇)<b>b</b> = <b>a</b><sub>j</sub>∂<sub>j</sub><b>b</b></span>,
+      <span class="quote">(<b>a</b>×∇)⋅<b>b</b>
+      = ε<sub>ijk</sub><b>a</b><sub>j</sub>(∂<sub>k</sub><b>b</b><sub>i</sub>)
+      </span>
+
+  <dt id="I0001">Skaláris szorzás (szorzóponttal jelölt szorzás)
+  <dd>vektorok skaláris szorzata <span class="quote"><b>a</b>⋅<b>b</b>
+      = <b>a</b><sup>T</sup><b>b</b> = a<sub>i</sub>b<sub>i</sub></span><br>
+      ezt általánosítva vektor és mátrix skaláris szorzatát így definálhatjuk:<br>
+      <span class="quote"><b>a</b>⋅B = (<b>a</b><sup>T</sup>B)<sup>T</sup>
+      = [<b>a</b><sub>i</sub>B<sub>ij</sub>]<sub>j</sub></span>
+      (a szorzat egy oszlopvektor)<br>
+      Ha a szorzás kommutatív, akkor
+      <span class="quote"><b>a</b>⋅B = B<sup>T</sup><b>a</b></span><br>
+      A nabla operátor alkalmazását is ábrázolhatjuk skaláris szorzásként
+      (ez a "szorzás" se nem kommutatív, sem asszociatív)<br>
+      <span class="quote">∇⋅<b>f</b> = ∂<sub>i</sub>f<sub>i</sub></span>
+      (a szorzat egy skalár)<br>
+      <span class="quote">∇⋅B = (∇<sup>T</sup>B)<sup>T</sup>
+      = [∂<sub>i</sub>B<sub>ij</sub>]<sub>j</sub></span>
+      (a szorzat egy oszlopvektor)
+
+  <dt>Transzponált (jele x<sup>T</sup>)
+  <dd>Egy n*m es mátrix transzponáltja m*n-es mátrix: <span class="quote">A<sup>T</sup><sub>ij</sub> = A<sub>ji</sub></span><br>
+      egy <i>n</i> elemű sorvektor transzponáltja <i>n</i> elemű oszlopvektor,
+      egy <i>n</i> elemű oszlopvektor transzponáltja <i>n</i> elemű sorvektor
+
+  <dt>Vektor
+  <dd>Szám-<i>n</i>-es, amit alapvetően oszlopvektorként ábrázolunk;
+      ha sorvektorként akarjuk használni, az a transzponálás operátorral jelezhetjük,
+      vagy pedig egysoros mátrixként írhatjuk le:
+      <span class="quote"><b>rowVect</b> = <b>colVect</b><sup>T</sup></span>,
+      <span class="quote"><b>rowVect</b><sub>i</sub>= <b>rowVect</b><sub>1i</sub>
+      = <b>colVect</b><sub>i1</sub> = <b>colVect</b><sub>i</sub></span><br>
+      Konstans vektorokon kívül vektorértékű és/vagy vektorváltozós függvényekkel is dolgozunk,<br>
+      sőt: operátort is ábrázolhatunk vektorként, lásd a nabla operátornál.<br>
+      A vektorokat gyakran vastag betűvel jelöljük.
+
+  <dt>Vektor elemeinek elérése
+  <dd>Alsóindexszel jelöljük a kívánt elemet, pl.: <span class="quote"><b>v</b><sub>i</sub></span>
+      vagy <span class="quote"><b>w</b><sub>3-i</sub></span>
+
+  <dt>Vektor leírása komponensenként
+  <dd>Egyszerűsített lehetőség egy oszlopvektor elemeinek megadására: <span class="quote"><b>v</b> = [<i>képlet(i)</i>]<sub>i</sub></span>
+      pl. <span class="quote"><b>b</b> = [A<sub>ij</sub><b>b</b><sub>j</sub>+<b>c</b><sub>i</sub>]<sub>i</sub></span>
+
+  <dt>Vektorok külső szorzata (jele: ⊗)
+  <dd>két oszlopvektor külső szorzata egy mátrix: <span class="quote"><b>a</b>⊗<b>b</b> = <b>ab</b><sup>T</sup></span>
+
+  <dt>Vektorszorzat (jele: ×)
+  <dd>két háromdimenziós vektor szorzata egy újabb vektor, mely merőleges mindkét eredeti vektorra.<br>
+      Definíció: <span class="quote"><b>a</b>×<b>b</b> = [ε<sub>ijk</sub><b>a</b><sub>j</sub><b>b</b><sub>k</sub>]<sub>i</sub>
+      = (<b>a</b><sub>2</sub><b>b</b><sub>3</sub>-<b>a</b><sub>3</sub><b>b</b><sub>2</sub>,
+         <b>a</b><sub>3</sub><b>b</b><sub>1</sub>-<b>a</b><sub>1</sub><b>b</b><sub>3</sub>,
+         <b>a</b><sub>1</sub><b>b</b><sub>2</sub>-<b>a</b><sub>2</sub><b>b</b><sub>1</sub>)</span>
+      avagy <span class="quote"><b>a</b>×<b>b</b> = twist(<b>a</b>⊗<b>b</b>)</span><br>
+      Formálisan a nabla operátorral is lehet vektorszorzást végezni (csak balról), ez a rotáció:<br>
+      <span class="quote">∇×<b>b</b> = [ε<sub>ijk</sub>∂<sub>j</sub><b>b</b><sub>k</sub>]<sub>i</sub>
+      = twist(∇⊗<b>b</b>)</span>
+
+  <dt>Vegyesszorzat
+  <dd>Három darab háromdimenziós vektor <i>vegyes szorzatát</i> így defináljuk:<br>
+  <span class="quote"><b>abc</b> = (<b>a</b>×<b>b</b>)⋅<b>c</b>
+      = ε<sub>ijk</sub><b>a</b><sub>i</sub><b>b</b><sub>j</sub><b>c</b><sub>k</sub></span><br>
+      Könnyen ellenőrizhető, hogy<br>
+  <span class="quote"><b>abc</b> = <b>bca</b> = <b>cab</b> =
+      -<b>bac</b> = -<b>acb</b> = -<b>cba</b></span>
+</dl>
+</div>
+
+<div>=== <b>Azonosságok</b> ===</div>
+<dl>
+
+<dt>Vektorszorzás
+<dd><span class="quote"><b>b</b>×<b>a</b> = -(<b>a</b>×<b>b</b>) = (-<b>a</b>)×<b>b</b></span><br>
+<span class="quote">(<b>a</b>×<b>b</b>)×<b>c</b>
+  = (<b>a</b>⋅<b>c</b>)<b>b</b> - (<b>b</b>⋅<b>c</b>)<b>a</b></span><br>
+<span class="quote"><b>a</b>×(<b>b</b>×<b>c</b>)
+  = (<b>a</b>⋅<b>c</b>)<b>b</b> - (<b>a</b>⋅<b>b</b>)<b>c</b></span>
+
+<dt>Transzponálás és mátrixszorzás:
+<dd><span class="quote">(uv)<sup>T</sup> = v<sup>T</sup>u<sup>T</sup></span> (csak valódi mátrixokkal/vektorokkal működik, operátorokkal nem)
+
+<dt id="I0008">Kompozíció deriváltja
+<dd><span class="quote">d(<b>g</b>∘<b>f</b>) = ((d<b>g</b>)∘<b>f</b>)(d<b>f</b>)</span><br>
+    <span class="quote">grad(g∘<b>f</b>) = (((grad g)∘<b>f</b>)<sup>T</sup>(d<b>f</b>))<sup>T</sup></span>
+
+<dt id="I0004">Nabla operátor és mátrixszorzat
+<dd><span class="quote">∇⋅(AB)
+    = [∂<sub>j</sub>(A<sub>jk</sub>B<sub>ki</sub>)]<sub>i</sub>
+    = [(∂<sub>j</sub>A<sub>jk</sub>)B<sub>ki</sub> +
+       A<sub>jk</sub>(∂<sub>j</sub>B<sub>jk</sub>)]<sub>i</sub>
+    = (∇⋅A)⋅B + (A<sup>T</sup>∇)⋅B
+    = (∇⋅A + A<sup>T</sup>∇)⋅B
+    </span><br>
+    <span class="quote">∇⋅(A<b>b</b>)
+    = ∂<sub>j</sub>(A<sub>jk</sub><b>b</b><sub>k</sub>)
+    = (∂<sub>j</sub>A<sub>jk</sub>)<b>b</b><sub>k</sub> +
+       A<sub>jk</sub>(∂<sub>j</sub><b>b</b><sub>k</sub>)
+    = (∇⋅A)⋅<b>b</b> + (A<sup>T</sup>∇)⋅<b>b</b>
+    = (∇⋅A + A<sup>T</sup>∇)⋅<b>b</b>
+    </span>
+
+<dt id="I0003">Nabla operátor és skalárszorzat
+<dd><span class="quote">∇(<b>f</b>⋅<b>g</b>) = grad(<b>f</b>⋅<b>g</b>)
+    = [∂<sub>i</sub>(<b>f</b><sub>j</sub><b>g</b><sub>j</sub>)]<sub>i</sub>
+    = [(∂<sub>i</sub><b>f</b><sub>j</sub>)<b>g</b><sub>j</sub> + <b>f</b><sub>j</sub>(∂<sub>i</sub><b>g</b><sub>j</sub>)]<sub>i</sub>
+    = (∇<b>f</b><sup>T</sup>)<b>g</b> + (∇<b>g</b><sup>T</sup>)<b>f</b><br></span>
+    <span class="quote">∇⋅(<b>a</b>⋅B) = div(<b>a</b>⋅B)
+    = ∂<sub>i</sub>(<b>a</b><sub>j</sub>B<sub>ji</sub>)
+    = (∂<sub>i</sub><b>a</b><sub>j</sub>)B<sub>ji</sub> + <b>a</b><sub>j</sub>∂<sub>i</sub>(B<sub>ji</sub>)
+    = (B∇)⋅<b>a</b> + <b>a</b>⋅(∇⋅B<sup>T</sup>)
+    </span>
+
+<dt>Nabla operátor és vektorszorzat, 1
+<dd><span class="quote">∇⋅(<b>f</b>×<b>g</b>)
+    = ∂<sub>i</sub>(ε<sub>ijk</sub><b>f</b><sub>j</sub><b>g</b><sub>k</sub>)
+    = ε<sub>ijk</sub>∂<sub>i</sub>(<b>f</b><sub>j</sub><b>g</b><sub>k</sub>)
+    = ε<sub>ijk</sub>(∂<sub>i</sub><b>f</b><sub>j</sub>)<b>g</b><sub>k</sub>
+    + ε<sub>ijk</sub><b>f</b><sub>j</sub>(∂<sub>i</sub><b>g</b><sub>k</sub>)
+    = ε<sub>ijk</sub>(∂<sub>i</sub><b>f</b><sub>j</sub>)<b>g</b><sub>k</sub>
+    + ε<sub>ijk</sub><b>f</b><sub>j</sub>(∂<sub>i</sub><b>g</b><sub>k</sub>) =
+    </span><br><span class="quote">
+    = ε<sub>kji</sub>(∂<sub>k</sub><b>f</b><sub>j</sub>)<b>g</b><sub>i</sub>
+    + ε<sub>jik</sub><b>f</b><sub>i</sub>(∂<sub>j</sub><b>g</b><sub>k</sub>)
+    = ε<sub>jki</sub>(∂<sub>j</sub><b>f</b><sub>k</sub>)<b>g</b><sub>i</sub>
+    + ε<sub>jik</sub><b>f</b><sub>i</sub>(∂<sub>j</sub><b>g</b><sub>k</sub>)
+    = (-1)<sup>2</sup>ε<sub>ijk</sub>(∂<sub>j</sub><b>f</b><sub>k</sub>)<b>g</b><sub>i</sub>
+    + (-1)ε<sub>ijk</sub><b>f</b><sub>i</sub>(∂<sub>j</sub><b>g</b><sub>k</sub>) =
+    </span><br><span class="quote">
+    = (∇×<b>f</b>)⋅<b>g</b> - <b>f</b>⋅(∇×<b>g)</b>
+    </span><br>
+
+<dt id="I0005">Nabla operátor és vektorszorzat, 2
+<dd><span class="quote">∇×(<b>f</b>×<b>g</b>)
+    = [ε<sub>ijk</sub>∂<sub>j</sub>(ε<sub>kmn</sub><b>f</b><sub>m</sub><b>g</b><sub>n</sub>)]<sub>i</sub>
+    = [ε<sub>ijk</sub>ε<sub>kmn</sub>∂<sub>j</sub>(<b>f</b><sub>m</sub><b>g</b><sub>n</sub>)]<sub>i</sub>
+    = [ε<sub>ijk</sub>ε<sub>kmn</sub>(∂<sub>j</sub><b>f</b><sub>m</sub>)<b>g</b><sub>n</sub>
+    + ε<sub>ijk</sub>ε<sub>kmn</sub><b>f</b><sub>m</sub>(∂<sub>j</sub><b>g</b><sub>n</sub>)]<sub>i</sub> =
+    <br>
+    = [(∂<sub>j</sub><b>f</b><sub>i</sub>)<b>g</b><sub>j</sub>
+    -  (∂<sub>j</sub><b>f</b><sub>j</sub>)<b>g</b><sub>i</sub>
+    + <b>f</b><sub>i</sub>(∂<sub>j</sub><b>g</b><sub>j</sub>)
+    - <b>f</b><sub>j</sub>(∂<sub>j</sub><b>g</b><sub>i</sub>)]<sub>i</sub> =
+    <br>
+    = [∂<sub>j</sub>(<b>f</b><sub>i</sub><b>g</b><sub>j</sub>)
+    -  ∂<sub>j</sub>(<b>f</b><sub>j</sub><b>g</b><sub>i</sub>)]<sub>i</sub> =
+    <br>
+    = ∇⋅((<b>f</b><b>g</b><sup>T</sup>)<sup>T</sup>) - ∇⋅(<b>f</b><b>g</b><sup>T</sup>)
+    = ∇⋅(<b>g</b><b>f</b><sup>T</sup>) - ∇⋅(<b>f</b><b>g</b><sup>T</sup>)
+    = ∇⋅(<b>g</b><b>f</b><sup>T</sup> - <b>f</b><b>g</b><sup>T</sup>)</span>
+    <br><b>f</b>=<b>c</b> konstans esetén:<br>
+    <span class="quote">∇×(<b>c</b>×<b>g</b>)
+    = [<b>c</b><sub>i</sub>(∂<sub>j</sub><b>g</b><sub>j</sub>)
+    -  <b>c</b><sub>j</sub>(∂<sub>j</sub><b>g</b><sub>i</sub>)]<sub>i</sub>
+    = <b>c</b>(∇⋅<b>g</b>) - (<b>c</b>⋅∇)<b>g</b>
+</span>
+
+<dt id="I0007">Nabla operátor és vektorszorzat, 3
+<dd><span class="quote">(∇×<b>f</b>)×<b>g</b>
+    = <b>g</b>⋅(∇<b>f</b><sup>T</sup>) - (∇<b>f</b><sup>T</sup>)<b>g</b>
+    </span><br>
+    <span class="quote">(<b>f</b>×∇)×<b>g</b>
+    = <b>f</b>⋅(d<b>g</b>) - <b>f</b>(∇⋅<b>g</b>)
+    = (∇<b>g</b><sup>T</sup>)<b>f</b> - <b>f</b>(∇⋅<b>g</b>)</span>
+
+<dt id="I0002">Nabla operátor és külső szorzat
+<dd><span class="quote">∇⋅(<b>f</b>⊗<b>g</b>)
+    = (∇<sup>T</sup>(<b>f</b><sup>T</sup><b>g</b>))<sup>T</sup>
+    = [∂<sub>i</sub>(<b>f</b><sub>i</sub><b>g</b><sub>j</sub>)]<sub>j</sub>
+    = [(∂<sub>i</sub><b>f</b><sub>i</sub>)<b>g</b><sub>j</sub>)]<sub>j</sub>
+    + [<b>f</b><sub>i</sub>(∂<sub>i</sub><b>g</b><sub>j</sub>)]<sub>j</sub>
+    </span><br>
+    <span class="quote">= (∇⋅<b>f</b>)<b>g</b> + <b>f</b>⋅(∇⊗<b>g</b>)
+    = (∇<sup>T</sup><b>f</b>)<b>g</b> + <b>f</b><sup>T</sup>(∇<b>g</b><sup>T</sup>)
+    </span>
+
+<dt id="I0009">Teljes derivált és szorzás
+<dd><span class="quote">d(fg) = g(df) + f(dg)</span> sorvektor<br>
+    <span class="quote">d(f<b>g</b>) = <b>g</b>(df) + f(d<b>g</b>)</span> mátrix<br>
+    <span class="quote">d(<b>f</b>⋅<b>g</b>) =
+      <b>g</b><sup>T</sup>(d<b>f</b>) +
+      <b>f</b><sup>T</sup>(d<b>g</b>)</span> sorvektor<br>
+
+<dt id="I0010">Kétszeres deriválás
+<dd><span class="quote">∇⋅∇ = ∂<sub>1</sub><sup>2</sup> + ∂<sub>2</sub><sup>2</sup>
+      + ∂<sub>3</sub><sup>2</sup></span> skalár (operátor)<br>
+    <span class="quote">∇⊗∇ = [∂<sub>i</sub>∂<sub>j</sub>]<sub>ij</sub></span> mátrix (operátor)<br>
+    <span class="quote">div (grad f) = ∇⋅(∇f) = (∇⋅∇)f</span> skalár<br>
+    <span class="quote">grad (div <b>g</b>) = ∇(∇⋅<b>g</b>) = (∇⊗∇)<b>g</b></span> vektor<br>
+    <span class="quote">div (rot <b>g</b>) = 0</span> skalár<br>
+    <span class="quote">rot (grad <b>g</b>) = <b>0</b></span> vektor<br>
+    <span class="quote">rot (rot <b>g</b>) = ∇(∇⋅<b>g</b>)-(∇⋅∇)<b>g</b></span> vektor
+</dl>
+
+<div>=== <b>Elemi példák deriválásra</b> ===</div>
+<dl>
+<dt><b>id</b>(<b>r</b>) = <b>r</b>
+<dd><span class="quote">d(<b>id</b><sub>n</sub>)
+    = I<sub>n</sub></span>,
+    <span class="quote">div(<b>id</b><sub>n</sub>) = n</span>,
+    <span class="quote">rot(<b>id</b><sub>3</sub>) = <b>0</b></span>
+    <br>ui <span class="quote">∂<sub>j</sub>x<sub>i</sub> = e<sub>ij</sub></span>
+
+<dt><b>g</b>(<b>r</b>) = A<b>r</b>
+<dd><span class="quote">d(<b>g</b>) = A</span>,
+    <span class="quote">div <b>g</b> = trace(A)</span>,
+    <span class="quote">rot <b>g</b> = twist(A)</span>,<br>
+    ui <span class="quote">∂<sub>j</sub><b>g</b><sub>i</sub>
+    = ∂<sub>j</sub>(A<sub>ik</sub>x<sub>k</sub>)
+    = A<sub>ik</sub>∂<sub>j</sub>x<sub>k</sub>
+    = A<sub>ik</sub>e<sub>jk</sub>
+    = A<sub>ij</sub>
+    </span>
+
+<dt>f(<b>r</b>) = A<b>r</b>⋅<b>r</b>
+<dd><span class="quote">(grad f)(<b>r</b>) = (A+A<sup>T</sup>)<b>r</b></span>
+    <br>ui <span class="quote">∂<sub>j</sub>(A<sub>ik</sub><b>r</b><sub>k</sub><b>r</b><sub>i</sub>)
+    = A<sub>ik</sub>∂<sub>j</sub>(<b>r</b><sub>k</sub><b>r</b><sub>i</sub>)
+    = A<sub>ik</sub><b>r</b><sub>k</sub>(∂<sub>j</sub><b>r</b><sub>i</sub>)
+    + A<sub>ik</sub>(∂<sub>j</sub><b>r</b><sub>k</sub>)<b>r</b><sub>i</sub>
+    = A<sub>ik</sub><b>r</b><sub>k</sub>e<sub>ji</sub>
+    + A<sub>ik</sub>e<sub>jk</sub><b>r</b><sub>i</sub>
+    = A<sub>jk</sub><b>r</b><sub>k</sub> + A<sub>ij</sub><b>r</b><sub>i</sub>
+    = (A+A<sup>T</sup>)<b>r</b>
+    </span>
+
+<dt>abs(<b>r</b>) = |<b>r</b>|
+<dd><span class="quote">d(|<b>r</b>|) = <b>r</b><sup>T</sup>/|<b>r</b>|</span>,
+    <span class="quote">grad(|<b>r</b>|) = <b>r</b>/|<b>r</b>|</span>
+    <br>ui <span class="quote">∂<sub>j</sub>((x<sub>k</sub>x<sub>k</sub>)<sup>1/2</sup>)
+    = (1/2)(x<sub>k</sub>x<sub>k</sub>)<sup>-1/2</sup>(2∂<sub>j</sub>x<sub>k</sub>)x<sub>j</sub>
+    = |<b>r</b>|<sup>-1</sup>e<sub>jk</sub>x<sub>j</sub>
+    = x<sub>j</sub>/|<b>r</b>|</span>
+
+<dt>f(<b>r</b>) = |<b>r</b>|<sup>k</sup>
+<dd><span class="quote">(grad f)(<b>r</b>) = k|<b>r</b>|<sup>k-2</sup><b>r</b></span>
+    <br>ui <span class="quote">(grad f)(<b>r</b>)
+    = (k|<b>r</b>|<sup>k-1</sup>)(<b>r</b>/|<b>r</b>|)</span>
+</dl>
+
+<!-- <dt>g(<b>r</b>) = <b>r</b>/|<b>r</b>| -->
+</body></html>
