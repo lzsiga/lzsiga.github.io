@@ -1,0 +1,254 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-2">
+<title>Julian/Gregorian</title>
+
+<script type="text/javascript">
+
+var M_year=      6000;
+var M_julian=    470441.5;
+var M_gregorian= 470394.5;
+
+function calc (type)
+{
+    var fo_y, fo_m, fo_d;
+    var to_y, to_m, to_d;
+    var fv_y, fv_yp, fv_m, fv_d;
+    var tv_y, tv_yp, tv_m, tv_d;
+    var o_jdn;
+    var untype, tmpa;
+    var yeartype;
+
+    if (type=='j') {
+	untype= 'g';
+	fo_y = document.getElementById ('j_y');
+	fo_m = document.getElementById ('j_m');
+	fo_d = document.getElementById ('j_d');
+	to_y = document.getElementById ('g_y');
+	to_m = document.getElementById ('g_m');
+	to_d = document.getElementById ('g_d');
+    } else {
+	untype= 'j';
+	fo_y = document.getElementById ('g_y');
+	fo_m = document.getElementById ('g_m');
+	fo_d = document.getElementById ('g_d');
+	to_y = document.getElementById ('j_y');
+	to_m = document.getElementById ('j_m');
+	to_d = document.getElementById ('j_d');
+    }
+    o_jdn = document.getElementById ('jdn');
+
+    to_y.value= '';
+    to_m.value= '';
+    to_d.value= '';
+    o_jdn.value= '';
+
+    tmpa= year_to_ypos (fo_y.value);
+    yeartype= tmpa[0];	/* q = qualified (AD/BC) */
+			/* s = signed (-1 = 2BC, 0 = 1BC, 1 = 1AD) */
+    fv_yp= tmpa[1];
+
+    fv_m= fo_m.value -0;
+    fv_d= fo_d.value -0;
+
+    if (fv_yp == -1 ||
+        fv_m != Math.floor (fv_m) ||
+        fv_d != Math.floor (fv_d) ||
+	fv_m < 1 || fv_m > 12 ||
+	fv_d < 1 || fv_d > monthlen(type, fv_yp, fv_m)) {
+	return;
+    }
+
+    jdn= to_jdn (type, fv_yp, fv_m, fv_d);
+    o_jdn.value= jdn;
+
+    tmpa= from_jdn (untype, jdn);
+
+    to_y.value= ypos_to_year (yeartype, tmpa[0]);
+    to_m.value= tmpa[1];
+    to_d.value= tmpa[2];
+}
+
+function year_to_ypos (sy)
+{
+    var yval, yp, ytype;
+
+    if ((sy.length > 2 && sy.substring (sy.length-2, sy.length)=='AD') ||
+	(sy.length > 2 && sy.substring (sy.length-2, sy.length)=='CE')) {
+	yval= sy.substring (0, sy.length-2) - 0;
+	ytype= 'q';
+
+	if (yval <= 0 || yval > 4714) yp= -1;
+	else yp = M_year + yval;
+
+    } else if (sy.length > 2 && sy.substring (sy.length-2, sy.length)=='BC') {
+	yval= sy.substring (0, sy.length-2) - 0;
+	ytype= 'q';
+
+	if (yval <= 0 || yval > 4717) yp= -1;
+	else yp = M_year + 1 - yval;
+
+    } else {
+	ytype= '0';
+	yval= sy - 0;
+	ytype= 's';
+
+	if (yval <= -4714 || yval > 4714) yp= -1;
+	else yp = M_year + yval;
+    }
+
+    return [ytype, yp];
+}
+
+function ypos_to_year (yeartype, yp)
+{
+    if (yeartype=='q') {
+	if (yp > M_year) return (yp - M_year) + 'AD';
+	else             return (M_year + 1 - yp) + 'BC';
+    } else {
+	return yp - M_year;
+    }
+}
+
+function calc_jdn ()
+{
+    var o_jdn, jdn;
+    var tmpa;
+    var jo_y, jo_m, jo_d;
+    var go_y, go_m, go_d;
+
+    o_jdn = document.getElementById ('jdn');
+    jdn = o_jdn.value - 0;
+
+    jo_y = document.getElementById ('j_y');
+    jo_m = document.getElementById ('j_m');
+    jo_d = document.getElementById ('j_d');
+    go_y = document.getElementById ('g_y');
+    go_m = document.getElementById ('g_m');
+    go_d = document.getElementById ('g_d');
+
+    tmpa= from_jdn ('j', jdn);
+    jo_y.value= ypos_to_year ('q', tmpa[0]);
+    jo_m.value= tmpa[1];
+    jo_d.value= tmpa[2];
+
+    tmpa= from_jdn ('g', jdn);
+    go_y.value= ypos_to_year ('q', tmpa[0]);
+    go_m.value= tmpa[1];
+    go_d.value= tmpa[2];
+}
+
+var monthlentab=[[31,28,31,30,31,30,31,31,30,31,30,31],
+		 [31,29,31,30,31,30,31,31,30,31,30,31]];
+
+function monthlen(type, yp, m) {
+    var l= leapyear (type, yp);
+    return monthlentab[l][m-1];
+}
+
+function leapyear(type, yp) {
+    var l;
+
+    if (type=='j') {
+	l= (yp%4==0);
+    } else {
+	if (yp%400==0) l= true;
+	else if (yp%100==0) l= false;
+	else l= (yp%4==0);
+    }
+    return l ? 1 : 0;
+}
+
+function daysbeforeyear (type, yp)
+{
+    var days;
+
+    if (type=='j') {
+	days = yp*365
+	     + Math.floor((yp-1)/4);
+    } else {
+	days = yp*365 +
+	     + Math.floor((yp-1)/4)
+	     - Math.floor((yp-1)/100)
+	     + Math.floor((yp-1)/400);
+    }
+    return days;
+}
+
+var monthsumtab=[[0,31,59,90,120,151,181,212,243,273,304,334,365],
+		 [0,31,60,91,121,152,182,213,244,274,305,335,366]];
+
+function daysbeforemonth (type, yp, m)
+{
+    var l= leapyear (type, yp);
+    return monthsumtab[l][m-1]
+}
+
+function to_jdn (type, yp, m, d)
+{
+    var days, jdn;
+    var l= leapyear (type, yp);
+
+    days  = daysbeforeyear (type, yp);
+    days += daysbeforemonth (type, yp, m);
+    days += (d-1);
+
+    if (type=='j') return jdn= days - M_julian;
+    else	   return jdn= days - M_gregorian;
+
+    return days;
+}
+
+function from_jdn (type, jdn)
+{
+    var days;
+    var yp, m, d;
+
+    if (type=='j') days = jdn + M_julian;
+    else	   days = jdn + M_gregorian;
+
+    if (type=='y') yp = Math.floor (days/365.25);
+    else	   yp = Math.floor (days/365.2425);
+
+    while (days <  daysbeforeyear(type,yp))   --yp;
+    while (days >= daysbeforeyear(type,yp+1)) ++yp;
+    days -= daysbeforeyear(type,yp);
+
+    m= 1 + Math.floor (days/31);
+    while (days <  daysbeforemonth(type,yp,m))   --m;
+    while (days >= daysbeforemonth(type,yp,m+1)) ++m;
+    days -= daysbeforemonth(type,yp,m);
+
+    d= days+1;
+
+    return [yp, m, d];
+}
+
+function from_szam (type, szam)
+{
+    return [szam, szam-1, szam-2];
+}
+</script>
+</head><body>
+
+<table border=0 summary="main form">
+<tr>
+    <td colspan=4 align="left">Proleptic Julian Date
+<tr>
+    <td>year:  <input id="j_y" type=text size=6>
+    <td>month: <input id="j_m" type=text size=2>
+    <td>day:   <input id="j_d" type=text size=2>
+    <td><input id="j_button" type=button value="Calc!" onclick="calc('j')">
+<tr>
+    <td colspan=3 align="left">Proleptic Gregorian Date:
+<tr>
+    <td>year:  <input id="g_y" type=text size=6>
+    <td>month: <input id="g_m" type=text size=2>
+    <td>day:   <input id="g_d" type=text size=2>
+    <td><input id="g_button" type=button value="Calc!" onclick="calc('g')">
+<tr>
+    <td colspan=3 align="left">JDN: <input id="jdn" type=text>
+    <td><input id="jdn_button" type=button value="Calc!" onclick="calc_jdn()">
+</table>
+
+</body></html>
