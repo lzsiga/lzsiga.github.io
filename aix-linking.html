@@ -1,0 +1,1090 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Linking in AIX</title>
+<style type="text/css">
+pre {
+    background: lightgrey;
+    margin: 0.1em 0 0.1em 0;
+    padding-left: 1em; }
+div, p { margin: 0 0 1em 0; }
+span.quote { 
+    background: lightgrey; font-family: monospace; 
+    padding-left: 1px; padding-right: 1px; }
+th.thl {
+    text-align: left;
+    padding: 0 0.2em 0 0.2em;
+}
+td.tdl {
+    text-align: left;
+    padding: 0 0.2em 0 0.2em;
+}
+td.tdc {
+    text-align: center;
+}
+</style>
+
+</head><body>
+<p><b>Linking in AIX</b></p>
+
+<div><a name="Q0001"><b>Q:</b></a> What linker-option <span class="quote">-blibpath</span>
+is good for?<br>
+<b>A:</b> It specifies a list of directories where run-time dependencies could be resolved from.
+Example:
+<pre>
+gcc -o executable <u>-Wl,-blibpath:/usr/local/lib64:/usr/lib</u>
+</pre>
+You can check the result with <span class="quote">dump(1)</span>
+<pre>
+$ <b>dump -H -X32_64 executable</b>
+...
+INDEX  PATH                          BASE                MEMBER
+0      <u>/usr/local/lib64:/usr/lib</u>
+...
+</pre>
+</div>
+
+<div><a name="Q0018"><b>Q:</b></a> What linker-option <span class="quote">-bipath</span>
+is good for?<br>
+<b>A:</b> It tells the linker to store depencies with file-path &mdash;
+but only if they had been specified with file-path in the command line.
+Example:
+<pre>
+gcc -o executable -Wl,-brtl,-bipath -la /usr/local/lib/libb.so.2
+</pre>
+Check:
+<pre>
+$ <b>dump -H -X32_64 executable</b>
+...
+INDEX  PATH                          BASE                MEMBER
+...
+1                                    liba.so
+2      /usr/local/lib                libb.so.2
+</pre>
+</div>
+
+<div><a name="Q0019"><b>Q:</b></a> In the <a href="#Q0018">previous example,</a>
+why isn't the major version number of <span class="quote">liba.so</span> stored
+in the executable?<br>
+<b>A:</b> Because AIX doesn't have the concept of version numbers.
+External components might have version numbers, but they don't matter for AIX-linker.
+</div>
+
+<div><a name="Q0020"><b>Q:</b></a> What about option <span class="quote">-brtl</span>?<br>
+<b>A:</b> Without that, the linker would ignore 'standalone' shared objects (*.so files),
+when resolving libraries.<br>
+</div>
+
+<div><a name="Q0002"><b>Q:</b></a> What does <span class="quote">libgcc_s.a</span> contain,
+and where does it come from?<br>
+<b>A:</b> It contains common subroutines that gcc-compiled programs might call.
+It's part of gcc; if installed from RPM (package <span class="quote">libgcc</span>),
+you have files like these:
+<pre>
+/opt/freeware/lib/gcc/powerpc-ibm-aix6.1.0.0/4.8.3/libgcc_s.a
+/opt/freeware/lib/gcc/powerpc-ibm-aix6.1.0.0/4.8.3/ppc64/libgcc_s.a
+/opt/freeware/lib/gcc/powerpc-ibm-aix6.1.0.0/4.8.3/pthread/libgcc_s.a
+/opt/freeware/lib/gcc/powerpc-ibm-aix6.1.0.0/4.8.3/pthread/ppc64/libgcc_s.a
+</pre></div>
+
+<div><b>Q:</b> That's more than enough, if you ask me.
+Which one should I actually use?<br>
+<b>A:</b> I suggest
+<span class="quote">.../pthread/libgcc_s.a</span> for 32-bit,
+and
+<span class="quote">.../pthread/ppc64/libgcc_s.a</span> for 64-bit.
+They are meant to be <span class="quote">THREAD_SAFE</span>.</div>
+
+<div><a name="Q0028"><b>Q:</b></A> Pardon? What do you mean by "THREAD_SAFE"?<br>
+<b>A:</b> I mean objects/libraries compiled with <span class="quote">-D_THREAD_SAFE</span> aren't compatible
+with those that were compiled without this symbol defined
+(check your <span class="quote">/usr/include/errno.h</span> file for
+<span class="quote">errno</span> and
+<span class="quote">_Errno</span>).
+I suggest to compile everything with -D_THREAD_SAFE.</div>
+
+<div><a href="Q0050"><b>Q:</b></a> Well, back to <span class="quote">libgcc_s.a</span>:
+aren't these locations a bit random?
+How about binary-program-portability?<br>
+<b>A:</b> You can query the relevant directory with a simple and intuitive command, e.g.:
+<pre>$ <b>dirname $(gcc -pthread -maix64 -print-file-name=libgcc_s.a)</b>
+/opt/freeware/lib/gcc/powerpc-ibm-aix6.1.1.0/5.4.0/pthread/ppc64
+</pre>
+Nontheless I suggest you link/copy your latest/only
+<span class="quote">libgcc_s.a</span> file into directory
+<span class="quote">/usr/local/lib[64]</span>
+and use that. Here as an example, my libiconv.so file(s):
+<pre>
+$ <b>ls -l /usr/local/lib64/libiconv.so*</b>
+lrwxrwxrwx 1 root system      17 Dec 29 /usr/local/lib64/libiconv.so   -> libiconv.so.2.5.1
+lrwxrwxrwx 1 root system      17 Dec 29 /usr/local/lib64/libiconv.so.2 -> libiconv.so.2.5.1
+-rw-r--r-- 1 root system 1139080 Dec 29 /usr/local/lib64/libiconv.so.2.5.1
+
+$ <b>dump -X32_64 -H /usr/local/lib64/libiconv.so.2</b>
+INDEX  PATH                          BASE                MEMBER
+0      /usr/local/lib64:/usr/lib:/lib
+<u>1      /usr/local/lib64              libgcc_s.a          shr.o</u>
+2      /usr/local/lib64              libcpotlas.so.1
+3      /usr/lib                      libc.a              shr_64.o
+</pre>
+</div>
+
+<div><a name="Q0037"><b>Q:</b></a> What about <span class="quote">libgomp.a</span>?<br>
+<b>A:</b> It is part of the gcc/OpenMP, less commonly used than <span class="quote">libgcc_s.a</span>
+(for example <span class="quote">msgmerge</span> is a program that can use it).
+I suggest the same treatment for it: link/copy the latest/only version of it into
+/usr/local/lib[64] (the 'threaded' variant).
+</div>
+
+<div><a name="Q0003"><b>Q:</b></a> Other suggestions regarding compilation?<br>
+<b>A:</b> Forget 32-bit mode, it is 2023 now.
+But if you absolutely have to compile in 32-bit mode,
+remember that objects/libraries compiled with largefile-support
+aren't compatible with those that were compiler without it.
+I suggest compiling <i>everything</i> with largefile-support.<br>
+<b>Q:</b> Are you sure largefile-support cannot raise problems?<br>
+<b>A:</b> Of course it can raise problems,
+especially because it is implemented via defines
+like this:
+<pre>
+$ <b>grep fopen64 /usr/include/stdio.h</b>
+#define fopen fopen64
+extern FILE *fopen64(const char *, const char *);
+</pre>
+Because of this define, if you compile PHP from source,
+you might end up with a PHP-program that doesn't have a
+<a href="http://php.net/manual/en/function.fopen.php">fopen</a>
+built-in function, only a 'fopen64'.<br>
+<b>Q:</b> Any solution for this problem?<br>
+<b>A:</b> Well, you can do
+<a href="https://gcc.gnu.org/onlinedocs/gcc/Asm-Labels.html#Asm-Labels">some dark magic with gcc,</a>
+but it doesn't worth it, 64-bit is the sound solution.
+</div>
+
+<div><a name="Q0044"><b>Q:</b></a> Collision of 32-bit and 64-bit versions of a program
+can cause troubles?<br>
+<b>A:</b> Yes, it can produce hard-to-debug problems. OpenSSL is an example:
+header-files (<span class="quote">opensslconf.h</span> to be precise) are
+meant either for 32-bit or 64-bit, but not for both.<br>
+<b>Note:</b> Though you can fix it, if you edit the said file:
+<pre>
+    181  /* Only one for the following should be defined */
+    182  #undef SIXTY_FOUR_BIT_LONG
+    183  #undef SIXTY_FOUR_BIT
+    184  #undef THIRTY_TWO_BIT
+    185  #if defined(__64BIT__)
+    186  # define SIXTY_FOUR_BIT_LONG
+    187  #else
+    188  # define THIRTY_TWO_BIT
+    189  #endif
+</pre>
+</div>
+
+<div><a name="Q0048"><b>Q:</b></a> Any other problems regarding 64-bit compilation?<br>
+<b>A:</b> For example macros <span class="quote">major</span> and
+<span class="quote">minor</span> from <span class="quote">&lt;sys/sysmacros.h&gt;</span>
+work incorretly when compiling for 64-bit, use macros
+<span class="quote">major64</span> and <span class="quote">minor64</span>
+(mind you, they don't exist on other platforms).<br>
+Quote from an exampl program:
+<pre>
+    printf ("major=%llx minor=%llx\n",
+#if defined(_AIX) &amp;&amp; __SIZEOF_POINTER__ == 8
+        (long long)<b>major64</b>(st.st_dev), (long long)<b>minor64</b>(st.st_dev)
+#else
+        (long long)major(st.st_dev), (long long)minor(st.st_dev)
+#endif
+    );
+</pre>
+</div>
+
+<div><a name="Q0049"><b>Q:</b></a>Why do I get this error message:
+<pre>
+0509-136 Symbol __pthread (number 35) is not exported from
+         dependent module /usr/lib/libpthreads.a[shr_xpg5_64.o].
+</pre>
+<b>A:</b> You have a program that was created under a newer version of
+<span class="quote">AIX</span> then moved back to version <span class="quote">5.x</span>
+Mind you, this would work in 32-bit; in that variant this
+<span class="quote">__pthread</span> symbol is exported from
+<span class="quote">/usr/lib/libpthreads.a[shr_xpg5.o]</span>
+</div>
+
+<div><a name="Q0047"><b>Q:</b></a> Speaking of debugging, how can I get
+complete <span class="quote">core</span> files so that I can debug the problem?<br>
+<b>A:</b> Execute these command as root-user:
+<pre>
+chdev -l sys0 -a fullcore=true # enabling
+lsattr -l sys0 -a fullcore -E  # verifying
+</pre>
+</div>
+
+<div><a name="Q0004"><b>Q:</b></a> How about C++?<br>
+<b>A:</b> Avoid it, if you can. It is very problematic even on popular platforms like
+MS Windows and linux/x86_64, let alone on exotic platforms like AIX.<br>
+
+<b>Q:</b> And if I have to use it?<br>
+<b>A:</b> Then you have to deal with library
+<span class="quote">libstdc++.a</span> or
+<span class="quote">libstdc++.so</span>,
+which have the same issues I mentioned at
+<span class="quote">libgcc_s.a</span>.
+Here is an example for libstdc-using program:
+<pre>
+$ <b>dump -X32_64 -H /usr/local/bin/gengetopt</b>
+INDEX  PATH                          BASE                MEMBER
+0      /usr/local/lib64:/usr/lib:/lib
+1      /usr/local/lib64              libgcc_s.a          shr.o
+2      /usr/local/lib64              libstdc++.so.6
+3      /usr/local/lib64              libcpotlas.so
+4      /usr/lib                      libpthreads.a       shr_xpg5_64.o
+5      /usr/lib                      libc.a              shr_64.o
+</pre>
+Here file <span class="quote">/usr/local/lib64/libstdc++.so.6</span>
+has come from
+<span class="quote">/opt/freeware/lib/gcc/powerpc-ibm-aix6.1.0.0/4.8.3/pthread/ppc64/libstdc++.a</span>
+Note: I got this name with the following command:
+<pre>g++ -maix64 -pthread -print-file-name=libstdc++.a</pre>
+</div>
+
+<div><a name="Q0025"><b>Q:</b></a> When I install something from source,
+should I create a a little script that bundles <span class="quote">configure,</span>
+<span class="quote">make</span> and <span class="quote">make install</span>?<br>
+<b>A:</b> Absolutely. These scripts might save your life. (Also the log-files
+you should keep.) A script like this will evolve and grow longer; a simple start is
+something like this:
+<pre>
+#!/usr/local/bin/bash
+# bash is important as it has option 'pipefail'
+
+export PATH=/usr/local/bin:/opt/freeware/bin:$PATH
+export PKG_CONFIG_PATH=/usr/local/lib64/pkgconfig:$PKG_CONFIG_PATH
+
+make distclean || make clean
+
+set -e
+set -o pipefail
+
+export CFLAGS='-maix64'
+export CXXFLAGS='-maix64'
+export CPPFLAGS='-I/usr/local/include'
+export LDFLAGS='-maix64 -L/usr/local/lib64 -L/opt/freeware/lib64
+	-Wl,-brtl,-bipath,-blibpath:/usr/local/lib64:/opt/freeware/lib64:/usr/lib'
+
+<b>./configure</b> \
+	--prefix=/usr/local \
+	--libdir=/usr/local/lib64 \
+	CFLAGS="$CFLAGS" \
+	CXXFLAGS="$CXXFLAGS" \
+	CPPFLAGS="$CPPFLAGS" \
+	LDFLAGS="$LDFLAGS" \
+	AR='/usr/bin/ar -X64' \
+	NM='/usr/bin/nm -X64' \
+	SIZE='/usr/bin/size -X64' \
+	2&gt;&amp;1 | tee log.configure
+
+<b>make all</b> 2&gt;&amp;1 | tee log.make.all
+<b>make install</b> 2&gt;&amp;1 | tee log.make.install
+
+echo 'Ok(?)'
+</pre>
+</div>
+
+<div><a name="Q0026"><b>Q:</b></a> Cool, but it still doesn't work for me;
+I think I should hack some files so they would be compatible with my system<br>
+<b>A:</b> Don't worry, that's very typical on AIX. The first thing you should know
+<span class="quote">AIX!sed</span> doesn't support option <span class="quote">-i</span>,
+so I suggest using a script called <span class="quote">sed_repl</span> installed
+into <span class="quote">/usr/local/bin</span>
+<pre>
+#!/bin/sh
+
+if test $# -ne 2; then
+    echo "usage: $0 script file"
+    exit 1
+fi
+
+TMPFILE=/tmp/sed_repl.$$
+
+set -e
+
+sed -e "$1" <"$2" >"$TMPFILE"
+cp "$TMPFILE" "$2"
+rm "$TMPFILE"
+</pre>
+</div>
+
+<div><a name="Q0027"><b>Q:</b></a> And how do I use this in my install-scripts?<br>
+<b>A:</b> Here's some examples:<br>
+<pre>
+# <b>common problem #1</b>
+# configure forces '/usr/local/lib' instead of /usr/local/lib64
+# insert this before 'configure'
+
+find . -name configure -o -name 'config.*' | while read C; do
+    sed_repl 's;/usr/local/lib;/usr/local/lib64;g
+	      s;/usr/local/lib6464;/usr/local/lib64;g
+	      s;/usr/local/lib64exec;/usr/local/libexec;g
+	     ' "$C"
+done
+
+
+# <b>common problem #2</b>
+# configure does funny things with some "hardcoding" that breaks compilation
+
+find . -name configure -o -name config.rpath |\
+while read C; do
+    sed_repl 's|hardcode_direct=.*$|hardcode_direct=no|
+	      s|hardcode_libdir_flag_spec=.*$|hardcode_libdir_flag_spec=|
+	     ' "$C"
+done
+
+
+# <b>common problem #3</b>
+# configure ingnores "$AR", so -X32_64 option isn't passed to /usr/bin/ar
+# insert this between 'configure' and 'make'
+
+find . -name Makefile | while read M; do
+    sed_repl 's/^AR = .*$/AR = /usr/bin/ar -X32_64
+	     ' "$M"
+done
+
+
+# <b>common problem #4</b>
+# Makefiles are full with @at-signs so that you couldn't trace problems
+# insert this between 'configure' and 'make'
+
+find . -name Makefile | while read M; do
+    sed_repl "$(printf 's;^\t@;\t;')" "$M"
+done
+
+# <a name="Q0027_5"><b>common problem #5</b></a>
+# 'configure' checks a <I>static</I> library for an exported symbol,
+# but it checks for a <I>function</I> while it is actually a <I>variable</I>
+#
+# Example: 'configure' of 'php' checks for 'rl_pending_input'
+# from library 'readline' as if it were a 'function'
+#
+# Note: This problem doesn't affect <I>shared</I> libraries;
+# the reason is realated to <a href="#Q0012">this question</a>:
+# statically linking a <U>foobar</U> function would require the <U>.foobar</U>
+# symbol, but variables don't have such .dotted versions.
+
+<a href="#Q0026">sed_repl</a> 's/rl_pending_input ()/rl_pending_input/' configure
+</pre>
+</div>
+
+<div><a name="Q0031"><b>Q:</b></a> Some programs ask for
+<a href="https://www.freedesktop.org/wiki/Software/pkg-config/">pkgconfig.</a>
+Should I install it?<br>
+<b>A:</b> Yes, but you might experience problems as pkgconfig and 
+<a href="https://wiki.gnome.org/Projects/GLib">glib</a> mutually depend on each other.
+I could workaround this problem
+by first installing an older version of pkgconfig (e.g. 0.23),
+that didn't require glib.</div>
+
+<div><a name="Q0005"><b>Q:</b></a> What the <span class="quote">.dot</span>
+means in the following list:
+<pre>
+$ <b>dump -X32_64 -H libphp5.so</b>
+...
+INDEX  PATH                          BASE                MEMBER
+0      /opt/lib64:/usr/local/lib64:/usr/lib
+...
+23     /usr/lib                      libc.a              shr_64.o
+24                                   <b><u>.</u></b>
+</pre>
+<b>A:</b> This module has external symbols that are meant to be resolved from the main program.
+You can see these symbols with the following command:
+<pre>
+$ <b>dump -X32_64 -Tv libphp5.so | grep 'EXTref  '</b>
+[1224]  0x00000000    undef      IMP     DS EXTref               . ap_mpm_query
+[1225]  0x00000000    undef      IMP     DS EXTref               . ap_server_root_relative
+...
+</pre>
+The main program is (supposed to be) apache!httpd which exports these symbols:
+<pre>
+$ <b>dump -X32_64 -Tv /usr/local/sbin/httpd | grep ap_mpm_query</b>
+[2261]  0x20007130    .data      EXP     DS   Ldef        [noIMid] ap_mpm_query
+</pre>
+</div>
+
+<div><a name="Q0006"><b>Q:</b></a> What about the <span class="quote">double dots:</span>
+<pre>
+$ <b>dump -X32_64 -H my_php_plugin.so</b>
+...
+INDEX  PATH                          BASE                MEMBER
+...
+5      /usr/lib                      libc.a              shr_64.o
+6                                    <b><u>..</u></b>
+</pre>
+<b>A:</b> This module has external symbols that are meant to be resolved
+loading time, <i>and</i> we cannot tell yet where they will come from.
+Their list:
+<pre>
+$ <b>dump -X32_64 -Tv my_php_plugin.so | fgrep '..'</b>
+[18]    0x00000000    undef      IMP     DS EXTref              .. php_info_print_table_start
+[19]    0x00000000    undef      IMP     DS EXTref              .. php_info_print_table_header
+[20]    0x00000000    undef      IMP     DS EXTref              .. php_info_print_table_end
+[21]    0x00000000    undef      IMP     DS EXTref              .. zend_parse_parameters
+[22]    0x00000000    undef      IMP     DS EXTref              .. _estrndup
+[23]    0x00000000    undef      IMP     DS EXTref              .. zend_register_long_constant
+</pre>
+These type of unresolved externs is not welcome in AIX,
+you should try and avoid them.
+If you cannot, remember using option <span class="quote">-brtlib</span>
+when linking the main executable
+(note: in 32-bit mode, <span class="quote">/usr/lib/librtl.a</span>
+will be linked into the program).<br>
+
+<b>Q:</b> So why are these symbols unresolved in this PHP-plugin?<br>
+<b>A:</b> It is a special case, because these symbols will be resolved
+either from 
+<span class="quote">/usr/local/bin/php</span> or from 
+<span class="quote">/usr/local/libexec64/libphp.so</span>
+(when the main program in apache!httpd).
+</div>
+
+<div><a name="Q0007"><b>Q:</b></a> Should I install my locally compiled components
+into random locations such as <span class="quote">/extra/teddy/stuff/whatever-1020</span>?<br>
+<b>A:</b> Absolutely not. Install locally compiled components into
+<span class="quote">/usr/local</span><br>
+<b>Q:</b> And what is <span class="quote">/opt</span> good for?<br>
+<b>A:</b> For components that aren't part of the standard distribution
+and come in 'binary only' format, such as Oracle, Java, Firefox.</div>
+
+<div>
+<a name="Q0008"><b>Q:</b></a> What about <span class="quote">/opt/freeware</span>?<br>
+<b>A:</b> That's where GNU/other free products traditionally go on AIX,
+if you install them from RPM-packages (e.g. from 
+<a href="http://www.perzl.org/aix/">Perzl.org</a>).</div>
+
+<div>
+<a name="Q0043"><b>Q:</b></a> Speaking of rpm, I got an error message
+about missing package <span class="quote">AIX-rpm</span>.
+Where does it come from?<br>
+<b>A:</b> It is a virtual package, which is based on your OS.
+(The <span class="quote">rpm</span> command comes from
+actual package <span class="quote">rpm.rte</span>.)
+There is an <span class="quote">updtvpkg</span> command
+that updates the virtual package:
+<pre>
+# <b>lslpp -l rpm.rte</b>
+  Fileset                      Level  State      Description
+  ----------------------------------------------------------------------------
+Path: /usr/lib/objrepos
+  rpm.rte                   4.15.1.1  COMMITTED  RPM Package Manager
+
+# <b>updtvpkg</b>
+Please wait...
+
+# <b>rpm -qi AIX-rpm</b>
+Name        : AIX-rpm
+Version     : 7.2.5.0
+...
+Description :
+This package contains no files.  It is a package which contains
+information about shared libraries and shell interpreters installed
+on the operating system.
+</pre>
+</div>
+
+<div>
+<a name="Q0009"><b>Q:</b></a> What's the deal with <span class="quote">libiconv.a</span>?<br>
+<b>A:</b> Well, it is a bit problematic, as you might have more than one
+instances of this file with different contents, as different programs use
+it for different purposes.<br>
+
+GNU iconv might keep static object modules in it (this is not problematic,
+also it is safe to compile libiconv with options <span class="quote">--disable-static</span>) e.g.:
+<pre>$ <b>ar -X64 -tv /usr/local/lib64/libiconv.a</b>
+rw-r--r--     0/0    1114345 Jul 22 17:12 2015 iconv.o
+rw-r--r--     0/0       3346 Jul 22 17:12 2015 localcharset.o
+rw-r--r--     0/0       2564 Jul 22 17:12 2015 relocatable.o</pre>
+
+Also AIX iconv stores it's shared modules in (another) libiconv.a:
+<pre>$ <b>ar -X32_64 -tv /usr/lib/libiconv.a</b>
+r--r--r--     2/2     117276 Sep 15 21:15 2013 shr4.o
+r--r--r--     2/2     117526 Sep 15 21:15 2013 shr.o
+r--r--r--     2/2     159410 Sep 15 21:15 2013 shr4_64.o</pre>
+
+Also some versions on GNU iconv keep shared objects in (yet another) libiconv.a:
+<pre>$ <b>ar -X32_64 -tv /opt/freeware/lib/libiconv.a</b> # filtered output
+rwxr-xr-x   203/1     1100139 Feb 03 08:00 2017 libiconv.so.2 # for 32-bit
+rwxr-xr-x   203/1     1128141 Feb 03 07:57 2017 libiconv.so.2 # for 64-bit
+</pre>
+
+Another possible source of problems that <span class="quote">/usr/lib/libi18n.a(shr*so)</span>
+depends on <span class="quote">libiconv.a(shr*.so)</span> (without path),
+so if the loading finds a <span class="quote">libiconv.a</span> <I>without</I> these shared objects,
+the loading fails. (It won't search for <i>another</i> <span class="quote">libiconv.a</span> archive.)<br>
+
+The best option would be merging all these elements (at least the shared objects) together,
+and make sure that the loading process finds the merged version.
+(With option <span class="quote">-blibpath</span> or with enviroment variable
+<span class="quote">LIBPATH</span>).<br>
+
+If you have an <span class="quote">/opt/freeware/lib/libiconv.a</span> archive,
+it might already contain every shared object:
+<pre>$ <b>ar -X32_64 -tv /opt/freeware/lib/libiconv.a</b> # complete output
+rwxr-xr-x   203/1     1100139 Feb 03 08:00 2017 libiconv.so.2 # GNU iconv, 32-bit
+rwxr-xr-x   203/1     1128141 Feb 03 07:57 2017 libiconv.so.2 # GNU iconv, 64-bit
+r--r--r--     0/0      117162 Jul 19 13:04 2017 shr4.o        # AIX iconv, 32-bit
+r--r--r--     0/0      117412 Jul 19 13:04 2017 shr.o         # AIX iconv, 32-bit
+r--r--r--     0/0      159296 Jul 19 13:04 2017 shr4_64.o     # AIX iconv, 64-bit
+</pre>
+If you don't have such file, you can use <span class="quote">ar</span> to create
+something like that; as you have seen, 32- and 64-bit components can be merged
+in one archive (even with the same name); also the two iconv implementations
+(GNU and AIX) can be put into the same file without problems.
+</div>
+
+<div><a name="Q0039"><b>Q:</b></a> I heard that
+<a href="https://www.freedesktop.org/wiki/Software/fontconfig/">fontconfig</a>
+(albeit not part of the AIX-distribution)
+can be used by JVM if I install it and make it available for dynamic linking (dlopen).
+How could I do that?<br>
+
+<b>A:</b> Well some JVM versions search for <span class="quote">libfontconfig.so.1</span>
+others for <span class="quote">libfontconfig.a(libfontconfig.so.1)</span>.<br>
+Here's a version that works with both, if your locally-compiled (64-bit)
+<span class="quote">libfontconfig.so.1</span>
+is installed in <span class="quote">/usr/local/lib64</span class="quote">:
+<pre>
+<b>ar -X64 rcs /usr/local/lib64/libfontconfig.soa /usr/local/lib64/libfontconfig.so.1</b>
+<b>ln -sf /usr/local/lib64/libfontconfig.soa  /usr/lib/libfontconfig.a</b>
+<b>ln -sf /usr/local/lib64/libfontconfig.so.1 /usr/lib/libfontconfig.so.1</b>
+<b>ls -l /usr/lib/libfontconfig*</b>
+/usr/lib/libfontconfig.a    -> /usr/local/lib64/libfontconfig.soa
+/usr/lib/libfontconfig.so.1 -> /usr/local/lib64/libfontconfig.so.1
+</pre></div>
+
+<div><a name="Q0010"><b>Q:</b></a>
+ Please name some utilities that have something to do with shared libraries.<BR>
+<b>A:</b> Here's some:
+<pre>
+<b>slibclean</b>		  remove unused shared libraries from memory
+<b>genld -ld</b>		  list of processes and the shared libs they use
+<b>genkld -d</b>		  list of shared libs loaded into memory
+<b>procldd &lt;pid&gt;</b>		  shared libs used by a process
+<b>dump -X32_64 -H &lt;module&gt;</b>  shared libs that the &lt;module&gt; (directly) depends on
+<b>dump -X32_64 -Tv &lt;module&gt;</b> list of external symbols in &lt;module&gt;
+<b>nm -Pg &lt;obj&gt;</b>		  list of external symbols in &lt;obj&gt;
+<b>ldd &lt;module&gt;</b>		  list of shared libs &lt;module&gt; (directly or indirectly) depends on
+
+<b>module:</b>	executable or shared lib
+<b>obj:</b>	object module, executable or shared lib
+</pre>
+Bonus:
+<pre>
+<a href="explist_so"><b>explist_so</b></a> &lt;prog&gt;	list exported symbols (this script uses 'dump -T')
+</pre>
+</div>
+
+<div><a name="Q0011"><b>Q:</b></a> What is the <span class="quote">function descriptor</span>?<br>
+<b>A:</b> A data area containing three pointers related to the function in question:
+<pre>
+<b>code</b>	address of the first executable statement (in the text-segment)
+<b>data</b>	address of the TOC (the data-area of the module)
+<b>context</b>	(unused in C)
+</pre>
+The function descriptor exists in the data-segment.
+The <span class="quote">TOC</span> is a section in the object module
+that contains the function's data.<br>
+At function call (<span class="quote">bl</span>, <span class="quote">bctrl</span> or similar),
+the first value is loaded into the program counter,
+the second value is loaded into register <span class="quote">r2</span>.
+</div>
+
+<div><a name="Q0029"><b>Q:</b></a> You mean every object-module has a separate TOC?<br>
+<b>A:</b> Well, when the linker creates a <I>module</I> (an executable or a shared object),
+it merges these sections, so every function of the module share the same TOC.
+</div>
+
+<div><a name="Q0033"><b>Q:</b></a> But the term <span class="quote">TOC</span>
+doesn't actually refer to the whole data segment!<br>
+<b>A:</b> That's right, the TOC is just the most important part of the
+data segment, I could say it's like a <I>table of content</I> in a book.
+</div>
+
+<div><a name="Q0012"><b>Q:</b></a>
+So if I have a non-static function (say 'foo'), why do I get two external symbols 'foo' and '.foo'?<br>
+<b>A:</b> Well, <b><i>.foo</i></b> is the code, <b><i>foo</i></b> is the descriptor.
+Function calls use <b><i>bl .foo</i></b>; in-module context it is a direct call,
+otherwise it goes through a glue-module (see below).<br>
+Example Assembly-list of an object module:
+<pre>
+	.globl myhello			'myhello' is a public function
+	.globl .myhello
+	.csect myhello[DS]		DS = function descriptor
+myhello:
+	.long .myhello, TOC[tc0], 0	code, toc, context(unused)
+	.csect .text[PR]		PR = code
+.myhello:
+	mflr 0				actual code of 'myhello' starts here
+
+	...
+
+	.lglobl .smyhello		'smyhello' is a static function
+	.csect smyhello[DS]		DS = function descriptor
+smyhello:
+	.long .smyhello, TOC[tc0], 0	code, toc, context(unused)
+	.csect .text[PR]		PR = code
+.smyhello:
+	mflr 0				actual code of 'smyhello' starts here
+
+	...
+
+	bl .myhello			'main' calls 'myhello'
+</pre>
+part of "nm hello":
+<pre>
+$ <b>nm hello</b>
+.myhello             T   268436440  92		# public text
+.smyhello            t   268436532  92		# local text
+</pre>
+part of "nm -g /usr/lib/libc.a"
+<pre>
+/usr/lib/libc.a[shr.o]:
+.puts                T     2522688		# code
+puts                 D      478040          12	# function destructor
+</pre>
+</div>
+
+<div><a name="Q0013"><b>Q:</b></a> How could I check these?<br>
+<b>A:</b> When compiling, ask for Assembly listing: <span class="quote">-Wa,-l<i>foo</i>.lst</span>,
+when linking ask for map-file: <span class="quote">-Wl,-bmap:<i>foo</i>.map</span>
+</div>
+
+<div><a name="Q0014"><b>Q:</b></a> Which one is used when I call a function?<br>
+<b>A:</b> Example function call (fwrite):
+<pre>
+.text  00000164  8062000c       lwz 3,LC..7(2)	; par1
+.text  00000168  38800001       li 4,1		; par2
+.text  0000016c  38a00027       li 5,39		; par3
+.text  00000170  80c20004       lwz 6,LC..8(2)	; par4
+.text  00000174  4bfffe8d       bl <b>.fwrite</b>	; the actual call
+.text  00000178  60000000       nop		; (<a href="#Q0035">don't ask</a>)
+</pre>
+When you call a function via function-pointer (functor),
+the pointer contains the address of the descriptor:
+<pre>
+.text  0000020c  813f0038       lwz 9,56(31)	; r9 := <b>descriptor</b> of the callée
+.text  00000210  90410014       stw 2,20(1)	; save r2 (our TOC)
+.text  00000214  81490000       lwz 10,0(9)	; address of the callée
+.text  00000218  81690008       lwz 11,8(9)	; context of the callée
+.text  0000021c  7d4903a6       mtctr 10	; ctr := r10
+.text  00000220  80490004       lwz 2,4(9)	; TOC of the callée
+.text  00000224  4e800421       bctrl		; the actual call
+.text  00000228  80410014       lwz 2,20(1)	; restore r2 (our TOC)
+</pre>
+</div>
+
+<div><a name="Q0015"><b>Q:</b></a> So at indirect call, there is a proper context switch
+(or TOC-and-context-switch, to be precise). What about normal calls?<br>
+<b>A:</b> Well, if the caller and the callée exist in the same module (executable or shared lib),
+they share the same TOC-and-context, so no problem here.<br>
+At cross-module calls the linker adds a piece of code to the caller (known as <span class="quote">glue code</span>);
+it is something like this:
+<pre>
+<U>&lt;caller&gt;</U>
+0xd1247334 <+56>:    bl      0xd124757c	; call the 'glue code' (and set the link register)
+0xd1247338 <+60>:    lwz     r2,20(r1)  ; restore r2 (our TOC)
+
+<U>&lt;glue code&gt;</U>
+0xd124757c <+0>:     lwz     r12,36(r2)	; r12 := descriptor of the callée
+0xd1247580 <+4>:     stw     r2,20(r1)  ; save r2 (our TOC)
+0xd1247584 <+8>:     lwz     r0,0(r12)  ; address of the callée
+0xd1247588 <+12>:    lwz     r2,4(r12)  ; TOC of the callée
+0xd124758c <+16>:    mtctr   r0		; address to the callée
+0xd1247590 <+20>:    bctr		; jump into the callée
+</pre>
+Such adapter-code is generated for every called function. The code comes form <span class="quote">/usr/lib/glink*o</span>
+</div>
+
+<div><a name="Q0035"><b>Q:</b></a> What was the <I>'don't ask'</I> part <A href="#Q0014">above?</A><br>
+<b>A:</b> Well, the compiler generates a <span class="quote">nop</span> after every <span class="quote">bl</span>,
+but if the linker decides it is a 'far call' to another module (implemented via glue code),
+it replaces <span class="quote">nop</span> with <span class="quote">lwz r2,20(r1)</span>
+or <span class="quote">ld r2,40(r1)</span> (32-/64-bit) to restore <b>r2</b>, which is the TOC-pointer.
+</div>
+
+<div><a name="Q0024"><b>Q:</b></a> Off: Are there similar concepts in MS Windows?<br>
+<b>A:</b> Yes, but there are some differences, too, e.g.:<br>
+* Windows&nbsp;16 and Windows&nbsp;32 don't use position-independent code
+(Windows&nbsp;64 does) in DLL,
+they relocate the DLL's code when it is loaded
+(unless it is lucky enough to get loaded into its own <i>preferred address).</i>
+Note: Win16 uses <i>Single Virtual Storage,</i> Win32 and Win64 uses <i>Multiple
+Virtual Storage</i> (like AIX))<br>
+* Windows can refer to exported symbols via numbers (so called <I>ordinals)</I>
+instead of names &ndash; it is very dangerous<br>
+* it's common practice (but not mandatory) to explicitly tell the compiler
+which functions are DLL-exported and/or imported,
+instead of leaving it to the linker to deal with this
+(see function attributes like <span class="quote">__declspec(dllexport)</span> and
+<span class="quote">__declspec(dllimport)</span>)<br>
+* some linkers cannot directly link from DLLs,
+they need a matching <I>import library</I> for every used DLL
+(the import library can be programmatically generated though)<br>
+* different compilers might use different <I>name-decorating</I> methods,
+so names like <span class="quote">FooBar@32</span> and
+<span class="quote">_FOOBAR</span> might or might not match when linking.<br>
+* the main executable cannot export symbols (note: I might be wrong here; dubious area)
+</div>
+
+<div><a name="Q0016"><b>Q:</b></a> Some info about map-files?<br>
+<b>A:</b> This table shows some Class/Types codes:
+<pre>
+<b>CL</b> 					<b>TY</b>
+-- 					--
+<b>PR</b>   code (also known as 'text')	<b>ER</b>   external (to be resolved)
+<b>RO</b>   read only data			<b>SD</b>   section (also known as 'csect')
+<b>RW</b>   data (writable)			<b>LD</b>   label (also known as 'entry')
+<b>BS</b>   data (uninitialized, writable)	<b>CM</b>   common
+<b>DS</b>   <a href="#Q0011">function descriptor</a>
+<b>GL</b>   <a href="#Q0015">glue code</a>				<b>IE</b>
+<b>T0</b>   header of the TOC			--
+<b>TC</b>   address in TOC			<b>I</b>  imported symbol
+<b>TD</b>   other data in TOC			<b>E</b>  exported symbol
+<b>UA</b>   "unclassified"
+<b>XO</b>   "extended operations code"
+</pre>
+The output consists of two parts: code and data; the TOC resides at the end of the data.<br>
+Symbols between <b>&lt;angles&gt;</b> are hidden symbols.
+</div>
+
+<div><a name="Q0017"><b>Q:</b></a> How do you decide which symbols
+are to be exported when creating a shared library?<br>
+<b>A:</b>
+You can choose from linker-options <span class="quote">-bautoexp</span>,
+<span class="quote">-bexpall</span> or
+<span class="quote">-bexpfull</span>;
+or you can use some script to collect the symbols to be exported
+(I suggest the latter).
+From the output of nm(1) you can grep these:
+<pre>
+B	Global bss symbol
+D	Global data symbol
+T	Global text symbol
+</pre>
+We exclude those that begin with <a href="#Q0012">.dot</a>,
+as they are code-pointers that aren't meant to be directly called
+from other modules.
+<br>
+<b><a name="Q0032">Q:</a></b> You cannot really expect me to do this manually, can you?<br>
+<b>A:</b> I suggest using <span class="quote">libtool</span> and let it deal with these details.
+Or you can use a <a href="explist">script</a> like this:
+<pre>
+#!/bin/sh
+nm -X32_64 -Ppg -- "$@" |\
+awk '{ if ((($2 == "T") || ($2 == "D") || ($2 == "B")) &amp;&amp; (substr($1,1,1) != ".")) 
+     { print $1 } }' |\
+sort -u
+</pre>
+<a name="Q0034"><b>Q:</b></a> What should I do
+if I have (poorly written) Assembly sources
+with <b><i>.name</i></b> entries,
+but without <b><i>name</i></b> entries (i.e. without 
+<a href="#Q0011">function descriptors</a>).
+(older versions of OpenSSL had such files, for example.)
+Can I still export them?<br>
+<b>A:</b> Yes, if you tell the linker to export these symbols,
+it will create function descriptors for them.
+In this case, the above script could be modified like this:
+<pre>
+#!/bin/sh
+nm -X32_64 -Ppg -- "$@" |\
+awk '{ if (($2 == "T") || ($2 == "D") || ($2 == "B")) {
+      if (substr($1,1,1) == ".") print substr($1,2); else print $1; } }' |\
+sort -u
+</pre>
+</div>
+
+<div><a name="Q0021"><b>Q:</b></a> Using option <span class="quote">-bexpall</span>
+might cause problems?<br>
+<b>A:</b> Sure. For example, OpenSSL before version 1.1.1 used this option,
+which ended in libcrypto.so exporting symbols it (statically) linked from 
+<span class="quote">libc.a</span>.
+Examples:
+<pre>
+$ <b>nm -gP libcrypto.so.1.0.2 | egrep '^(str|mem)'| grep ' D '</b>
+memmove              D    2001aa48           8
+strcat               D    200238f8           8
+strcmp               D    200177a0           8
+strcpy               D    2001e574           8
+strncpy              D    2001b794           8
+</pre>
+Another example is Oracle client 12 &mdash; it exports tons of symbols it shouldn't,
+like:
+<pre>
+$ dump -Tv /opt/lib32/libclntsh.so.12 |\
+grep ' EXP ' |\
+egrep ' (BIO_|ERR_|SSLv23_|SSLv3_|TLSv1_|ssl23_|ssl3_|ssl_|tls1_|BZ2_|inflate|deflate)' |\
+wc -l
+210
+</pre>
+</div>
+
+<div><a name="Q0030"><b>Q:</b></a> Why do I get warnings about duplicated symbol like
+<span class="quote">__init_aix_libgcc_cxa_atexit</span>?<br>
+<b>A:</b> You have two or more shared objects that were created without export-list
+(with option <span class="quote">-bautoexp</span> or similiar).
+</div>
+
+<div><a name="Q0046"><b>Q:</b></a> What about symbols
+<span class="quote">p_xargc</span>, <span class="quote">p_xargv</span>,
+<span class="quote">text</span>, <span class="quote">etext</span>,
+<span class="quote">data</span>, <span class="quote">edata</span> etc?<br>
+<b>A:</b> They come from one of the <span class="quote">/usr/lib/crt*.o</span>
+objects. The compiler automagically adds the necessary <span class="quote">crt*.o</span>
+object into your executable.<br>
+<b>Q:</b> But I got linker-warnings about they being <i>duplicated symbols.</i><br>
+<b>A:</b> One or more of your shared objects have been built without
+export-list, so they export symbols they shouldn't.
+</div>
+
+<div><a name="Q0042"><b>Q:</b></a> What about symbols like
+<span class="quote">_GLOBAL__F_<I>xxx</I></span>?<br>
+<b>A:</b> They might have something to do with exceptions:
+either it is C++, or you used option <span class="quote">-fexceptions</span>
+compile-time.</div>
+
+<div><a name="Q0022"><b>Q:</b></a> What is the optimal setting of environment variable
+<span class="quote">LIBPATH</span>?<br>
+<b>A:</b> Unsetting it. If the linkage has been performed correctly
+and the shared libraries are in the same place,
+LIBPATH is not needed.<br>
+Should you have broken executables that don't run without LIBPATH,
+you can create launching scripts, eg:
+<pre>
+<b>cd /somepath/bin</b>
+<b>mv someexe someexe.bin</b>
+<b>cat &gt;someexe &lt;&lt;DONE</b>
+#!/bin/sh
+export LIBPATH=/somepath/lib:/usr/lib
+exec /somepath/bin/someexe.bin "$@"
+<b>DONE</b>
+<b>chmod 0755 someexe</b>
+</pre>
+</div>
+
+<div><a name="Q0023"><b>Q:</b></a> Shared libraries placed into
+<span class="quote">*.a</span> archives might
+cause problems during program-loading?<br>
+<b>A:</b> Sure. If the loader finds an archive,
+but it doesn't contain the required element,
+the loader won't search for another archive,
+it will stop the loading with an error message.<br>
+Example:
+<pre>
+$ <b>dump -H -X32 /opt/freeware/bin/rpm</b>
+INDEX  PATH                          BASE                MEMBER
+0      /opt/freeware/lib:/usr/lib:/lib
+1                                    librpmbuild.so
+2                                    <u>libintl.a</u>           <u>libintl.so.1</u>
+3                                    librpm.so
+4                                    libpopt.so
+5                                    libc.a              shr.o
+6                                    librtl.a            shr.o
+$ <b>/opt/freeware/bin/rpm</b> # it works
+$ <b>LIBPATH=/usr/local/lib64 /opt/freeware/bin/rpm</b> # it doesn't work
+Could not load program /opt/freeware/bin/rpm:
+        Dependent module /usr/local/lib64/libintl.a(libintl.so.1) could not be loaded.
+        Member libintl.so.1 is not found in archive 
+</pre>
+</div>
+
+<div><a name="Q0036"><b>Q:</b></a> What's the <I>host-type</I> (or <I>machine-triplet</I>)
+of my AIX-computer?<BR>
+<b>A:</b> It's a <I>machine</I>-<I>vendor</I>-<I>os</I> triplet:
+<pre>
+<b>machine:</b> rs6000 or powerpc -- output of /usr/bin/uname -p
+<b>vendor:</b>  ibm
+<b>os:</b>      aixV.V.V.V -- aix$(/usr/bin/oslevel)
+
+example: <b>powerpc-ibm-aix6.1.0.0</b>
+</pre>
+<b>Q:</b> Are you sure in the last part?<br>
+<b>A:</b> Well, often the version of the <span class="quote">bos.rte.libc</span> package used instead;
+try command <span class="quote">lslpp -l bos.rte.libc</span>.
+</div>
+
+<div><a name="Q0038"><b>Q:</b></a> Can I <I>re-link</I> a shared library?<br>
+<b>A:</b> Sometimes you can, but it is not trivial (except for the trivial cases).
+Here is an example: you wish to relink <span class="quote">mylib.so</span> which
+depends on two other libraries and libc:
+<pre>
+<a href="explist_so">explist_so</a> mylib.so >mylib.exp
+ld -r -o mylib.o -bnso mylib.so
+ld -G -bnoentry -bernotok -bE:mylib.exp -o mylib_relinked.so mylib.o foo.so foocommon.so -lc
+</pre>
+</div>
+
+<div><a name="Q0045"><b>Q:</b></a> How could I debug heap corruption bugs?<br>
+<b>A:</b> There is a debug feature in <span class="quote">malloc</span>,
+which you can activate if you set a special environment variable before starting your program:
+<pre>
+$ <b>MALLOCDEBUG=catch_overflow ./myexe</b>
+</pre>
+You can also try using Electric Fence (next question).
+</div>
+
+<div><a name="Q0040"><b>Q:</b></a> How could I use <a href="https://en.wikipedia.org/wiki/Electric_Fence">Electric Fence</a>
+to find heap corruption bugs?<br>
+<b>A:</b> It is not as easy as it is in Linux (<span class="quote">LD_PRELOAD=libefence.so myprogram</span>),
+but it still can be useful. Here is a QuickStart:<br>
+Download the source, and compile it into a shared/static library:
+<pre>
+# 64 bit shared:
+gcc -shared -maix64 -o <B>libefence_sh.a</B> efence.c page.c print.c -pthread
+
+# 64 bit static:
+for i in efence page print; do
+    gcc -maix64 -o $i.o -c $i.c  -pthread
+done
+ar -X64 rcs <B>libefence.a</B> efence.o page.o print.o
+</pre>
+Whichever you created, add it into the linkage, and run your program. You should see
+this message at startup:
+<pre>
+Electric Fence 2.1 Copyright (C) 1987-1998 Bruce Perens.
+</pre>
+<a name="Q0040_1"><b>Q:</b></a> And exactly what good will this do for me?<br>
+<b>A:</b> It might detect heap corruption problems earlier, making debugging easier.
+Here is an example program:
+<pre>
+$ <b>cat efence_test.c</b>
+/* efence_test.c */
+
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;string.h&gt;
+
+int main (void)
+{
+    char *p= malloc (22);
+    
+    memcpy (p, "I've corrupted the heap!!", 25);
+    return 0;
+}
+$ <b>gcc -g -maix64 efence_test.c -o efence_test libefence.a -pthread</b>
+$ <b>gdb ./efence_test</b>
+(gdb) <b>run</b>
+Thread 2 received signal SIGSEGV, Segmentation fault.
+(gdb) <b>bt</b>
+#0  0x000000000000f470 in ?? ()
+#1  0x0000000100000614 in main () at efence_test.c:11
+(gdb) <b>l 11</b>
+11          memcpy (p, "I've corrupted the heap!!", 25);
+</pre></div>
+
+<div><a name="Q0041"><b>Q:</b></a> How can I use <span class="quote">loadquery</span>
+and <span class="quote">execerror</span> to get detailed information about failed
+<span class="quote">dlopen</span> calls?<br>
+<b>A:</b> Here is an example program:
+<pre>
+/* dltest.c */
+
+/* gcc -maix32 -o dltest32 dltest.c */
+/* gcc -maix64 -o dltest64 dltest.c */
+
+#include &lt;dlfcn.h&gt;
+#include &lt;stdio.h&gt;
+#include &lt;stdlib.h&gt;
+#include &lt;sys/ldr.h&gt;
+#include &lt;unistd.h&gt;
+
+int main (int argc, char **argv)
+{
+    void *dh;
+    char *args[1024];
+
+    if (argc &lt; 2) {
+        fprintf (stderr, "usage: %s sharedobject\n", argv[0]);
+        return 0;
+    }
+    dh= dlopen (argv[1], RTLD_LAZY | RTLD_MEMBER);
+    if (dh) {
+        fprintf (stderr, "dlopen(\"%s\") returned %p\n", argv[1], dh);
+        return 0;
+    }
+    args[0]= "execerror";
+    args[1]= "";
+
+    loadquery (L_GETMESSAGES, &amp;args[2], (sizeof args) - 2*(sizeof args[0]));
+    execvp ("/usr/sbin/execerror", args);
+
+    fprintf (stderr, "couldn't execute execerror");
+    return 0;
+}
+</pre>
+</div>
+
+<div>
+<b>&ndash; Glossary &ndash;</b><br>
+<dl>
+<dt><b>Function descriptor</b></dt>
+<dd>A data area consisting of three pointers; to call a function of an external module
+you have to have the address of its function descriptor.</dd>
+
+<dt><b>Function-pointer; functor</b></dt>
+<dd>A pointer that points to a function; in AIX, it contains the address of the
+function descriptor.</dd>
+
+<dt><b>Module</b></dt>
+<dd>Executable or shared object/library; result of linkage</dd>
+
+<dt><b>Object library</b></dt>
+<dd>An archive that contains object modules; *.a file (*.lib on some platforms);
+it can be used in linkage; on AIX, you often find shared objects in *.a files
+(e.g. /usr/lib/libc.a[shr.o])</dd>
+
+<dt><b>Object module</b></dt>
+<dd>Result of compilation; *.o file (*.obj on some platfoms)</dd>
+
+<dt><b>Reentrant code</b></dt>
+<dd><i>(In this context)</i> Code that can be used in multithreaded programs,
+typically it means non-using of static variables (eg: 
+<span class="quote">localtime_r(3)</span> vs
+<span class="quote">localtime(3)</span>)</dd>
+
+<dt><b>Shared code</b></dt>
+<dd>Code that can be used by different processes in the same time,
+(usually) it has to be position-independent (meaning: not required
+to be placed to a fixed memory-address, also doesn't need to be 'relocated'
+after loading from file).
+
+<dt><b>Shared object/library</b></dt>
+<dd>A module that is not a stand-alone executable but can be dynamically
+used by other modules; a *.so file (*.dll or *dylib on some platforms);
+on AIX, you often find shared objects in object libraries
+(e.g. /usr/lib/libc.a[shr.o])</dd>
+
+<dt><b>Table Of Content (TOC)</b></dt>
+<dd>The root data-area of a module, it contains the most important data and
+pointers to other data, also the function-descriptors of exported functions.
+</dl>
+</div>
+
+<div>
+<b>&ndash; Useful links &ndash;</b><br><br>
+<a href="https://www.ibm.com/docs/en/aix/7.3?topic=program-understanding-programming-toc">IBM: Understanding and programming the toc</a><br>
+<a href="https://www.ibm.com/docs/en/aix/7.3?topic=files-understanding-map">IBM: Understanding map files</a><br>
+<a href="https://public.dhe.ibm.com/software/dw/aix/es-aix_ll.pdf">IBM: AIX&#xae; Linking and Loading Mechanisms</a><br>
+<a href="https://gcc.gnu.org/onlinedocs/gcc-6.1.0/gcc/RS_002f6000-and-PowerPC-Options.html">gcc: IBM RS/6000 and PowerPC Options</a><br>
+<a href="http://www.perzl.org/aix/">AIX Open Source Packages - Perzl.org</a><br>
+<a href="https://www.ibm.com/support/pages/aix-toolbox-open-source-software-downloads-alpha">IBM: AIX Toolbox for Open Source Software</a>
+</div>
+
+<div>
+<b>&ndash; Sample linking &ndash;</b><br><br>
+<a href="https://github.com/lzsiga/linktest">linktest</a>
+</div>
+
+<div>
+<b>&ndash; Unrelated &ndash;</b><br><br>
+<a href="https://github.com/lzsiga/timegm">timegm(3) implementation for AIX</a>
+</div>
+
+</body></html>
