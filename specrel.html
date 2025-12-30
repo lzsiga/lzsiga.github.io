@@ -510,4 +510,71 @@ T' = &#x222b; sqrt(1-v<sup>2</sup>) dt
 </pre>
 </div>
 
+<div style="text-align: center;"><a name="S0001"><b>Transzformációs mátrixok</b></a></div>
+<div><a name="Q0029"><b>K:</b></a> Szabad mégegyszer az egydimenziós Galilei- és Lorentz-transzformáció
+mátrixát?<br>
+<b>V:</b> Ilyesmi:
+<pre>
+       /  1 0 \         /  γ  -vγ/c² \
+G(v) = |      |  L(v) = |            | ahol γ=(1-v²/c²)<sup>-1/2</sup>
+       \ -v 1 /         \ -vγ  γ     /
+</pre>
+</div>
+<div><a name="Q0030"><b>K:</b></a> Ugyebár ez nem csak egydimenziós eset, de még abból is csak az az eset,
+amikor az érintett <span class="quote">K</span> és <span class="quote">K'</span> koordinátarendszerek
+szinkronizáltak, vagyis az origójuk egybeesik. Lehetne egy kicsit általánosabban?<br>
+<b>V:</b> Ugyebár a tér háromdimenziós, ha az idővel kiegészítjük, akkor négy, tehát dolgozzunk
+ötdimenziós vektorokkal, és ötször ötös mátrixokkal.<br>
+A vektorok felépítése legyen ilyen: <span class="quote">(t,x,y,z,1)</span> Ebből az utolsó elem
+szerepe nem egészen világos, de vegyük úgy, hogy ez abban segít, hogy a csillagközi utazás során
+ne felejtsük el, mennyi az egységelem. Mindenestre ezeket a vektorokat mindig oszlopvektorként
+képzeljük el. (Esetenként kiírom a transzponálást jelentő <span class="quote"><sup>T</sup></span>
+jelet.)<br>
+Ekkor különféle transzformációs mátrixokat definiálhatunk a fentieken kívül is:<br>
+<I>Eltolás(Shift)</I> és <I>Időutazás(Time-travel)</I>
+<pre>
+         / 1 0 0 0 0 \        / 1 0 0 0 τ \
+         | 0 1 0 0 a |        | 0 1 0 0 0 |
+S<sub>a,b,c</sub> = | 0 0 1 0 b |   T<sub>τ</sub> = | 0 0 1 0 0 |
+         | 0 0 0 1 c |        | 0 0 0 1 0 |
+         \ 0 0 0 0 1 /        \ 0 0 0 0 1 /
+</pre>
+Számítsuk ki, mit kapunk, ha ezeket alkalmazzük egy <span class="quote">(t,x,y,z,1)</span> vektorra,
+vagyis a mátrixot szorozzuk a vektorral:
+<pre>S<sub>a,b,c</sub>(t,x,y,z,1)<sup>T</sup> = (t,x+a,y+b,z+c,1)<sup>T</sup>
+T<sub>τ</sub>(t,x,y,z,1)<sup>T</sup> = (t+τ,x,y,z,1)<sup>T</sup>
+</pre>
+<I>Nagyítás(Enlargement)</I> és <I>Gyorsítás(Acceleration)</I>
+<pre>
+     / 1 0 0 0 0 \        / 1 0 0 0 λ \
+     | 0 κ 0 0 0 |        | 0 1 0 0 0 |
+E<sub>κ</sub> = | 0 0 κ 0 0 |   I<sub>λ</sub> = | 0 0 1 0 0 |
+     | 0 0 0 κ 0 |        | 0 0 0 1 0 |
+     \ 0 0 0 0 1 /        \ 0 0 0 0 1 /
+</pre>
+Említsük meg, hogy a 'nagyítás' jelenthet kicsinyítést, és középpontos tükrözést is,
+a 'gyorsítás' pedig jelenthet lassítást vagy 'idővisszafordítást' is.<br>
+A 'nagyítást' általánosíthatjuk úgy is, hogy koordinátánként különböző szorzótényezőt
+használunk.<br>
+<I>x/y/z koordinátatengely körüli forgatás(Rotation)</I>
+<pre>
+       / 1 0    0     0 0 \          / 1    0 0     0 0 \          / 1    0     0 0 0 \
+       | 0 1    0     0 0 |          | 0 cosφ 0 -sinφ 0 |          | 0 cosω -sinω 0 0 |
+R<sub>1,φ</sub> = | 0 0 cosφ -sinφ 0 |   R<sub>2,ψ</sub> = | 0    0 1     0 0 |   R<sub>3,ω</sub> = | 0 sinω  cosω 0 0 |
+       | 0 0 sinφ  cosφ 0 |          | 0 sinφ 0  cosφ 0 |          | 0    0     0 1 0 |
+       \ 0 0    0     0 1 /          \ 0    0 0     0 1 /          \ 0    0     0 0 1 /
+</pre>
+Vegyük észre, hogy ezek speciális esetek, az általános forgatás tetszőleges forgástengely körül történhet.
+Említsünk meg, hogy a 180 fokos forgatást tengelyes tükrözésnek nevezzük.<br>
+<I>Tükrözés yz/zx/xy síkokra(Mirroring)</I>
+<pre>
+     / 1  0 0 0 0 \        / 1 0  0 0 0 \        / 1 0 0  0 0 \
+     | 0 -1 0 0 0 |        | 0 1  0 0 0 |        | 0 1 0  0 0 |
+M<sub>1</sub> = | 0  0 1 0 0 |   M<sub>2</sub> = | 0 0 -1 0 0 |   M<sub>3</sub> = | 0 0 1  0 0 |
+     | 0  0 0 1 0 |        | 0 0  0 1 0 |        | 0 0 0 -1 0 |
+     \ 0  0 0 0 1 /        \ 0 0  0 0 1 /        \ 0 0 0  0 1 /
+</pre>
+Vegyük észre, hogy ezek speciális esetek, általános esetben tetszőleges síkra lehet tükrözni.
+</div>
+
 </body></html>
