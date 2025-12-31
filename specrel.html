@@ -515,9 +515,9 @@ T' = &#x222b; sqrt(1-v<sup>2</sup>) dt
 mátrixát?<br>
 <b>V:</b> Ilyesmi:
 <pre>
-       /  1 0 \         /  γ  -vγ/c² \
-G(v) = |      |  L(v) = |            | ahol γ=(1-v²/c²)<sup>-1/2</sup>
-       \ -v 1 /         \ -vγ  γ     /
+     /  1 0 \       /  γ  -vγ/c² \
+G<sub>v</sub> = |      |  L<sub>v</sub> = |            | ahol γ=(1-v²/c²)<sup>-1/2</sup>
+     \ -v 1 /       \ -vγ  γ     /
 </pre>
 </div>
 <div><a name="Q0030"><b>K:</b></a> Ugyebár ez nem csak egydimenziós eset, de még abból is csak az az eset,
@@ -558,11 +558,11 @@ A 'nagyítást' általánosíthatjuk úgy is, hogy koordinátánként különbö
 használunk.<br>
 <I>x/y/z koordinátatengely körüli forgatás(Rotation)</I>
 <pre>
-       / 1 0    0     0 0 \          / 1    0 0     0 0 \          / 1    0     0 0 0 \
-       | 0 1    0     0 0 |          | 0 cosφ 0 -sinφ 0 |          | 0 cosω -sinω 0 0 |
-R<sub>1,φ</sub> = | 0 0 cosφ -sinφ 0 |   R<sub>2,ψ</sub> = | 0    0 1     0 0 |   R<sub>3,ω</sub> = | 0 sinω  cosω 0 0 |
-       | 0 0 sinφ  cosφ 0 |          | 0 sinφ 0  cosφ 0 |          | 0    0     0 1 0 |
-       \ 0 0    0     0 1 /          \ 0    0 0     0 1 /          \ 0    0     0 0 1 /
+       / 1 0    0     0 0 \          / 1     0 0    0 0 \          / 1    0     0 0 0 \
+       | 0 1    0     0 0 |          | 0 -sinψ 0 cosψ 0 |          | 0 cosω -sinω 0 0 |
+R<sub>1,φ</sub> = | 0 0 cosφ -sinφ 0 |   R<sub>2,ψ</sub> = | 0     0 1    0 0 |   R<sub>3,ω</sub> = | 0 sinω  cosω 0 0 |
+       | 0 0 sinφ  cosφ 0 |          | 0  cosψ 0 sinψ 0 |          | 0    0     0 1 0 |
+       \ 0 0    0     0 1 /          \ 0     0 0    0 1 /          \ 0    0     0 0 1 /
 </pre>
 Vegyük észre, hogy ezek speciális esetek, az általános forgatás tetszőleges forgástengely körül történhet.
 Említsünk meg, hogy a 180 fokos forgatást tengelyes tükrözésnek nevezzük.<br>
@@ -574,7 +574,38 @@ M<sub>1</sub> = | 0  0 1 0 0 |   M<sub>2</sub> = | 0 0 -1 0 0 |   M<sub>3</sub> 
      | 0  0 0 1 0 |        | 0 0  0 1 0 |        | 0 0 0 -1 0 |
      \ 0  0 0 0 1 /        \ 0 0  0 0 1 /        \ 0 0 0  0 1 /
 </pre>
-Vegyük észre, hogy ezek speciális esetek, általános esetben tetszőleges síkra lehet tükrözni.
-</div>
+Vegyük észre, hogy ezek speciális esetek, általános esetben tetszőleges síkra lehet tükrözni.<br>
+<I>Koordináta-transzformáció (térbeli)</I><br>
+Ha adott három <a href="https://hu.wikipedia.org/wiki/Line%C3%A1ris_f%C3%BCggetlens%C3%A9g">független</a>
+térvektor (háromdimenziós vektor), akkor oszlopvektorként egymás mellé írva háromszor hármas
+mátrixot kapunk, aminek kiszámíthatjuk az inverzét, hogy pl.:
+<pre>
+<b>b</b><sub>1</sub>=<b>i</b>=(1,0,0)<sup>T</sup>, b<sub>2</sub>=<b>i</b>+<b>j</b>=(1,1,0)<sup>T</sup>, b<sub>3</sub>=<b>i</b>+<b>j</b>+<b>k</b>=(1,1,1)<sup>T</sup>
 
+    / 1 1 1 \        / 1 -1  0 \
+M = | 0 1 1 |  M<sup>-1</sup> = | 0  1 -1 |
+    \ 0 0 1 /        \ 0  0  1 /
+</pre>
+Ha ennek az inverzmátrixnak az elemeit <span class="quote">v<sub>ij</sub></span> jelöli, akkor a transzformációs mátrixunk ilyen lesz:
+<pre>
+     / 1 0   0   0   0 \
+     | 0 v<sub>11</sub> v<sub>12</sub> v<sub>13</sub> 0 |
+K<sub>M</sub> = | 0 v<sub>21</sub> v<sub>22</sub> v<sub>23</sub> 0 |
+     | 0 v<sub>31</sub> v<sub>32</sub> v<sub>33</sub> 0 |
+     \ 0 0   0   0   1 /
+</pre>
+Észrevehetjük, hogy ennek a műveletnek speciális esete a nagyítás, forgatás,
+tükrözés.<br>
+<I>Galilei- és Lorentz-transzformáció</I> (a fenti speciális eset)
+<pre>
+     /  1 0 0 0 0 \       /   γ -vγ/c² 0 0 0 \
+     | -v 1 0 0 0 |       | -vγ   γ    0 0 0 |
+G<sub>v</sub> = |  0 0 1 0 0 |  L<sub>v</sub> = |   0   0    1 0 0 |  ahol γ=(1-v²/c²)<sup>-1/2</sup>
+     |  0 0 0 1 0 |       |   0   0    0 1 0 |
+     \  0 0 0 0 1 /       \   0   0    0 0 1 /
+</pre>
+</div>
+<div><a name="Q0031"><b>K:</b></a> Kezdem úgy érezni, hogy még mátrix-szorzás is lesz a történetben...<br>
+<b>V:</b> Folyt. köv.
+</div>
 </body></html>
