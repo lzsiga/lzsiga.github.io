@@ -546,9 +546,9 @@ T<sub>τ</sub>(t,x,y,z,1)<sup>T</sup> = (t+τ,x,y,z,1)<sup>T</sup>
 </pre>
 <I>Nagyítás(Enlargement)</I> és <I>Gyorsítás(Acceleration)</I>
 <pre>
-     / 1 0 0 0 0 \        / 1 0 0 0 λ \
+     / 1 0 0 0 0 \        / λ 0 0 0 0 \
      | 0 κ 0 0 0 |        | 0 1 0 0 0 |
-E<sub>κ</sub> = | 0 0 κ 0 0 |   I<sub>λ</sub> = | 0 0 1 0 0 |
+E<sub>κ</sub> = | 0 0 κ 0 0 |   A<sub>λ</sub> = | 0 0 1 0 0 |
      | 0 0 0 κ 0 |        | 0 0 0 1 0 |
      \ 0 0 0 0 1 /        \ 0 0 0 0 1 /
 </pre>
@@ -596,6 +596,18 @@ K<sub>M</sub> = | 0 v<sub>21</sub> v<sub>22</sub> v<sub>23</sub> 0 |
 </pre>
 Észrevehetjük, hogy ennek a műveletnek speciális esete a nagyítás, forgatás,
 tükrözés.<br>
+Megjegyzés: ha a koordináta-rendszer kezdőpontját akarjuk térben/időben eltolni,
+azt az elején említett transzformációkkal lehet elvégezni, ha pl. a
+<span class="quote">(t<sub>0</sub>,x<sub>0</sub>,y<sub>0</sub>,z<sub>0</sub>)</span>
+pontba tennénk át az origót, akkor azt ilyen transzformációval végezhetjük el:
+<pre>
+                                            / 1 0 0 0 -t<sub>0</sub> \
+                                            | 0 1 0 0 -x<sub>0</sub> |
+A = T<sub>-t<sub>0</sub></sub> S<sub>-x<sub>0</sub>,-y<sub>0</sub>,-z<sub>0</sub></sub> = S<sub>-x<sub>0</sub>,-y<sub>0</sub>,-z<sub>0</sub></sub> T<sub>-t<sub>0</sub></sub> = | 0 0 1 0 -y<sub>0</sub> |
+                                            | 0 0 0 1 -z<sub>0</sub> |
+                                            \ 0 0 0 0  1  /
+A(t,x,y,z,1)<sup>T</sup> = (t-t<sub>0</sub>,x-x<sub>0</sub>,y-y<sub>0</sub>,z-z<sub>0</sub>,1)
+</pre>
 <I>Galilei- és Lorentz-transzformáció</I> (a fenti speciális eset)
 <pre>
      /  1 0 0 0 0 \       /   γ -vγ/c² 0 0 0 \
@@ -606,6 +618,47 @@ G<sub>v</sub> = |  0 0 1 0 0 |  L<sub>v</sub> = |   0   0    1 0 0 |  ahol γ=(1
 </pre>
 </div>
 <div><a name="Q0031"><b>K:</b></a> Kezdem úgy érezni, hogy még mátrix-szorzás is lesz a történetben...<br>
-<b>V:</b> Folyt. köv.
+<b>V:</b> Így van, ha két ilyen transzformációt akarunk egymás után elvégezni,
+akkor a mátrixszorzás asszociativitása miatt a mátrixok szorzásával helyettesíthetjük:
+<pre>v→(B∘A)v=B(A(v))=(BA)v</pre>
+Ez akkor előnyös, ha több pontot akarunk transzformálni, mert így számolást takaríthatunk meg.
+</div>
+<div><a name="Q0032"><b>K:</b></a> Akkor most hogyan lehetne ezt a fenti
+<a href="#Q0002">vonat/alagút</a> esetre alkalmazni?<br>
+<b>V:</b> Abban a példában a vonat eleje (<span class="quote">A</span>) és az alagút bejárata
+(<span class="quote">C</span>) szinkronizálták a koordinátarendszerüket amikor találkoztak
+(vagyis mindkettejük szerint ez az origó). Ezek között a transzformáció könnyen felírható
+a fentiek alapján:
+<pre>
+A→C /  5/3 -4/3 0 0 0 \  C→A / 5/3 4/3 0 0 0 \
+    | -4/3  5/3 0 0 0 |      | 4/3 5/3 0 0 0 |
+    |    0    0 1 0 0 |      |   0   0 1 0 0 |
+    |    0    0 0 1 0 |      |   0   0 0 1 0 |
+    \    0    0 0 0 1 /      \   0   0 0 0 1 /
+</pre>
+Szintén könnyű a transzformációt felírni a vonat eleje (<span class="quote">A</span>) és
+vége (<span class="quote">B</span>),
+valamint az alagút eleje (<span class="quote">C</span>) és
+vége (<span class="quote">D</span>) között, mivel ezek órái szinkronban járnak.
+(Ez négy transzformáció, de ebben a konkrét esetben két-két azonos van köztük.)
+<pre>
+A→B / 1 0 0 0 0 \  B→A / 1 0 0 0  0 \
+D→C | 0 1 0 0 5 |  C→D | 0 1 0 0 -5 |
+    | 0 0 1 0 0 |      | 0 0 1 0  0 |
+    | 0 0 0 1 0 |      | 0 0 0 1  0 |
+    \ 0 0 0 0 1 /      \ 0 0 0 0  1 /
+</pre>
+Akkor most egy érdekesebb rész: a fentiek szorzásával számítsuk ki a
+<span class="quote">B→D</span> és <span class="quote">D→B</span> transzformációkat,
+az <span class="quote">B→A</span>, <span class="quote">A→C</span>, <span class="quote">C→D</span>
+transzformációk szorzásával (ügyelve a mátrix-szorzás sorrendjére, pl.
+<span class="quote">B→D = C→D * A→C * B→A</span>)
+<pre>
+B→D /  5/3 -4/3 0 0  20/3 \  D→B / 5/3 4/3 0 0  20/3 \
+    | -4/3  5/3 0 0   -40 |      | 4/3 5/3 0 0 130/3 |
+    |    0    0 1 0     0 |      |   0   0 1 0     0 |
+    |    0    0 0 1     0 |      |   0   0 0 1     0 |
+    \    0    0 0 0     1 /      \   0   0 0 0     1 /
+</pre>
 </div>
 </body></html>
