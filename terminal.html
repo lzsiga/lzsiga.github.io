@@ -1,0 +1,1130 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Terminál FAQ programozók számára</title>
+<style type="text/css">
+pre {
+    background: lightgrey; 
+    margin: 0.1em 0 0.1em 0;
+    padding-left: 1em; }
+div, p { margin: 0 0 1em 0; }
+span.quote { 
+    background: lightgrey; font-family: monospace; 
+    padding-left: 1px; padding-right: 1px; }
+th.thl {
+    text-align: left;
+    padding: 0 0.2em 0 0.2em;
+}
+td.tdl {
+    text-align: left;
+    padding: 0 0.2em 0 0.2em;
+}
+td.tdc {
+    text-align: center;
+}
+</style>
+
+</head><body>
+<p><b>Terminál FAQ programozók számára</b></p>
+
+<p><b>K:</b> Mi a <i>smacs</i> és a <i>rmacs?</i><br>
+<b>V:</b> Terminvezérlő szekvenciák, 'start alternate character set' és
+'end alternate character set'. Ezeket lehet használni
+a 'grafikus' karakterek előcsalogatására, amilyeneket
+a Midnight Commander használ.
+Például 'linux' terminálon: smacs=<u>ESC</u>[11m, rmacs=<u>ESC</u>[10m;
+'rxvt' terminálon: smacs=^N, rmacs=^O.</p>
+
+<p><b>K:</b> Honnan is lehet ezeket tudni?<br>
+<b>V:</b> Az <span class="quote">infocmp &lt;termináltípus&gt;</span> válaszából.</p>
+
+<div><b>K:</b> És ez mindig működik?<br>
+<b>V:</b> Hát, például az rxvt esetében az
+<i>enacs</i> szekvenciát is használni kell előtte.<br>
+
+Vagy megerőszakolni az rxvt forrásprogramját (screen.c):
+
+<pre>volt: MEMSET(charsets, 'B', sizeof(charsets));
+lett: MEMSET(charsets, 'B', sizeof(charsets)); charsets[1]= '0';</pre>
+
+Vagy megerőszakolni az rxvt termináltípus definícióját:
+
+<pre># <b>infocmp rxvt &gt;rxvt.ti</b>
+volt: smacs=^N
+lett: smacs=\E)0^N
+# <b>tic rxvt.ti</b>
+</pre>
+</div>
+
+<div><a name="Q0020"><b>K:</b></a> És ha mindent jól beállítottam, működni fog
+a karaktergrafika az emulátoromban?<br>
+<b>V:</b> Ez nincsen kizárva, de lehetnek buktatók, például <a href="S0009">PuTTY</a>-ban
+UTF8 esetén kell egy külön beállítás, hogy működjön:<br>
+<span class="quote">Window</span> / <span class="quote">Translation</span> /
+<span class="quote">Enable VT100 line drawing even in UTF-8</span>
+</div>
+
+<p><b>K:</b> Kezdem úgy érezni, hogy az egész nem is annyira egzakt tudomány,
+mint amilyennek látni szeretnénk... Van erre egy kipróbálóprogram?<br>
+<b>V:</b> Itt van: <a href="https://lzsiga.users.sourceforge.net/shchars.c">shchars.c</a></p>
+
+<div><b>K:</b> És a <span class="quote">tput</span>-tal hogy van ez?<br>
+<b>V:</b> A <i>smacs</i> és <i>rmacs</i> paraméterekkel dolgozhatsz:<br>
+<pre>$ <b>tput smacs</b>
+&lt;olvasható vagy olvashatatlan szöveg&gt;
+$ <b>tput rmacs</b>
+&lt;normál állapot&gt;
+</pre></div>
+
+<div><b>K:</b> És még milyen paramétereket használhatok a tput-tal,
+amik a manuáljában nincsenek?<br>
+<b>V:</b> A <span class="quote">terminfo(5)</span> manualban lévőket,
+itt van néhány lehetőség az ESC-szekvenciával együtt:
+<pre><u>hatás       bekapcs   kódnév kikapcs kódnév  megjegyzés</u>
+alternatív  ?         smacs  ?       rmacs   emulátorfüggő, esetleg <i>enacs</i> is kell hozzá
+betűkészlet
+előtérszín  ESC[30+<i>n</i>m -	     -	     -	     n=szín sorszáma (0..7;9=alapértelmezés)
+háttérszín  ESC[40+<i>n</i>m -	     -	     -	     n=szín sorszáma (0..7;9=alapértelmezés)
+aláhúzás    ESC[4m    smul   ESC[24m rmul
+inverz      ESC[7m    smso   ESC[27m rmso
+vastag betű ESC[1m    bold   ESC[21m -       hatása emulátorfüggő
+villogás    ESC[5m    blink  ESC[25m -       hatása emulátorfüggő
+alaphelyzet ESC[0m    sgr0   -       -       színek alaphelyzetbe, spec. hatások kikapcsolása
+</pre>
+</div>
+
+<div><a name="Q0015"><b>K:</b></a> Ha egy ilyen szekvenciában egy
+<span class="quote">%p1%d</span>-szerű részt látok,
+annak van valamilyen speciális jelentése?<br>
+<b>V:</b> Igen, oda változó paramétert kell beilleszteni
+(esetünkben az első változó paramétert, decimális számként).
+Programban erre használható a <span class="quote">tparm</span> vagy a
+<span class="quote">tiparm</span> függvény.
+</div>
+
+<div><a name="Q0014"><b>K:</b></a> Ha esetleg egy <span class="quote">$&lt;100/&gt;</span>
+szerű szekvencia jelenik meg a képernyőmön, akkor annak is lehet köze a terminfóhoz?<br>
+<b>V:</b> Ez előfordulhat, ugyanis terminfo-nyelven ezek a szekcenciák <i>várakozást</i>
+jelentenek (a szám ezredmásodpercben értendő). Ha történetesen egy program erről nem tud,
+és a szekvenciát egyben kiküldi a terminálnak, akkor persze joggal csodálkozol, hogy mit is látsz.<br>
+
+<b>K:</b> Mikor lenne szükség ilyen várakozásra?<br>
+<b>V:</b> Itt van például a <span class="quote">flash</span> művelet:
+ez először inverzre állítja a képet, aztán vár, aztán visszaállítja a normál képet:
+<pre>
+$ <b>infocmp xterm | grep flash</b>
+  flash=\E[?5h$&lt;100/&gt;\E[?5l
+$ <b>tput flash | od -tx1</b>
+  1b  5b 3f 35 68 1b  5b 3f 35 6c  # a várakozás itt nem látszik!
+  ESC [  ?  5  h  ESC [  ?  5  l
+</pre>
+
+<b>K:</b> Ha én programban a <span class="quote">tigetstr</span>-vel kiolvasok
+egy ilyen szekvenciát, és azt ki akarom iratni, akkor az abban esetleg benne
+lévő várakozásokat nekem kell kezelnem?<br>
+<b>V:</b> Megteheted, de van rá kész függvény is,
+<span class="quote">putp</span> illetve <span class="quote">tputs</span> néven.
+</div>
+
+<div><b>K:</b> Még valami hasznos funkció a tput-tal?<br>
+<b>V:</b> Például a <span class="quote">LINES</span> és a 
+<span class="quote">COLUMNS</span> változók beállítása,
+ha valamiért nem történt meg automatikusan:
+<pre>$ <b>export COLUMNS=$(tput cols); export LINES=$(tput lines)</b>
+</pre>
+</div>
+
+<div><b>K:</b> Ezt vajon hogy csinálja a tput?<br>
+<b>V:</b> A kerneltől kérdezi meg, a TIOCGWINSZ nevű ioctl-vel.
+Ugyanezt teszi a <span class="quote">stty size</span> parancs is.
+Ennek párja a TIOCSWINSZ, amivel átállítod a kernel által ismert
+méretet.</div>
+
+<div><b>K:</b> Milyen paranccsal használhatom ezt a TIOCSWINSZ ioctl-t?<br>
+<b>V:</b> A stty(1) való erre: 
+<span class="quote">stty rows &lt;sorok> columns &lt;oszlopok></span><br>
+Ne felejtsd el, ennek semmi hatása nincs a terminál(emulátor)ra,
+csak a kernel által tárolt méretekre.
+Továbbá nem állítja a COLUMNS/LINES változókat sem. 
+</div>
+
+<div><b>K:</b> Ez azt jelenti, hogy a kernel számon tartja az emulált terminálokat?<br>
+<b>V:</b> Igen, minden (valós vagy emulált) terminálnak nyilvántartja a beállításait,
+hogy a tiéd melyik, azt a tty(1) vagy a ttyname(3) adja meg. Próbáld ki:
+<pre>
+$ <b>tty</b>
+/dev/pts/9
+$ <b>ls -l $(tty)</b>
+crw--w---- 1 user tty 136, 9 Aug 30 15:59 /dev/pts/9
+</pre>
+</div>
+
+<div><b>K:</b> Hogyan 'születik' egy ilyen virtuális terminál?<br>
+<b>V:</b> Programból lehet létrehozni (a részletekért lásd a pty(7) manualt),
+példa ezt használó programokra: xterm, telnetd, sshd, script, expect, ttyrec.</div>
+
+<div><b>K:</b> Hogyan lehet azt megoldani, hogy a kernel értesítsen,
+ha átméretezték az ablakomat?<br>
+<b>V:</b> A kernel <span class="quote">SIGWINCH</span>
+signalt küld azoknak a folyamatoknak,
+akiknek a terminál a 'controlling terminal'-ja, és van signal-handlerük
+erre a signal-ra (az alapértelmezés az ignore).</div>
+
+<div><b>K:</b> És még mire jó ez a stty?<br>
+<b>V:</b> Minden helyi beállítást ezzel szabályozhatsz, számtalan opciója van,
+például:
+<pre>$ <b>savestty=$(stty -g)</b> # minden beállítás elmentése
+$ <b>stty $savestty</b> # elmentett beállítások visszaállítása
+$ <b>stty -a</b> # minden beállítás kiírása (human-readable formátumban)
+</pre></div>
+
+<div><b>K:</b> Közvetlenül a terminál(emulátor)tól is meg lehet kérdezni az ablakméretet?<br>
+<b>V:</b> Lehet, a következő ESC-szekvenciákkal:
+<pre>kérdés: ESC[18t
+válasz: ESC[8;&lt;sorok&gt;;&lt;oszlopok&gt;;t
+kérdés: ESC[14t
+válasz: ESC[4;&lt;pixelsorok&gt;;&lt;pixeloszlopok&gt;;t
+</pre></div>
+
+<div><b>K:</b> Átméretezni is lehet így?<br>
+<b>V:</b> Terminálfüggő, ha lehet, akkor ezek valamelyikével:<BR>
+<PRE>ESC[8;&lt;sorok&gt;;&lt;oszlopok&gt;;t
+ESC[4;&lt;pixelsorok&gt;;&lt;pixeloszlopok&gt;;t</PRE></DIV>
+
+<div><b>K:</b> Van erre a célra program is?<br>
+<b>V:</b> A neve <span class="quote">resize</span> a neve, használata:
+<PRE>
+# lekérdezés:
+$ <b>resize -s</b>
+# beállítás; egyszerű meghívás, univerzális:
+$ <b>resize -s &lt;oszlopok&gt; &lt;sorok&gt;</b>
+# "trükkös" meghívás, egyes shell-ek esetén COLUMNS+LINES is állítódik
+$ <b>eval $(resize -s &lt;oszlopok&gt; &lt;sorok&gt;)</b></pre></div>
+
+<div><b>K:</b> Mindezekből a részletekből hogy lehetne valami komplett
+funkciót kihozni?<br>
+<b>V:</b> Például egy ilyen shell-függvényt lehetne írni:
+<pre>
+termsize () {
+    if [ $# -eq 2 ]; then
+        eval $(resize -s "$1" "$2")
+    else
+        eval $(resize -s)
+    fi;
+    stty rows "$LINES" columns "$COLUMNS"
+}
+</pre> 
+</div>
+
+<div style="text-align: center;"><a name="S0017"><b>&#8212; Karaktergrafika &#8212;</b></a></div>
+
+<div><a name="Q0011"><b>K:</b></a> Fentebb volt szó <span class="quote">smacs</span> /
+<span class="quote">rmacs</span> szekvenciákról.
+Kicsit pontosabban mit is csinálnak ezek?<br>
+<b>V:</b> Átváltják a terminált pszeudografikus karakterkészletre és vissza.
+Ez kétféleképpen történhet: vagy a G0 és G1 között kapcsolnak oda-vissza,
+vagy a G0-t állítják át a normál és a grafikus karkaterkészlet között.<br>
+<b>K:</b> Mi lenne a <span class="quote">G0</span> és <span class="quote">G1</span>?<br>
+<b>V:</b> Először is a terminál/emulátor több karakterkészletet ismer(het):
+<pre>
+<U>kód</U> <U>jelentés</U>
+ 0  pszeudografikus karakterkészlet
+ A  ASCII/UK (módosított ASCII)
+ B  ASCII
+stb Különféle módosított ASCII változatok
+</pre>
+A gyakorlatban elég a 'B'-t és a '0'-t megjegyezni (a többinek akkor volt jelentősége, amikor
+csak a 7-bites ASCII kód egyéni módosításaival lehetett a nemzeti karaktereket előállítani).
+Ezeknek a kódoknak az alábbi ESC-szekvenciákban van jelentősége:
+<pre>
+ESC ( <I>C</I>  G0 beállítása, pl. ESC(B -&gt; G0=ASCII (ez a szokásos beállítás G0-ra)
+ESC ) <I>C</I>  G1 beállítása, pl. ESC)0 -&gt; G1=grafikus (ez meg G1-re a szokásos beállítás)
+</pre>
+A teljesség kedvéért említsük meg, hogy egyes terminálok ismernek G2 és G3 készleteket is.<br>
+<b>K:</b> Tehát akkor mi is lenne a
+<span class="quote">G0</span> és <span class="quote">G1</span>?<br>
+<b>V:</b> Tekintsük őket egy <i>indirekciós szintnek:</i>
+a fenti szekvenciákkal beállítjuk, hogy mit jelentsen a G0 és G1,
+utána beállítjuk a terminált, hogy G0-t vagy G1-et használja:
+<pre>
+SO (0x0e)	Váltás G1-re (DEC)
+SI (0x0f)	Váltás G0-ra (DEC)
+ESC[10m		Váltás G0-ra (csak 'linux' terminál)
+ESC[11m		Váltás G1-ra (csak 'linux' terminál)
+</pre>
+</div>
+
+<div><a name="Q0012"><b>K:</b></a> És akkor mik is ezek a grafikus karakterek?<br>
+<b>V:</b> Például olyasféle grafikus karakterek, amiket a
+Midnight Commander használ a keretek kirajzolásához.<br>
+Ilyesmi lenne a listájuk:
+<pre>
+<u>kód</u>  <u>graf.char</u>  <u>hely.</u>   <u>név</u>
+2b +	&#x2192;	&gt;	ACS_RARROW
+2c ,	&#x2190;	&lt;	ACS_LARROW
+2d -	&#x2191;	^	ACS_UARROW
+2e .	&#x2193;	v	ACS_DARROW
+30 0	&#x2588;	#	ACS_BLOCK
+60 `	&#x2666;	+	ACS_DIAMOND
+61 a	&#x2591;	:	ACS_CKBOARD
+66 f	&#x00B0;	'	ACS_DEGREE
+67 g	&#x00B1;	#	ACS_PLMINUS
+68 h	&#x2592;	#	ACS_BOARD
+69 i	&#x00A4; v &#x00A7;	#	ACS_LANTERN
+6a j	&#x2518;	+	ACS_LRCORNER
+6b k	&#x2510;	+	ACS_URCORNER
+6c l	&#x250C;	+	ACS_ULCORNER
+6d m	&#x2514;	+	ACS_LLCORNER
+6e n	&#x253C;	+	ACS_PLUS
+6f o	&#x23BA;	~	ACS_S1
+70 p	&#x23BB;	-	ACS_S3
+71 q	&#x2500;	-	ACS_HLINE
+72 r	&#x23BC;	-	ACS_S7
+73 s	&#x23BD;	-	ACS_S9
+74 t	&#x251C;	+	ACS_LTEE
+75 u	&#x2524;	+	ACS_RTEE
+76 v	&#x2534;	+	ACS_BTEE
+77 w	&#x252C;	+	ACS_TTEE
+78 x	&#x2502;	|	ACS_VLINE
+79 y	&#x2264;	&lt;	ACS_LEQUAL
+7a z	&#x2265;	&gt;	ACS_GEQUAL
+7b {	&#x03C0;	*	ACS_PI
+7c |	&#x2260;	!	ACS_NEQUAL
+7d }	&#x00A3;	f	ACS_STERLING
+7e ~	&#x2219;	o	ACS_BULLET
+</pre>
+A lista tartalmaz egy úgynevezett <i>helyettesítő karaktert</i> is,
+ezt akkor látjuk, ha a terminál nem tudja a grafikus karaktert
+megjeleníteni.<br>
+
+<b>Megj:</b> Természetesen az is lehet, hogy a böngésződ sem tudja
+ezek egyikét-másikát megjeleníteni, például a ACS_S1, ACS_S3, ACS_S7, ACS_S9
+nem szokott megjelenni (bár az Unicode-ban benne vannak: U+23BA..U+23BD).<br>
+
+<b>Megj:</b> Az ACS_LANTERN jelentése nem egészen tiszta,
+maga a szó <i>lámpást</i> jelent,
+szerintem a '&#xA4;' (U+A4) vagy a '&#xA7;' (U+A7) jelre utalhat,
+a ncurses szerint viszont az U+2603 kódú &#x2603; karaktert
+(hóember).
+</div>
+
+<div><a name="Q0013"><b>K:</b></a> Ezek a karakterek fixen ezeken a kódokon vannak?<br>
+<b>V:</b> Természetesen nem, <span class="quote">linux</span> termináltípus esetén
+más pozíciókon vannak (az IBM CP437 kódkészletéhez igazodva).<br>
+<b>K:</b> És ezt hogyan kezeljem a programomból?!<br>
+<b>V:</b> Lekérdezheted a terminfo-ból <span class="quote">acsc</span>,
+illetve termcap-ból <span class="quote">ac</span> néven.
+Ekkor egy karakterpárokból álló listát kapsz, amivel szabványos kódról terminál-specifikusra fordíthatsz.<br>
+
+<b>K:</b> Ez most komoly, vagy itt van valahol egy <I>kandi kamera?</I><br>
+<b>V:</b> Általában nem neked kell ezt csinálnod, hanem rábízhatod a ncurses nevű komponensre, pl:
+<pre>addch (ACS_ULCORNER);</pre>
+</div>
+
+<div style="text-align: center;"><a name="S0002"><b>&#8212; Egérkezelés &#8212;</b></a></div>
+
+<div><b>K:</b> A terminál(emulátor) az egérkattintást is elküldi a szervernek?<br>
+<b>V:</b> Igen, ha a szerver ezt kéri tőle:
+<pre>
+ESC[?9h    -- X10 protokoll szerinti jelentés
+	      (csak az 1-3 gombok lenyomása küld szekvenciát)
+ESC[?1000h -- X11 protokoll szerinti jelentés
+ESC[?1002h -- mint az előbbi,
+	      de a 'vonszolás' (gombnyomás+mozgás) is küld szekvenciát
+ESC[?1003h -- mint az előbbiek,
+	      de a 'síma' mozgás is küld szekvenciát
+ESC[?&lt;n&gt;l -- kikapcsolás (az előbb számok bármelyike használható)
+</pre>
+Ennek hatására a terminál a következő szekvenciát küldi gombnyomás/felengedéskor:
+<pre>ESC[M&lt;kód&gt;&lt;xpos&gt;&lt;ypos&gt;
+&lt;kód&gt;: &lt;valami&gt; + 0x20 + &lt;módosítók&gt; + &lt;gombsorszám&gt;
+
+módosítók (csak X11 protokoll esetén, emulátorfüggő):
+    0x04: Shift
+    0x08: Alt (vagy Meta)
+    0x10: Control
+
+gombsorszám (a &lt;valami&gt; értékétől is függően):
+       0: bal
+       1: középső
+       2: jobb
+       3: felengedés
+    0x40: 4. gomb / görgő fel
+    0x41: 5. gomb / görgő le
+    0x42: 6. gomb / görgő-2 balra
+    0x43: 7. gomb / görgő-2 jobbra
+
+valami:
+    0x00: (alapeset) 1-3 gomb lenyomás/felengedés
+    0x20: vonszolás (mozgás gomblenyomással) / mozgás
+
+xpos,ypos:
+    0x20 + koordináta (1..223)
+</pre>
+Persze ez csak egy kivonatos részlet, ennél sokkal több és bonyolultabb
+lehetőség is van (ez persze az emulátorunktól is függ).<br>
+Arra is jó esély van, hogy pl a Shift-et az emulátor arra használja,
+hogy mégse küldje a szervernek az egérszekvenciákat, hanem kijelölésre
+szolgáljon az egér.<BR>
+<B>Megj:</B> Látható, hogy a gombok felengedéséről csak korlátozottan értesülünk:
+csak X11 protokoll esetén, csak az első három gomb esetén,
+és még akkor sem jön az az információ, hogy <I>melyik</I> gombot engedték fel.
+</div>
+
+<div><b>K:</b> Az 
+<a href="http://sourceforge.net/projects/rxvt/files/rxvt/2.6.4/rxvt-2.6.4.tar.gz/download">rxvt-2.6.4</a>
+nem jól kezeli az egérgörgőt!<br>
+<b>V:</b> Frissíts 
+<a href="http://sourceforge.net/projects/rxvt/files/rxvt-dev/2.7.10/rxvt-2.7.10.tar.gz/download">rxvt-2.7.10</a>-re,
+vagy
+<a href="http://freecode.com/projects/rxvt-unicode">urxvt</a>-re.</div>
+
+<div><a name="Q0016"><b>K:</b></a> Nincs olyan továbbfejlesztett üzemmód,
+ami nem korlátozza a képméretet 226x226-ra?<br>
+<b>V:</b> Hogyne lenne?! <i>Három</i> lehetőség is van,
+ezek közül az emulátorod nullát vagy többet ismer.
+<pre>
+<u>kódnév</u> <u>bekapcsolás</u> <u>korlát</u>
+EXT    ESC[?1005h  2015
+SGR    ESC[?1006h  nincs
+URXVT  ESC[?1015h  nincs
+</pre>
+</div>
+
+<div style="text-align: center;"><a name="S0001"><b>&#8212; Scrolling region &#8212;</b></a></div>
+
+<div>
+<b>K:</b> Mi az a <i>scrolling region</i>?<br>
+<b>V:</b> Egy sortartomány a terminálon, amely legalább két sorból áll,
+de lehet a terminál egésze is, amelyen kívül semmilyen scrollozás nem történik.</div>
+
+<div>
+<b>K:</b> Miféle scrollozás?<br>
+<b>V:</b> Például ha a line-wrap funkció a scrolling region utolsó sorában történik,
+akkor az egész scrolling régió felfelé léptet, a legfelső sora elvész,
+legalul pedig új (üres) sor keletkezik. Azután van néhány ESC-szekvencia, pl:
+<pre>
+Insert Line (IL)   ESC [ <i>n</i> L    Sor(ok) beszúrása
+Delete Line (DL)   ESC [ <i>n</i> M    Sor(ok) törlése
+Index (IND)        ESC D	Kurzor le / scroll fel
+Reverse Index (RI) ESC M	Kurzor fel / scroll le
+Next Line (NEL)    ESC E        Kurzor a következő sor elejére / scroll fel
+Linefeed (LF)      LF		Soremelés / scroll fel
+Reverse Linefeed   ESC I        Kurzor fel / scroll le     
+</pre>
+<b>Megj:</b> A 'reverse linefeed' meg a 'reverse index' nagyon egyformának tűnik;
+a 'linefeed' működése egyes beállítások esetén megegyezik a 'next line'-éval.</div>
+
+<div>
+<b>K:</b> Egyéb érdekesség a scrolling regionról?<br>
+<b>V:</b> Például, hogy relatív kurzorpozícionálással (pl. ESC[A, ESC[B, ESC[C, ESC[D)
+csak belemenni lehet, kilépni belőle nem; sőt van olyan üzemmód,
+amelyben abszolút pozícionálással (ESC[<i>r</i>;<i>c</i>H) sem,
+(ebben a módban az első sor scrolling region első sorát jelenti).</div>
+
+<div>
+<b>K:</b> Hogyan kell kijelölni a scrolling regiont?<br>
+<b>V:</b> Ezek a szekvenciák a barátaid:
+<pre>
+ESC [ <i>firstrow</i>;<i>lastrow</i> r  s.r. kijelölése
+ESC [ r 		  s.r. a teljes képernyő
+ESC c			  terminál alapállapotba (s.r. a teljes képernyő) 
+ESC [ ? 6 h               kurzor bezárása a s.r.-be
+ESC [ ? 6 l               az előbbi ellenkezője
+</pre></div>
+
+<div><b>K:</b> És mire is jó ez a scrolling region?<br>
+<b>V:</b> Képzeljünk el egy olyan alkalmazást (mondjuk egy szövegszerkesztőt
+vagy kalandjátékot), ahol a kép tetején és/vagy alján fix információs sorok vannak,
+középen pedig egy scrollozódó adatrész.</div>
+
+<div style="text-align: center;"><a name="S0003"><b>&#8212; Távoli elérés (telnet) &#8212;</b></a></div>
+
+<div><b>K:</b> Mi a különbség a unixos és Windows-os telnet-kliens között?<br>
+<b>V:</b> Számos különbség lehet, de a legnyilvánvalóbb az,
+hogy a unixos kliens egy terminál(emulátor)on belül fut,
+a Windows-os pedig egybe van építve a terminálemulátorral.
+Rendszerint több különböző termináltípust képes emulálni (részben vagy egészben),
+de az is lehetséges, hogy több különböző terminál ESC-szekvenciáinak
+az unióját kezeli (már ahol ezek nem mondanak ellent egymásnak).</div>
+
+<div><b>K:</b> Igaz, hogy a telnet kliens és szerver
+metainformációkat is küldözgetnek egymásnak,
+amit a felhasználó nem lát?<br>
+<b>V:</b> Hogyne, vegyük például ismét az átméretezést:
+amikor átméretezed a kliens ablakát, az egy ilyen üzenetet küld a szervernek:
+<pre>
+byte kódnév
+---- ------
+ FF  IAC  (interpret as command)
+ FA  SB   (subnegotiation)
+ 1F  NAWS (window size)
+ xh	  width (msb)
+ xl	  width (lsb)
+ yh	  height (msb)
+ yl	  height (lsb)
+ FF  IAC  (interpret as command)
+ F0  SE   (subnegotiation end)
+</pre></div>
+
+<div style="text-align: center;"><a name="S0004"><b>&#8212; Színek &#8212;</b></a></div>
+
+<div><b>K:</b> Honnan tudom meg, hogy hány színt lehet használni az emulált terminálon?<br>
+<b>K:</b> A <span class="quote">tput colors</span> paranccsal.</div>
+
+<div><b>K:</b> Ami megkérdezi a termináltól...<br>
+<b>K:</b> Nem, a TERM változóból és terminfo adatbázisból dolgozik, pl:
+<pre>
+$ TERM=rxvt tput colors
+8
+$ TERM=rxvt-256color tput colors
+256
+$ TERM=vt102 tput colors
+-1</pre>
+<b>Megjegyzés:</b> az a nyolc szín lehet éppen 16 is, mivel egyes emulátorok
+a 'bold' (vastag betűs) módot fényes tintaszínnel helyettesítik,
+és/vagy a 'blink' (villogó) módot fényes papírszínnel.
+</div>
+
+<div style="text-align: center;"><a name="S0005"><b>&#8212; Programok és terminálok &#8212;</b></a></div>
+
+<div><b>K:</b> A programok ugyebár a TERM változó és a terminfo adatbázis alapján
+működnek, így nagyon flexibilisen alkalmazkodnak az aktuális helyzethez.<BR>
+<b>V:</b> Abszolúte. De hogy egy kicsit árnyaljam a dolgot,
+bizony néha behardkódolt szekvenciák és saját konfigfájlok is szerepelnek a történetben.</div>
+
+<div><b>K:</b> Például a Midnight Commander esetében?<BR>
+<b>V:</b> Igen, a Midnight Commander a 'Learn Keys' 
+funkcióval megtanított szekvenciákat
+egy konfigfájlban tárolja (pl. <span class="quote">~/.config/mc/ini</span>),
+ezeknek prioritása van a terminfóból származó értékek felett.</div>
+
+<div><a name="Q0017"><b>K:</b></a> Vagy a bash.<BR>
+<b>V:</b> Igen, a bash, és általában a
+<a href="https://tiswww.case.edu/php/chet/readline/rltop.html">readline</a>-t használó programok
+a <span class="quote">~/.inputrc</span> és <span class="quote">/etc/inputrc</span>
+fájlokból tájékozódnak,
+ezek kibővíthetik/felülbírálhatják a terminfo adatait.<br>
+Bash-ban próbáljuk ki a <span class="quote">bind -P</span> parancsot
+az aktuális állapot lekérdezésére.<br>
+<b>Megj:</b> Egy kis inputrc-részlet, csak kedvcsinálónak:
+<pre>
+# allow the use of the Home/End keys -- linux/vt100/xterm/rxvt
+
+"<b>\e[1~</b>": beginning-of-line
+"<b>\e[7~</b>": beginning-of-line
+"<b>\e[H</b>":  beginning-of-line
+"<b>\eOH</b>":  beginning-of-line
+
+"<b>\e[4~</b>": end-of-line
+"<b>\e[8~</b>": end-of-line
+"<b>\e[F</b>":  end-of-line
+"<b>\eOF</b>":  end-of-line
+</pre>
+</div>
+
+<div><b>K:</b> Mi szükség lehet ilyen trükkökre?<BR>
+<b>V:</b> Például: a TERM rosszul van beállítva; a terminfo adatbázis hibás;
+az emulátor rosszul emulál; esetleg a terminál(emuláció) működése a történelem
+folyán inkompatibilisen változott, és nem világos, hogy melyik fél melyiket
+használja.
+Ha például kiváncsi vagy, hogy hány xterm-szerű/xterm-alapú termináldefiníció
+van a rendszerben, akkor próbáld ki ezt:
+<PRE>find /usr/share/terminfo/x/ -name 'xterm*'</PRE>
+(És az még a jobbik eset, amikor az új működés új nevet kap, a rosszabb az,
+amikor ez névváltozás nélkül történik.)</div>
+
+<div><a name="Q0021"><b>K:</b></a> Ha már a <span class="quote">bash</span>-ról
+és a <span class="quote">terminfo</span>-ról esik szó: ha a bash-ban
+nem működik a Ctrl+L és/vagy a hosszú parancsosorok nem több képernyősorban,
+hanem egy sorban, vízszintesen scrollozva jelennek meg, az is terminfo-probléma lehet?<br>
+<b>V:</b> Igen: lehet, hogy a terminfo adatbázisod nem tartalmazza
+a terminálod (helyes) leírását,
+esetleg a rendszeredben egynél több terminfo van, és azok nem binárisan
+kompatibilisek egymással (ilyet csak AIX-on tapasztaltam).</div>
+
+<div><b>K:</b> Igaz, hogy a terminfo meg a termcap ugyanaz?<BR>
+<b>V:</b> Majdnem: a termcap elavult (kezdve azzal a koncepcióval,
+hogy az összes ismert termináltípus leírása egy szöveges fájlban (/etc/termcap)
+legyen benne), de a kompatibilitás megtartására a terminfo biztosít
+termcap-kompatibilis függvényeket.
+Programozói szempontból a két rendszer hasonló, pl:
+<pre>
+<B>Függvények</B>
+
+<u>terminfo</u>  <u>termcap</u> <u>jelentés</u>
+setupterm tgetent Inicializálás 
+tigetstr  tgetstr string-típusú terminál-adat lekérdezése
+tigetnum  tgetnum numerikus terminál-adat lekérdezése
+
+<B>Funkcióazonosító stringek</B>
+
+<u>terminfo</u>  <u>termcap</u> <u>jelentés</u>
+clear     cl      képernyőtörlés
+kmous     Km      egérjelentés engedélyezése
+kbs	  kb	  backspace billentyű (terminál küldi)
+kcuf1     kr	  kurzor jobbra billentyű (terminál küldi)
+</pre></div>
+
+<div><b>K:</b> És ha nem használ terminfo-t, nem hívja a libreadline-t,
+hanem csak síma gets/fgets van benne,
+akkor azzal azért van valamilyen szerkesztési lehetősége a felhasználónak?<br>
+<b>V:</b> Használható pl. a BackSpace (visszatörlés) gomb.<br>
+
+<b>K:</b> Láttam már olyat, hogy mégsem volt használható, csak egy
+<span class="quote">^?</span> vagy <span class="quote">^H</span> jelent meg...<br>
+<b>V:</b> Ilyenkor a kernel említett adattartalma nincs szikronban a terminállal.
+Egészen pontosan a <span class="quote">stty erase</span> 
+(avagy <span class="quote">termios.c_cc[V_ERASE]</span>) beállítás hibás.<br>
+Például ilyesmivel lehetne probálkozni (valamilyen profile scriptben):
+<pre>case $TERM in
+linux|putty*)
+    stty erase ^?
+    ;;
+xterm*|rxvt*)
+    stty erase ^H
+    ;;
+esac</pre>
+Egy flexibilisebb megoldás:
+<pre>if [ -n "$TERM" ]; then
+    X=$(tput kbs) &amp;&amp; stty erase "$X"
+fi
+</pre>
+<b>Megj:</b> egyes linux-változatok olyan meghaxolt terminfo
+adatbázist használnak, amiben egyes termináltípusoknál (pl. rxvt)
+a BackSpace beállítása eltér a
+<a href="http://invisible-island.net/datafiles/current/terminfo.src.gz">szokásostól,</a>
+hogy jobban idomuljon a linux-os alapértelmezéshez (ami a ^?) .</div>
+
+<div><b>K:</b> És kinek kellett volna ezt a <span class="quote">stty</span>-beállítást megtennie?<br>
+<b>V:</b> Tippem szerint annak a programnak, aki a virtuális terminált létrehozta,
+ez például távoli belépés esetén a telnetd/sshd.</div>
+
+<div><a name="Q0001"><b>K:</b></a> Programból ugyanez hogyan állítható?<br>
+<b>V:</b> A <span class="quote">termios(3)</span> használatával. 
+A beállítások lekérdezése a <span class="quote">tcgetattr</span> függvénnyel történik,
+a módosítás a <span class="quote">tcsetattr</span> függvénnyel,
+az adatok egy <span class="quote">termios</span> nevű struktúrába kerülnek. Pl:
+<pre>
+struct termios t;
+tcgettr (0, &amp;t);
+printf ("a kernel szerint a backspace kódja 0x%x", (unsigned char)t.c_cc[VERASE]);
+</pre></div>
+
+<div style="text-align: center;"><a name="S0008"><b>&#8212; Üzemmódok, módosítók &#8212;</b></a></div>
+
+<div><b>K:</b> Addig értem, hogy a különböző terminálok és emulációk
+más-más szekvenciákat fogadnak, illetve küldenek;
+de vannak-e további bonyolító tényezők?<br>
+<b>V:</b> Természetesen, itt van például a
+<span class="quote">Cursor Key Mode (DECCKM),</span>
+ez egy kétállású kapcsolót jelent, aminek állásától függően más-más
+szekvenciát küldenek a nyíl-billentyűk:
+<pre>
+bekapcs: ESC [ ? 1 h           kikapcs: ESC [ ? 1 l
+Up:      ESC O A			ESC [ A
+Down:    ESC O B			ESC [ B
+Right:   ESC O C			ESC [ C
+Left:    ESC O D			ESC [ D
+Home:    ESC O H			ESC [ H
+End:	 ESC O F			ESC [ F
+Num5:    ESC O E			ESC [ E</pre>
+<br>Megjegyzés: az utóbbi három csak az xterm-re igaz, másoknál (pl rxvt)
+a szekvencia nem ez (és nem is függ a CKM-től)<br>
+</div>
+
+<div><a name="Q0007"><b>K:</b></a> Valamint?<br>
+<b>V:</b> Van olyan is, hogy <span class="quote">Application Key Mode (DECKPAM),</span>
+ennek 'Application' és 'Numeric' állásai vannak, a numerikus billentyűzet
+működését befolyásolja (emulátortól függ,
+hogy csak a NumLock kikapcsolt állapotában-e, illetve, hogy NumLock működik-e
+egyáltalán az 'Application' üzemmódban, esetleg csak Shift-tel együtt működik, stb.)
+<pre>
+         <U>Application</U> <U>Numeric (NumLock-tól függően)</U>
+kapcs:   ESC =       ESC >
+vagy:    ESC[?66h    ESC[?66l		(ugyanaz, másképp)
+0	 ESC O p     0	|  Insert
+1	 ESC O q     1  |  End
+2	 ESC O r     2  |  Down
+3	 ESC O s     3  |  PgDn
+4	 ESC O t     4  |  Left
+5	 ESC O u     5  |  'kb2'
+6	 ESC O v     6  |  Right
+7	 ESC O w     7  |  Home
+8	 ESC O x     8  |  Up
+9	 ESC O y     9  |  PgUp
+NumLock (ESC O P)    (működik)
+/	 ESC O Q     /
+*	 ESC O R     *
+-	 ESC O S     -
++	 ESC O l     +
+Enter	 ESC O M     ^M
+.,	 ESC O n     .,
+</pre></div>
+
+<div style="text-align: center;"><a name="S0016"><b>&#8212; Funkcióbillentyűk &#8212;</b></a></div>
+
+<div><a name="Q0008"><b>K:</b></a> Igaz, hogy a funkcióbillentyűk éppolyan összevissza vannak,
+mint minden más a terminálokkal kapcsolatban?<br>
+<b>V:</b> Igaz.<br>
+</div>
+
+<div><a name="Q0009"><b>K:</b></a> Például egyes leírások húsz, vagy annál is több funkcióbillentyűről vélnek tudni.
+Ez hogy jön ki?<br>
+<b>V:</b> Ha pl. Shift-tel együtt nyomsz le egy funkcióbillentyűt,
+akkor az olyan, mintha 10-et hozzáadnál a billentyű sorszámához. Vagy 12-t.
+Programtól függ. Pl a <a href="https://en.wikipedia.org/wiki/Ncurses">ncurses</a>-hez van egy tesztprogram,
+annak a kimenete alapján:
+<pre>
+<U>billentyű</U>	<U>ncurses</U>				<U>xterm-szekvencia</U>	<U>rxvt-szekvencia</U>
+F1		Key pressed: 0411 KEY_F(1)	ESC O P			ESC [ 11 ~
+Shift+F1	Key pressed: 0425 KEY_F(13)	ESC [ 1 ; 2 P		ESC [ 23 ~
+Ctrl+F1		Key pressed: 0441 KEY_F(25)	ESC [ 1 ; 5 P		ESC [ 11 ^
+Ctrl+Shift+F1	Key pressed: 0455 KEY_F(37)	ESC [ 1 ; 6 P		ESC [ 23 ^
+</pre>
+Az érdekesség kevéért a sorok végén feltüntettem két terminál-emulátor,
+az xterm és az <a href="#S0006">rxvt</a>
+által generált ESC-szekvenciákat is.
+</div>
+
+<div><a name="Q0010"><b>K:</b></a> Szóval itt 12-t adott hozzá a Shift a funkció-billentyű
+sorszámához. És mikor van olyan, hogy 10-et ad hozzá?<br>
+<b>V:</b> Például a Midnight Commander használatáház praktikusabb, ha Shift+F5=F15, Shift+F7=F17
+stb.<br>
+<b>K:</b> És ezt hogyan lehet elérni?<br>
+<b>V:</b> A derék mc saját erőből igyekszik alkalmazkodni a leggyakoribb termináltípusokhoz,
+(ehhez lásd a <span class="quote">/usr[/local]/share/mc/mc.lib</span> fájlban a 
+<span class="quote">[terminal:]</span> bejegyzéseket),
+illetve a 'Learn Keys' funkcionalitással mi is segíthetünk neki.
+</div>
+
+<div style="text-align: center;"><a name="S0011"><b>&#8212; Egyéb &#8212;</b></a></div>
+
+<div><b>K:</b> Azt még értem, hogy mik azok az ESC-szekvenciák,
+de mi az hogy CSI, SS3, ST meg a többi?<br>
+<b>V:</b> Vezérlőkarakterek 0x80 és 0x9f között,
+gyakran (általában) kétbájtos szekvenciával helyettesítjük őket, pl:
+
+<pre>
+<U>Név</U> <U>Kód</U>  <U>Helyette</U> <U>Utf8</U>
+SS3 8F   ESC O    C2 8F
+DCS 90   ESC P    C2 90
+CSI 9B   ESC [    C2 9B
+ST  9C   ESC \    C2 9C
+OSC 9D   ESC ]    C2 9D
+</pre>
+<b>Megj:</b> ha UTF-8-at használunk, akkor ezeket a vezérlőkódokat kétbájtos
+szekvenciaként kell továbbítani, ezt a táblázat utolsó oszlopában láthatjuk.</div>
+
+<div><a name="Q0018"><b>Q:</b></a> In <span class="quote">X Window,</span> I wish to deactivate
+key <span class="quote">NumLock</span>.<br>
+<b>A:</b> Before <span class="quote">xkb</span> extension you could do this:
+<pre>
+numlockx <I>on|off</I> # pick the preferred value
+xmodmap -e 'keycode 77 = '
+</pre>
+With <span class="quote">xkb</span>, I suggest swapping keycodes with a non-used key, eg:
+<pre>
+numlockx <I>on|off</I> # pick the preferred value
+/usr/bin/xkbcomp "$DISPLAY" /tmp/kbmap.xkb
+sed -i.bak 's/&lt;NMLK&gt; = 77;/&lt;NMLK&gt; = 98;/
+            s/&lt;KATA&gt; = 98;/&lt;KATA&gt; = 77;/' /tmp/kbmap.xkb
+/usr/bin/xkbcomp /tmp/kbmap.xkb "$DISPLAY"
+</pre>
+</div>
+
+<div><a name="Q0019"><b>Q:</b></a> In Midnight Commander, if I press ESC key once,
+it acts as if I pressed it twice. How can I deactivate this behaviour?<br>
+<b>A:</b> In menu <span class="quote">Options</span> /
+<span class="quote">Configuration</span> /
+<span class="quote">Esc key mode</span> uncheck <span class="quote">Single press</span>.
+</div>
+
+<div style="text-align: center;"><a name="S0006"><b>&#8212; rxvt &#8212;</b></a></div>
+
+<div><b>K:</b> Mit kell tudni az rxvt-ről?<br>
+<b>V:</b> Kicsi, gyors, fapados. Fejlesztése abbamaradt, a legfrisebb verzió itt van:
+<a href="http://sourceforge.net/projects/rxvt/files/rxvt-dev/2.7.10/">http://sourceforge.net/projects/rxvt/files/rxvt-dev/2.7.10/</a><br>
+Saját termináltípusa(i):
+<span class="quote">rxvt</span> és 
+<span class="quote">rxvt-256color</span>
+</div>
+
+<div><b>K:</b> Milyen opciókkal érdemes fordítani?<br>
+<b>V:</b> Az én beállításaim:
+<pre>
+./configure			\
+	--prefix=/usr/local	\
+	--enable-frills		\
+	--enable-rxvt-scroll	\
+	--enable-mousewheel	\
+	--enable-256-color	\
+	--with-term=rxvt-256color</pre>
+</div>
+
+<div style="text-align: center;"><a name="S0014"><b>&#8212; urxvt &#8212;</b></a></div>
+
+<div><b>K:</b> Mit kell tudni az urxvt-ről?<br>
+<b>V:</b> Az rxvt egyik folytatása, itt található:
+<a href="http://software.schmorp.de/pkg/rxvt-unicode.html">http://software.schmorp.de/pkg/rxvt-unicode.html</a>
+<br>Saját termináltípusa(i):
+<span class="quote">rxvt-unicode</span> és 
+<span class="quote">rxvt-unicode-256color</span>;
+illetve használhatjuk a <span class="quote">rxvt</span> és <span class="quote">rxvt-256color</span>,
+típusokat is, de vigyázzunk, mert a BackSpace terminfo-kódja különböző:
+rxvt: <span class="quote">^H</span>, rxvt-unicode: <span class="quote">^?</span></div>
+
+<div><b>K:</b> Ha mondjuk rxvt-256color típussal akarok repülni,
+mit állítsak be?<br>
+<b>V:</b> Pl. ilyesmit tegyél a <span class="quote">~/.Xdefaults</span> fájlodba:
+<pre>
+Rxvt.termName: rxvt-256color
+Rxvt.backspacekey: \010
+</pre>
+<b>Megj:</b> Ennek persze kell egy 
+<span class="quote"><a href="https://en.wikipedia.org/wiki/Xrdb">xrdb</a> ~/.Xdefaults</span>,
+hogy érvényre jusson.</div>
+
+<div><b>K:</b> Milyen opciókkal érdemes fordítani?<br>
+<b>V:</b> Az én beállításaim:
+<pre>
+./configure			\
+    --prefix=/usr/local		\
+    --enable-frills		\
+    --enable-rxvt-scroll	\
+    --enable-mousewheel		\
+    --enable-256-color		\
+    --with-term=rxvt-256color	\
+    --disable-perl</pre>
+</div>
+
+<div style="text-align: center;"><a name="S0015"><b>&#8212; gnome-terminal &#8212;</b></a></div>
+<div><a name="Q0006"><b>K:</b></a> Mit kell tudni a gnome-terminal-ról?<br>
+<b>V:</b> Kényelmesnek látszik, tab-okat kezel, UTF-8-képes; 
+idegesítő tulajdonsága, hogy lenyúlja az F1 és F10 gombokat;
+korlátozottan konfigurálható
+(X11-resource-ökkel nem, XML-konfig fájljai vannak);
+van hozzá egy <span class="quote">gnome</span> termináltípus,
+de a <span class="quote">TERM</span> változót nem arra állítja be,
+hanem <span class="quote">xterm</span>-re
+(amellyel nem egészen kompatibilis).<BR>
+Ezt úgy fixálhatjuk meg, ha az 'Edit / Profile Preferences / Title and Command'
+menüben a Custom command-ot ilyesmire állítjuk:
+<pre>sh -c 'TERM=gnome exec /bin/bash'</pre>
+</div>
+
+<div style="text-align: center;"><a name="S0009"><b>&#8212; PuTTY &#8212;</b></a></div>
+
+<div><a name="Q0003"><b>K:</b></a> Mit kell tudni az <span class="quote">PuTTY</span>-ról?<br>
+<b>V:</b> Ingyenes, elterjedt, jól használható, flexibilisen konfigurálható,
+ssh-t is tudó program Windows-ra.<br>
+Honlapja: <a href="http://www.chiark.greenend.org.uk/~sgtatham/putty/">http://www.chiark.greenend.org.uk/~sgtatham/putty/</a><br>
+Saját termináltípusa(i):
+<span class="quote">putty</span> és 
+<span class="quote">putty-256color</span> a 'linux' típusra hasonlítanak legjobban
+<br>
+A beállításai közül érdekes lehet:<br>
+&bull; <u>Window / Translation</u> a távoli rendszer által használt kódolást állíthatjuk be,
+összhangban a következő ponttal; ha a partner támogatja az UTF8-at, válasszuk azt.<br>
+&bull; <u>Connection / Data / Environment variables</u> a <span class="quote">LC_CTYPE</span>-ot
+az előző ponttal összhangban állítsuk be, pl. <span class="quote">hu_HU.UTF-8</span>.
+Más gyakran használt változókat is beállíthatunk itt, pl. <span class="quote">NLS_LANG</span>,
+<span class="quote">LESSCHARSET</span>, <span class="quote">TZ</span>.
+(Vö: <a href="https://man.freebsd.org/cgi/man.cgi?sshd_config(5)">/etc/ssh/sshd_config</a>-ban
+<span class="quote">AcceptEnv</span>)<br>
+&bull; <u>Terminal / Keyboard / TheHomeAndEndKeys:</u> a 'standard' állást érdemes választani,
+ugyanis abban a 'putty' termináltípussal kompatibilis, az 'rxvt' állásban viszont semmivel
+(legkevésbé azt rxvt-vel: <span class="quote">Home: ESC[H End: ESC[0w</span>).<br>
+&bull; <u>Terminal / Keyboard / TheFunctionKeysAndKeypad:</u>
+<ul>
+<li>ESC[n~: a <span class="quote">putty</span> termináltípus szerint működik
+<li>linux:  a <span class="quote">linux</span> termináltípus szerint működik
+<li>Xterm R6: az <span class="quote">xterm-new</span> termináltípus szerint működik,
+kivéve a Home és End gombokat.
+<li>VT400: (feltehetően) a <span class="quote">vt400</span> termináltípus szerint működik,
+különlegessége, hogy az Insert..PageDown blokkot a VT-terminálok mintájára átértelmezi
+(lásd a <a href="#S0010">függelékben</a>).
+<li>VT100+: (feltehetően) valamilyen VT-típus szerint működik.
+<li>Sco: az <span class="quote">xterm-sco</span> termináltípus szerint működik.
+</ul>
+</div>
+
+<div><a name="Q0004"><b>K:</b></a> Ha a mc-ben nem menne az egérgörgő
+<span class="quote">TERM=putty</span> esetén, mit tegyünk?<br>
+<b>V:</b> Természetesen a mc forrását kell megpecselni,
+pl. 4.8.11 esetén valahogy így:
+<pre><b>cd lib/tty</b>
+<b>cat >tty.patch &lt;&lt;DONE</b>
+111a112
+&gt;         || strncmp (termvalue, "putty", 5) == 0
+DONE
+<b>patch -i tty.patch tty.c</b>
+</pre></div>
+
+<div style="text-align: center;"><a name="S0013"><b>&#8212; Vegyes problémák &#8212;</b></a></div>
+
+<div><b>K:</b> Valamiért a TERM változó értéke csupa nagybetű (pl PUTTY-256COLOR),
+emiatt persze nem működik semmi!<br>
+<b>V:</b> Úgy tudom, hogy a kliensnek nagybetűt is kell küldenie,
+és a szervernek lekicsinyítenie &ndash; de ha ez valamiért nem történik meg,
+akkor megpróbálhatsz szervert cserélni, vagy protokollt cserélni (telnet helyett ssh),
+vagy klienst cserélni, vagy olyan termináltípust beállítani, amiben nincs kötőjel.</div>
+
+<div><b>K:</b> A TERM-változóm jó, van is hozzá terminfo-bejegyzés 
+(különben 'Unknown terminal' üzenetet kapnék),
+de mégsem mennek a grafikus karakterek (például a mc-ben)!<br>
+<b>V:</b> Lehet, hogy a terminfo-bejegyzés hiányos
+(mert pl az őskorszakból származó egzotikus rendszered van),
+szerezz be egy újabbat (egy működő rendszerről az
+<span class="quote">infocmp(1)</span> programmal),
+és telepítsd a <span class="quote">tic(1)</span> programmal.</div>
+
+<div><b>K:</b> Egzotikus rendszeremen (AIX) a bash
+(vagy más, readline-t használó program) átméretezésnél lefagy!<br>
+<b>V:</b> A readline-t ne shared lib-ként fordítsd/telepítsd.</div>
+
+<div><a name="Q0002"><b>K:</b></a> Mi lehet az oka annak, hogy a 
+<a href="https://en.wikipedia.org/wiki/Midnight_Commander">mc</a>-ben a keretrajzoló
+karakterek (avagy grafikus karakterek) nem működnek?<br>
+<b>V:</b> Számos lehetőség van, pl:<br>
+
+* a TERM változó hibás, pl <a href="#Q0003">putty</a> esetén a 
+<span class="quote">TERM=putty</span>
+(vagy <span class="quote">TERM=putty-256color</span>) használandó<br>
+
+* a terminfo adatbázis hibás/hiányos,
+szerezzünk be egy új definíciót a termináltipusunkhoz,
+és a <span class="quote">tic(1)</span> programmal telepítsük.<br>
+
+* a LC_CTYPE nincs beállítva, vagy nincs összhangban az emulátor beállításával;
+putty esetén a Window/Translation/RemoteCharacterSet beállítással
+összhangban lévő LC_TYPE-ot a Connection/Data/EnvironmentVariables menüpontban
+definiálhatunk.<br>
+
+* a terminálunk kíván egy <span class="quote">enacs</span> szekvenciát. Adjunk neki:
+<pre>$ <b>tput enacs</b></pre></div>
+
+<div><a name="Q0005"><b>K:</b></a> Ez a 
+<span class="quote">LC_CTYPE</span>
+hogyan viszonyul az ssh-hoz?<br>
+<b>V:</b> Akkor működik legjobban, ha a
+<span class="quote">/etc/ssh/sshd_config</span>
+fájlban van egy ilyen sor (bejövő kapcsolatokhoz):
+<pre>AcceptEnv LANG LC_*</pre>
+a <span class="quote">/etc/ssh/ssh_config</span>
+fájlban pedig egy ilyen (kimenő kapcsolatokhoz):
+<pre>SendEnv LANG LC_*</pre></div>
+
+<div style="text-align: center;"><a name="S0007"><b>&#8212; Nagy összehasonlító táblázat &#8212;</b></a></div>
+
+<table align=center cellspacing=0 cellpadding=2 border=1
+ summary="ESC-szekvenciák összehasonlítása termináltípusonként">
+<tr><th>key<th>terminfo(5)<br>kódnév<th>xterm<br>sco<th>xterm<br>new<th>xterm<br>old<th>rxvt,<br>Eterm<th>putty<th>linux<th>vt100
+<tr><th class=thl>Ins<th class=thl>kich1
+    <td class=tdl>ESC[L<td colspan=6 class=tdc>ESC[2~
+<tr><th class=thl>Del<th class=thl>kdch1
+    <td class=tdl>^?<td colspan=6 class=tdc>ESC[3~
+<tr><th class=thl>Home<th class=thl>khome
+    <td colspan=2 class=tdc>ESC[H<td class=tdl>&nbsp;<td class=tdl>ESC[7~<td colspan=2 class=tdc>ESC[1~<td class=tdl>ESC[7~
+<tr><th class=thl>End<th class=thl>kend
+    <td colspan=2 class=tdc>ESC[F<td class=tdl>&nbsp;<td class=tdl>ESC[8~<td colspan=2 class=tdc>ESC[4~<td class=tdl>ESC[8~
+<tr><th class=thl>PgUp<th class=thl>kpp
+    <td class=tdl>ESC[I<td colspan=6 class=tdc>ESC[5~
+<tr><th class=thl>PgDn<th class=thl>knp
+    <td class=tdl>ESC[G<td colspan=6 class=tdc>ESC[6~
+
+<tr><th class=thl>Up<th class=thl>kcuu1
+    <td colspan=7 class=tdc>ESC[A
+<tr><th class=thl>Down<th class=thl>kcud1
+    <td colspan=7 class=tdc>ESC[B
+<tr><th class=thl>Right<th class=thl>kcuf1
+    <td colspan=7 class=tdc>ESC[C
+<tr><th class=thl>Left<th class=thl>kcub1
+    <td colspan=7 class=tdc>ESC[D
+
+<tr><th class=thl>Shift+Up<th class=thl>sr
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESC[1;2A
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESC[a
+    <td class=tdl>ESCOA
+    <td colspan=2 class=tdc>&nbsp;
+<tr><th class=thl>Shift+Down<th class=thl>sf
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESC[1;2B
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESC[b
+    <td class=tdl>ESCOB
+    <td colspan=2 class=tdc>&nbsp;
+<tr><th class=thl>Shift+Right<th class=thl>kRIT
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESC[1;2C
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESC[c
+    <td class=tdl>ESCOC
+    <td colspan=2 class=tdc>&nbsp;
+<tr><th class=thl>Shift+Left<th class=thl>kLFT
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESC[1;2D
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESC[d
+    <td class=tdl>ESCOD
+    <td colspan=2 class=tdc>&nbsp;
+
+<tr><th class=thl>Ctrl+Up<th class=thl>&nbsp;
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESC[1;5A
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESCOa
+    <td class=tdl>ESCOA
+    <td colspan=2 class=tdc>&nbsp;
+<tr><th class=thl>Ctrl+Down<th class=thl>&nbsp;
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESC[1;5B
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESCOb
+    <td class=tdl>ESCOB
+    <td colspan=2 class=tdc>&nbsp;
+<tr><th class=thl>Ctrl+Right<th class=thl>&nbsp;
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESC[1;5C
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESCOc
+    <td class=tdl>ESCOC
+    <td colspan=2 class=tdc>&nbsp;
+<tr><th class=thl>Ctrl+Left<th class=thl>&nbsp;
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESC[1;5D
+    <td class=tdl>&nbsp;
+    <td class=tdl>ESCOd
+    <td class=tdl>ESCOD
+    <td colspan=2 class=tdc>&nbsp;
+
+<tr><th class=thl>BkSpc<th class=thl>kbs
+    <td colspan=4 class=tdc>^H<td colspan=3 class=tdc>^?
+
+<tr><th class=thl>Num5<th class=thl>kb2
+    <td class=tdl>&nbsp;<td class=tdl>ESC[E<td class=tdl>&nbsp;<td class=tdl>ESCOu<td colspan=2 class=tdc>ESC[G<td class=tdl>ESCOu
+
+<tr><th class=thl>Back-Tab<th class=thl>kcbt
+    <td class=tdl>&nbsp;<td class=tdl>ESC[Z<td class=tdl>&nbsp;<td colspan=3 class=tdc>ESC[Z<td class=tdl>&nbsp;
+
+<tr><th class=thl>F1<th class=thl>kf1
+    <td class=tdl>ESC[M<td class=tdl>ESCOP<td colspan=3 class=tdc>ESC[11~<td class=tdl>ESC[[A<td class=tdl>ESCOP
+<tr><th class=thl>F2<th class=thl>kf2
+    <td class=tdl>ESC[N<td class=tdl>ESCOQ<td colspan=3 class=tdc>ESC[12~<td class=tdl>ESC[[B<td class=tdl>ESCOQ
+<tr><th class=thl>F3<th class=thl>kf3
+    <td class=tdl>ESC[O<td class=tdl>ESCOR<td colspan=3 class=tdc>ESC[13~<td class=tdl>ESC[[C<td class=tdl>ESCOR
+<tr><th class=thl>F4<th class=thl>kf4
+    <td class=tdl>ESC[P<td class=tdl>ESCOS<td colspan=3 class=tdc>ESC[14~<td class=tdl>ESC[[D<td class=tdl>ESCOS
+<tr><th class=thl>F5<th class=thl>kf5
+    <td class=tdl>ESC[Q<td colspan=4 class=tdc>ESC[15~<td class=tdl>ESC[[E<td class=tdl>ESCOt
+<tr><th class=thl>F6<th class=thl>kf6
+    <td class=tdl>ESC[R<td colspan=5 class=tdc>ESC[17~<td class=tdl>ESCOu
+<tr><th class=thl>F7<th class=thl>kf7
+    <td class=tdl>ESC[S<td colspan=5 class=tdc>ESC[18~<td class=tdl>ESCOv
+<tr><th class=thl>F8<th class=thl>kf8
+    <td class=tdl>ESC[T<td colspan=5 class=tdc>ESC[19~<td class=tdl>ESCOl
+<tr><th class=thl>F9<th class=thl>kf9
+    <td class=tdl>ESC[U<td colspan=5 class=tdc>ESC[20~<td class=tdl>ESCOw
+<tr><th class=thl>F10<th class=thl>kf10
+    <td class=tdl>ESC[V<td colspan=5 class=tdc>ESC[21~<td class=tdl>ESCOx
+<tr><th class=thl>F11<th class=thl>kf11
+    <td class=tdl>ESC[W<td colspan=5 class=tdc>ESC[23~<td class=tdl>&nbsp;
+<tr><th class=thl>F12<th class=thl>kf12
+    <td class=tdl>ESC[X<td colspan=5 class=tdc>ESC[24~<td class=tdl>&nbsp;
+<tr><th class=thl>F13<th class=thl>kf13
+    <td class=tdl>ESC[Y<td class=tdl>ESC[1;2P<td colspan=4 class=tdc>ESC[25~<td class=tdl>&nbsp;
+<tr><th class=thl>F14<th class=thl>kf14
+    <td class=tdl>ESC[Z<td class=tdl>ESC[1;2Q<td colspan=4 class=tdc>ESC[26~<td class=tdl>&nbsp;
+<tr><th class=thl>F15<th class=thl>kf15
+    <td class=tdl>ESC[a<td class=tdl>ESC[1;2R<td colspan=4 class=tdc>ESC[28~<td class=tdl>&nbsp;
+<tr><th class=thl>F16<th class=thl>kf16
+    <td class=tdl>ESC[b<td class=tdl>ESC[1;2S<td colspan=4 class=tdc>ESC[29~<td class=tdl>&nbsp;
+<tr><th class=thl>F17<th class=thl>kf17
+    <td class=tdl>ESC[c<td class=tdl>ESC[15;2~<td colspan=4 class=tdc>ESC[31~<td class=tdl>&nbsp;
+<tr><th class=thl>F18<th class=thl>kf18
+    <td class=tdl>ESC[d<td class=tdl>ESC[17;2~<td colspan=4 class=tdc>ESC[32~<td class=tdl>&nbsp;
+<tr><th class=thl>F19<th class=thl>kf19
+    <td class=tdl>ESC[e<td class=tdl>ESC[18;2~<td colspan=4 class=tdc>ESC[33~<td class=tdl>&nbsp;
+<tr><th class=thl>F20<th class=thl>kf20
+    <td class=tdl>ESC[f<td class=tdl>ESC[19;2~<td colspan=4 class=tdc>ESC[34~<td class=tdl>&nbsp;
+</table>
+
+<DIV>Megjegyzések: <UL>
+<LI>A második oszlopban lévő kód akkor kell, ha a <span class="quote">infocmp(1)</span>
+program outputjában keresünk.
+Bővebb információ a <span class="quote">terminfo(5)</span> manuálban.
+<LI>A Num5 az a szekvencia, amit a NumLock kikapcsolt állapotában küld
+a numerikus billentyűzeten lévő ötös.
+<LI>xterm és társai esetén a nyilak illetve a Home/End-gombok
+szekvenciáiban némi határozatlanság érezhető; aszerint, hogy a CKM ki-vagy bekapcsolt
+állapotát tekintik-e alapértelmezettnek (a táblázatban a kikapcsolt szerepel).</UL></DIV>
+
+<div style="text-align: center;"><a name="S0010"><b>&#8212; PC és VT billentyűzet &#8212;</b></a></div>
+<div><b>VT (részlet)</b>
+<pre>
++--------+-----------------+    +----+----+----+----+
+| Help   | Do              |    |F17 |F18 |F19 |F20 |
++--------+-----------------+    +----+----+----+----+
+
++--------+--------+--------+    +----+----+----+----+
+| Find   | Insert | Re-    |    |PF1 |PF2 |PF3 |PF4 |
+|        | Here   | move   |	|    |    |    |    |
++--------+--------+--------+    +----+----+----+----+
+| Select | Prev   | Next   |	| 7  | 8  | 9  | -  |
+|        | Screen | Screen |	|    |    |    |    |
++--------+--------+--------+    +----+----+----+----+
+         | Up     |		| 4  | 5  | 6  | '  |
++--------+--------+--------+	+----+----+----+----+
+| Left   | Down   | Right  |	| 1  | 2  | 3  |Entr|
++--------+--------+--------+	+----+----+----+    |
+				| 0       | .  |    |
+				+---------+----+----+
+</pre>
+</div>
+
+<div>Generált szekvenciák (Különféle üzemmódoktól függően)
+<pre>
+<U>Billentyű    Szekvencia(szekvenciák)  terminfo PC-ekvivalens</U>
+Help:        CSI 28 ~                 kf15     F15(?)
+Do:          CSI 29 ~                 kf16     F16(?)
+Find:        CSI 1 ~                  khome    Home(?)
+Insert Here: CSI 2 ~                  kich1    Insert
+Remove:      CSI 3 ~                  kdch1    Delete
+Select:      CSI 4 ~                  kslt     End(?)
+Prev Screen: CSI 5 ~                  kpp      PageUp
+Next Screen: CSI 6 ~                  knp      PageDn
+Up:          CSI A   SS3 A   ESC A    kcuu1    Up
+Down:        CSI B   SS3 B   ESC B    kcud1    Down
+Right:       CSI C   SS3 C   ESC C    kcuf1    Right
+Left:        CSI D   SS3 D   ESC D    kcub1    Left
+</pre></div>
+
+<div><b>PC (részlet)</b>
+<pre>
+	+----+----+----+
+	|SyRq|ScLk|Brk |
+	+----+----+----+
+
+	+----+----+----+    +----+----+----+----+
+	|Insr|Home|PgUp|    |NmLk| /  | *  | -  |
+	+----+----+----+    +----+----+----+----+
+	|Del |End |PgDn|    | 7  | 8  | 9  | +  |
+	+----+----+----+    +----+----+----+    +
+			    | 4  | 5  | 6  |    |
+	     +----+	    +----+----+----+----+ 
+	     | Up |	    | 1  | 2  | 3  |Entr|
+	+----+----+----+    +----+----+----+    |
+	|Left|Down|Rght|    | 0       | .  |    |
+	+----+----+----+    +---------+----+----+ 
+</pre></div>
+
+<div style="text-align: center;"><a name="S0012"><b>&#8212; További olvasmány &#8212;</b></a></div>
+<ul>
+<li><a href="http://tldp.org/HOWTO/Text-Terminal-HOWTO.html">Text-Terminal-HOWTO</a>
+<li><a href="http://vt100.net/">Video Display Terminal Information &#8211; VT100.net</a>
+<li><a href="http://www.linusakesson.net/programming/tty/">The TTY demystified</a>
+</ul>
+
+</body></html>
