@@ -1,0 +1,7 @@
+#!/bin/sh
+
+export LC_ALL=C
+
+nm -X32_64 -BCpu  -- "$@" |\
+awk '{ gsub (/^\.*/, "", $NF); print $NF }' |\
+sort -u

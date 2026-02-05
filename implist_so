@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# list imported symbols of a shared object / main executable program
+# for AIX-usage (or Linux, for comparison)
+
+export LC_ALL=C
+
+if [ $# -eq 0 ]; then
+    printf 'usage: %s file\n' "$0"
+    exit 0;
+fi
+
+printf '# dynamic imports of %s\n' "$1"
+
+if [ "$(uname)" = Linux ]; then
+    nm -Du -Plpg -- "$@" |
+    awk '{ print $1; }' | 
+    sort -u
+else
+    dump -Tv -X32_64 -- "$@" |\
+    awk '($4=="IMP"  || $4=="ImpExp")  { print $8 }
+	 ($4=="wIMP" || $4=="wImpExp") { print $8 " weak" }' |\
+    sort -u
+fi

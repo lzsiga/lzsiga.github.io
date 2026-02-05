@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# list exported symbols of a shared object / main executable program
+# for AIX-usage (or Linux, for comparison)
+
+export LC_ALL=C
+
+if [ $# -eq 0 ]; then
+    printf 'usage: %s file\n' "$0"
+    exit 0;
+fi
+
+printf '#! %s\n' "$1"
+
+if [ "$(uname)" = Linux ]; then
+    nm -D -Plpg -- "$@" |
+    awk '{ if (($2 == "T") || ($2 == "D") || ($2 == "B")) { print $1; }}' | 
+    sort -u
+else
+    dump -Tv -X32_64 -- "$@" |\
+    awk '($4=="EXP"  || $4=="ImpExp")  { print $8 }
+	 ($4=="wEXP" || $4=="wImpExp") { print $8 " weak" }' |\
+    sort -u
+fi

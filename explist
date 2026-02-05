@@ -1,0 +1,37 @@
+#!/bin/sh
+
+# List public symbols of object files/libraries (*.o and *.a files)
+# for AIX-usage (or Linux, for comparison)
+
+# documentation: http://lzsiga.users.sourceforge.net/aix-linking.html#Q0017
+
+# there is a '-dott' option for special cases
+# see here: http://lzsiga.users.sourceforge.net/aix-linking.html#Q0031
+
+export LC_ALL=C
+
+Dott=0
+if [ "$1" = "-dott" ]; then Dott=1; shift; fi
+
+if [ $# -eq 0 ]; then
+    printf 'usage: %s file\n' "$0"
+    exit 0;
+fi
+
+printf '#! %s\n' "$1"
+
+if [ "$(uname)" = Linux ]; then
+    nm    -Plpg -- "$@" 2>/dev/null
+    nm -D -Plpg -- "$@" 2>/dev/null
+else
+    nm -X32_64 -Ppg -- "$@"	# 20150811.LZS: old: -Plpg (incomplete list)
+fi |\
+
+if [ $Dott -eq 0 ]; then
+awk '{ if ((($2 == "T") || ($2 == "D") || ($2 == "B")) && (substr($1,1,1) != ".")) 
+     { print $1 } }'
+else
+awk '{ if (($2 == "T") || ($2 == "D") || ($2 == "B")) {
+      if (substr($1,1,1) == ".") print substr($1,2); else print $1; } }'
+fi |\
+sort -u

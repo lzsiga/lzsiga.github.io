@@ -1,0 +1,14 @@
+#!/bin/sh
+
+if test $# -ne 2; then
+    echo "usage: $0 mask file"
+    exit 1
+fi
+
+TMPFILE=/tmp/sed_repl.$$
+
+set -e # set -o errexit
+
+sed -e "$1" <"$2" >"$TMPFILE"
+cp "$TMPFILE" "$2"
+rm "$TMPFILE"
