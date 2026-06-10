@@ -946,9 +946,9 @@ native2ascii -encoding UTF-8 -reverse usequences.file normal.file
 
 <div><a name="Q0213"><b>K:</b></a> JavaScript-ben hogyan lehet kódokat használni a 
 stringekben?<br>
-<b>V:</b> \-szekvenciákkal, nevezetesen \xDD és \uDDDD; az előbbi két 
-hexa számjegyet
-fogad, az utóbbi négyet, mindkét esetben unikódban. Pl:
+<b>V:</b> <span class="quote">\</span>-szekvenciákkal, nevezetesen
+<span class="quote">\x<i>XX</i></span> és <span class="quote">\u<i>XXXX</i></span>; az előbbi két
+hexa számjegyet fogad, az utóbbi négyet, mindkét esetben unikódban. Pl:
 <button onclick='alert ("\xe1rv\xedzt\u0171r\u0151 t\xfck\xf6rf\xfar\xf3g\xe9p");'>Próba</button>
 <pre>&lt;BUTTON onclick='alert ("\xe1rv\xedzt\u0171r\u0151 t\xfck\xf6rf\xfar\xf3g\xe9p");'&gt;Próba&lt;/BUTTON&gt;</pre>
 Figyeljük meg, hogy az <i>ő</i>-t és az <i>ű</i>-t csak a hosszabb 
@@ -966,8 +966,8 @@ Egy másik lehetőség (ami újabb fejlesztés, tehát nem biztos, hogy mindenho
 <button onclick='alert ("\\u{1f354} = \u{1f354}");'>\u{1f354}</button>
 </div>
 
-<p><b>K:</b> JavaScriptről szólva, ha a window.open-nel nyitok meg egy 
-ablakot,
+<p><b>K:</b> JavaScriptről szólva, ha a <span class="quote">window.open</span>-nel
+nyitok meg egy ablakot,
 de úgy, hogy az első paraméter üres string, és az ablak tartalmát 
 document.write-okkal
 állítom elő, az milyen kódolású lesz?<br>
@@ -996,6 +996,22 @@ lehet így tenni). Pl:
 
 <PRE>valami.php?zoldseg=r%E9pa      -- 'hagyományos hívás', latin2
 valami.php?zoldseg_U=r%C3%A9pa -- 'encodeURI-s hívás', utf-8</pre></div>
+
+<div><a name="Q0246"><b>K:</b></a> JavaScript-ről szólva, a
+<a href="https://en.wikipedia.org/wiki/JSON">JSON</a>-ról valamit?<br>
+<b>V:</b> A <a href="https://www.json.org/json-en.html">JSON</a>-fájlokban
+kötelező az UTF8-kódolás; a string-literálokban
+<span class="quote">\</span>-szekvenciák használhatók, pl.
+<span class="quote">\t</span>, <span class="quote">\r</span>,
+<span class="quote">\"</span>, <span class="quote">\\</span>,
+valamint <span class="quote">\u<I>XXXX</I></span>.<br>
+Ez az utóbbi négy hexadecimális számjegyen 16-bites unikódot tartalmaz;
+a 16-biten nem ábrázolható karaktereket
+UTF-16 szerinti <A href="#Q0129">surrogate pair</A> reprezentálja, pl.
+<span class="quote" style="white-space: nowrap">{ "hamburger": "\ud83c\udf54" }</span>
+Itt hangsúlyoznám, hogy <span class="quote">\x</span> és
+<span class="quote">\u{}</span> szekvenciák viszont nem használhatók.
+</div>
 
 <div style="text-align: center;"><a name="S0005"><b>&#8212; PHP &#8212;</b></a></div>
 
