@@ -3025,7 +3025,66 @@ záradékával tudod beállítani, és később megváltoztatni nem lehet.</div>
 (értsd: <span class="quote">AL32UTF8-at</span>)
 állítok be, az járhat sebesség-csökkenéssel? És lehet gondom abból, hogy az ékezetes szöveg
 nem fér el abban a mezőben, amiben az ékezet nélküli elfér?<BR>
-<B>V:</B> Igen. (FixMe: ide kellene a <span class="quote">NLS_LENGTH_SEMANTICS</span> leírása.</div>
+<B>V:</B> Igen.
+Az egyik oldala a dolognak, a <I>mértékegység</I> a mezőhosszúságoknál, pl.:
+<pre>
+   VARCHAR2(8 BYTE) -- ebbe nyolc 'A' betű fér el, de csak két hambuger emoji (&#127828;)
+   VARCHAR2(8 CHAR) -- ebbe nyolc karakter fér el
+   VARCHAR2(8)      -- ez a fenti kettő valamelyike, a <U>NLS_LENGTH_SEMANTICS</U> függvényében
+</pre>
+<div><a name="Q0198_2"><B>K:</B></A> Ez session-szintű beállítás, vagy globális?<br>
+<B>V:</B> Mindkettő lehetséges: ha nincs session-szintű beállítás, akkor a DB-szintű
+érvényesül, lásd ezeket a parancsokat:
+<pre>
+ALTER SESSION SET NLS_LENGTH_SEMANTICS=(CHAR|BYTE);
+SELECT value FROM nls_session_parameters WHERE parameter='NLS_LENGTH_SEMANTICS';
+
+ALTER SYSTEM SET NLS_LENGTH_SEMANTICS=(CHAR|BYTE);
+SELECT value FROM nls_database_parameters WHERE parameter='NLS_LENGTH_SEMANTICS';
+</pre>
+<div><a name="Q0198_3"><B>K:</B></A> Egy tárolt eljárás esetén is lehet gond,
+ha ez a mértékegység nincs explicit megadva?<br>
+<B>V:</B> Igen, ha például valaki újrafordítja a tárolt eljárást
+(<span class="quote">ALTER … COMPILE</span>), akkor az ő
+<span class="quote">NLS_LENGTH_SEMANTICS</span> beállítása fog érvényesülni.
+</div>
+
+<div><a name="Q0247"><B>K:</B></A> De ezen túl minden rendben van?<br>
+<B>V:</B> Majdnem minden. Történetesen egyes méretkorlátok bájtban
+vannak megadva, pl. a táblák mezőinek maximális bájtmérete a típus függvényében:
+<pre>CHAR, NCHAR, RAW    2000B
+VARCHAR2, NVARCHAR2 4000B
+</pre>
+Például <span class="quote">AL32UTF8</span> kódolással a
+<span class="quote">VARCHAR2(4000 CHAR)</span> tipusú mezőbe csak 2000 darab 'É' betűt
+tehetünk (mivel UTF8-ban kétbájtos), emojiból pedig csak ezret (mivel UTF8-ban négybájtos).<br>
+<div>
+
+</div>
+<B>K:</B> Ennek kapcsán az <span class="quote">AL16UTF16</span>-ról valami?
+(Ez a default érték a <span class="quote">CREATE DATABASE</span>-nél a
+<span class="quote">NATIONAL CHARACTER SET</span class="quote">-re.)<br>
+<B>V:</B> Az ilyen kódolású mezőkben a rendszer minden karakternek két bájtot (16 bitet) foglal le,
+pl. <span class="quote">NCHAR(1000)</span> mérete 2000 bájt.<br>
+Ennek ellenére minden unikódos karaktert képes tárolni, a
+<span class="quote">U+FFFF</span>-ig
+16-biten, afölött 32 biten (lásd a <a href="#Q0129">helyettesítő pároknál</a>).
+Ez utóbbiakat azért nem problémamentesek, mivel két karakternek számítanak, pl.:
+<pre>select length('🍔'),length(to_nchar('🍔')) from dual; -> 1 2
+select substr(to_nchar('🍔'),1,1),substr(to_nchar('🍔'),2,1) from dual; -> két db hibás karakter
+</pre>
+<b>Megj:</b> Más UTF16-tal működő rendszerekben (pl. Java, MS Windows) is találkozhatsz hasonló
+gondokkal az U+FFFF feletti karaktereknél.
+</div>
+
+<div><a name="Q0248"><B>K:</B></A> Az Oracle <span class="quote">LENGTHB</span> függvényéről valamit?<br>
+<B>V:</B> Az objektum (mező vagy változó) bájtban vett méretét adja meg, pl.:
+<pre>
+sql                                             egybájtos_kódolás AL32UTF8
+select length('ÉRŐ'),lengthb('ÉRŐ') from dual;  3 3               3 5
+select length('&#x1f354;'),lengthb('&#x1f354;') from dual;   N/A               1 4
+</pre>
+</div>
 
 <div style="text-align: center;"><a name="S0024"><b>&#8212; ODBC &#8212;</b></a></div>
 
