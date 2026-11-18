@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html><head>
-<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-2">
-<title>Forgómorgó körhinta</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>ForgĂłmorgĂł kĂśrhinta</title>
 
 <script type="text/javascript">
 function mytofixed (number, precision)
@@ -11,8 +11,8 @@ function mytofixed (number, precision)
     return s;
 }
 
-/* Bemenet 'tford1' és 'tford2':
-   a hinta 1. és 2. fordulatának ideje
+/* Bemenet 'tford1' ĂŠs 'tford2':
+   a hinta 1. ĂŠs 2. fordulatĂĄnak ideje
  */
 function calculate1 () {
     var tford0= document.getElementById ('tford0');
@@ -26,9 +26,9 @@ function calculate1 () {
 
     var result= document.getElementById ('result');
 
-    result.innerText= 'Calcute1: Fiú köridő: '+t0+'; hinta 1. körének ideje: '+t1+', hinta 2. körének ideje:' +t2+'\n\n';
+    result.innerText= 'Calcute1: FiĂş kĂśridĹ: '+t0+'; hinta 1. kĂśrĂŠnek ideje: '+t1+', hinta 2. kĂśrĂŠnek ideje:' +t2+'\n\n';
     if (t0<=0 || t1<=0 || t2<=0 || t2<=t1) {
-	result.innerText += 'Érvénytelen értékek (feltétel: 0<t0, 0<t1<t2)\n';
+	result.innerText += 'ĂrvĂŠnytelen ĂŠrtĂŠkek (feltĂŠtel: 0<t0, 0<t1<t2)\n';
 	return;
     }
 
@@ -44,16 +44,16 @@ function EsetlegFok (from) {
     var str= (''+from).trim();
     var strlen= str.length;
     var faktor= 1;
-    if (str.substring (strlen - 1, strlen)=='°') {
+    if (str.substring (strlen - 1, strlen)=='Â°') {
 	str= str.substring (0, strlen - 1);
 	faktor= 1/360.0;
     }
     return (str-0)*faktor;
 }
 
-/* Bemenet 'shinta1' és 'shinta2':
-   mekkora utat tesz meg a hinta az 1. és a 2. 'köridő' alatt
-   (köridő = t0 = 1/w)
+/* Bemenet 'shinta1' ĂŠs 'shinta2':
+   mekkora utat tesz meg a hinta az 1. ĂŠs a 2. 'kĂśridĹ' alatt
+   (kĂśridĹ = t0 = 1/w)
  */
 function calculate2 () {
     var tford0= document.getElementById ('tford0');
@@ -67,11 +67,11 @@ function calculate2 () {
 
     var result= document.getElementById ('result');
 
-    result.innerText= 'Calcute2: Fiú köridő: '+t0+
-	'; hinta útja 1. köridő alatt: ' + mytofixed (s1,6) + ' ('+ mytofixed (s1*360,2) + '°)'+
-	'; hinta útja 2. köridő alatt: ' + mytofixed (s2,6) + ' ('+ mytofixed (s2*360,2) + '°)\n\n';
+    result.innerText= 'Calcute2: FiĂş kĂśridĹ: '+t0+
+	'; hinta Ăştja 1. kĂśridĹ alatt: ' + mytofixed (s1,6) + ' ('+ mytofixed (s1*360,2) + 'Â°)'+
+	'; hinta Ăştja 2. kĂśridĹ alatt: ' + mytofixed (s2,6) + ' ('+ mytofixed (s2*360,2) + 'Â°)\n\n';
     if (t0<=0 || s1<=0 || s2<=0 || s2>=s1) {
-	result.innerText += 'Érvénytelen értékek (feltétel: 0<t0, s1>s2>0)\n';
+	result.innerText += 'ĂrvĂŠnytelen ĂŠrtĂŠkek (feltĂŠtel: 0<t0, s1>s2>0)\n';
 	return;
     }
 
@@ -83,9 +83,9 @@ function calculate2 () {
     calculate (t0, a, v0)
 }
 
-/* a hinta első n körének ideje,
+/* a hinta elsĹ n kĂśrĂŠnek ideje,
    n=1,2,...
-   ha ennyi kört nem tesz meg, akkor -1
+   ha ennyi kĂśrt nem tesz meg, akkor -1
  */
 function hinta_tot_korido (n, a, v0)
 {
@@ -96,9 +96,9 @@ function hinta_tot_korido (n, a, v0)
     return (v0 - Math.sqrt (disc)) / a;
 }
 
-/* a hinta n-ik körének ideje,
+/* a hinta n-ik kĂśrĂŠnek ideje,
    n=1,2,...
-   ha ennyi kört nem tesz meg, akkor -1
+   ha ennyi kĂśrt nem tesz meg, akkor -1
  */
 function hinta_net_korido (n, a, v0)
 {
@@ -110,10 +110,10 @@ function hinta_net_korido (n, a, v0)
     return t2-t1;
 }
 
-/* t0 fiú 'körideje' (egység kellene legyen)
-   w  fiú sebessége (1/t0)
-   a  hinta lassulása
-   v0 hinta kezdeti sebessége
+/* t0 fiĂş 'kĂśrideje' (egysĂŠg kellene legyen)
+   w  fiĂş sebessĂŠge (1/t0)
+   a  hinta lassulĂĄsa
+   v0 hinta kezdeti sebessĂŠge
  */
 function calculate (t0, a, v0) {
     var result= document.getElementById ('result');
@@ -122,9 +122,9 @@ function calculate (t0, a, v0) {
     var t1= hinta_net_korido (1, a, v0);
     var t2= hinta_net_korido (2, a, v0);
 
-    result.innerText += 'Fiú köridő: '+t0+'; hinta 1. köridő: '+t1.toFixed(6)+', hinta 2. köridőidő:' +t2.toFixed(6)+'\n\n';
+    result.innerText += 'FiĂş kĂśridĹ: '+t0+'; hinta 1. kĂśridĹ: '+t1.toFixed(6)+', hinta 2. kĂśridĹidĹ:' +t2.toFixed(6)+'\n\n';
     if (t0<=0 || t1<=0 || t2<=0 || t2<=t1) {
-	result.innerText += 'Érvénytelen értékek (feltétel: 0<t0, 0<t1<t2)\n';
+	result.innerText += 'ĂrvĂŠnytelen ĂŠrtĂŠkek (feltĂŠtel: 0<t0, 0<t1<t2)\n';
 	return;
     }
 
@@ -134,9 +134,9 @@ function calculate (t0, a, v0) {
     var v2   = v1 - t2*a;
 
     result.innerText += 
-        'fiú sebessége: w='+ w.toFixed(6) +'\n' +
-	'hinta lassulása: a='+ a.toFixed(6) +'\n' +
-	'hinta sebességei:\nv=v0='+ v0.toFixed(6) +'\n'+
+        'fiĂş sebessĂŠge: w='+ w.toFixed(6) +'\n' +
+	'hinta lassulĂĄsa: a='+ a.toFixed(6) +'\n' +
+	'hinta sebessĂŠgei:\nv=v0='+ v0.toFixed(6) +'\n'+
 	'v(t1/2)='+ v0_5.toFixed(6) +'\n'+
 	'v(t1)='+ v1.toFixed(6) +'\n'+
 	'v(t1+t2/2)='+ v1_5.toFixed(6) +'\n'+
@@ -148,10 +148,10 @@ function calculate (t0, a, v0) {
     var sf= tau*w;
     var fif= (1-(sf%1))*360;
 
-    result.innerText += '\nA hinta ennyi idő múlva áll meg: '+tau.toFixed(6)+
-	', ennyit fordul összesen: '+sh.toFixed(6)+
-	', szög: '+fih.toFixed(6)+'\n'+
-	'Ezalatt a fiú útja: '+ sf.toFixed(6) + ', szöge a hinta megállásakor: ' + fif.toFixed(6) +
+    result.innerText += '\nA hinta ennyi idĹ mĂşlva ĂĄll meg: '+tau.toFixed(6)+
+	', ennyit fordul Ăśsszesen: '+sh.toFixed(6)+
+	', szĂśg: '+fih.toFixed(6)+'\n'+
+	'Ezalatt a fiĂş Ăştja: '+ sf.toFixed(6) + ', szĂśge a hinta megĂĄllĂĄsakor: ' + fif.toFixed(6) +
 	'\n\n';
 
     var N;
@@ -165,46 +165,46 @@ function calculate (t0, a, v0) {
 	var shN= ((v0+vt)/2)*t;
 	var sf= w*t;
 	var fi= (shN%1)*360;
-	result.innerText += 'Találkozás('+N+') ideje: '+mytofixed (t, 6)
-	    + ', szöge: ' + mytofixed(fi,2) + '°'
-	    + ', hinta útja: ' + shN.toFixed(6)
-	    + ', fiú útja: ' + sf.toFixed(6)
-	    + ', útösszeg: ' + (shN+sf).toFixed(6)
+	result.innerText += 'TalĂĄlkozĂĄs('+N+') ideje: '+mytofixed (t, 6)
+	    + ', szĂśge: ' + mytofixed(fi,2) + 'Â°'
+	    + ', hinta Ăştja: ' + shN.toFixed(6)
+	    + ', fiĂş Ăştja: ' + sf.toFixed(6)
+	    + ', ĂştĂśsszeg: ' + (shN+sf).toFixed(6)
 	    + '\n';
     }
 
     result.innerText += ' \n'
 
     for (N=1; N<32; ++N) {
-	var t= N/w			/* ennyi idő alatt tesz meg N kört a fiú */
-	var vt= v0 - t*a;		/* a hinta sebessége 't' idő után */
-	if (vt<0) break;		/* elfogyott a sebesség */
-	var v_atlag = (v0+vt)/2;	/* átlagsebesség */
-	var shN= v_atlag*t;		/* hinta megtett útja */
-	var nkor= Math.floor(shN);	/* egész körök */
-	var fi= (shN%1)*360;		/* és még a szög */
+	var t= N/w			/* ennyi idĹ alatt tesz meg N kĂśrt a fiĂş */
+	var vt= v0 - t*a;		/* a hinta sebessĂŠge 't' idĹ utĂĄn */
+	if (vt<0) break;		/* elfogyott a sebessĂŠg */
+	var v_atlag = (v0+vt)/2;	/* ĂĄtlagsebessĂŠg */
+	var shN= v_atlag*t;		/* hinta megtett Ăştja */
+	var nkor= Math.floor(shN);	/* egĂŠsz kĂśrĂśk */
+	var fi= (shN%1)*360;		/* ĂŠs mĂŠg a szĂśg */
 
-	result.innerText += 'Hinta útja ' + (N/w).toFixed(6) +' idő alatt: ' + shN.toFixed(6)
-	    + '; szög=' + (shN*360).toFixed(6)
-	    + ' = ' + nkor + ' kör + ' + fi.toFixed(2) + ' fok\n'
+	result.innerText += 'Hinta Ăştja ' + (N/w).toFixed(6) +' idĹ alatt: ' + shN.toFixed(6)
+	    + '; szĂśg=' + (shN*360).toFixed(6)
+	    + ' = ' + nkor + ' kĂśr + ' + fi.toFixed(2) + ' fok\n'
 	}
 
     result.innerText += ' \n'
 
     for (N=1; N<32; ++N) {
-	var t1= (N-1)/w			/* ennyi idő alatt tesz meg N-1 kört a fiú */
-	var t2= N/w			/* ennyi idő alatt tesz meg N kört a fiú */
-	var v_t1= v0 - t1*a;		/* a hinta sebessége 't1' idő után */
-	var v_t2= v0 - t2*a;		/* a hinta sebessége 't2' idő után */
-	if (v_t2<0) break;		/* elfogyott a sebesség */
-	var v_atlag = (v_t1+v_t2)/2;	/* átlagsebesség */
-	var shN= v_atlag*(1/w);		/* hinta megtett útja */
-	var nkor= Math.floor(shN);	/* egész körök */
-	var fi= (shN%1)*360;		/* és még a szög */
+	var t1= (N-1)/w			/* ennyi idĹ alatt tesz meg N-1 kĂśrt a fiĂş */
+	var t2= N/w			/* ennyi idĹ alatt tesz meg N kĂśrt a fiĂş */
+	var v_t1= v0 - t1*a;		/* a hinta sebessĂŠge 't1' idĹ utĂĄn */
+	var v_t2= v0 - t2*a;		/* a hinta sebessĂŠge 't2' idĹ utĂĄn */
+	if (v_t2<0) break;		/* elfogyott a sebessĂŠg */
+	var v_atlag = (v_t1+v_t2)/2;	/* ĂĄtlagsebessĂŠg */
+	var shN= v_atlag*(1/w);		/* hinta megtett Ăştja */
+	var nkor= Math.floor(shN);	/* egĂŠsz kĂśrĂśk */
+	var fi= (shN%1)*360;		/* ĂŠs mĂŠg a szĂśg */
 
-	result.innerText += 'Hinta útja az ' + N + '. "köridő" alatt: ' + shN.toFixed(6)
-	    + '; szög=' + (shN*360).toFixed(6)
-	    + ' = ' + nkor + ' kör + ' + fi.toFixed(2) + ' fok\n'
+	result.innerText += 'Hinta Ăştja az ' + N + '. "kĂśridĹ" alatt: ' + shN.toFixed(6)
+	    + '; szĂśg=' + (shN*360).toFixed(6)
+	    + ' = ' + nkor + ' kĂśr + ' + fi.toFixed(2) + ' fok\n'
 	}
 
     result.innerText += ' \n'
@@ -214,10 +214,10 @@ function calculate (t0, a, v0) {
 	var shN = tN * v0 - 0.5 * tN * tN * a;
 	var sfN = tN * w;
 	var fifN = sfN*360.0;
-	result.innerText += 'Hinta útja ' + mytofixed(tN,6)  + ' idő alatt: ' + mytofixed(shN,6) +
-	    '; fiú útja ezalatt ' + mytofixed(sfN,6) +
-	    ' = ' + mytofixed(fifN,2) + '°' +
-	    ' = ' + Math.floor(sfN) + ' kör + ' + mytofixed((sfN%1)*360,2) + ' °' +
+	result.innerText += 'Hinta Ăştja ' + mytofixed(tN,6)  + ' idĹ alatt: ' + mytofixed(shN,6) +
+	    '; fiĂş Ăştja ezalatt ' + mytofixed(sfN,6) +
+	    ' = ' + mytofixed(fifN,2) + 'Â°' +
+	    ' = ' + Math.floor(sfN) + ' kĂśr + ' + mytofixed((sfN%1)*360,2) + ' Â°' +
 	    '\n';
     }
 }
@@ -226,39 +226,39 @@ function calculate (t0, a, v0) {
 
 <table border=0 width="60%">
 <tr>
-    <td colspan=2 align="left">Egy egységnyi kerületű körön halad két szereplő;
-    az egyik (a fiú) egyenletesen halad az óramutató járásával megegyező irányban,
-    sebessége <i>w,</i> azaz <i>t<sub>0</sub>=1/w</i> időegységenként tesz megy egy kört;
-    a másik szereplő (hinta) egyenletesen lassulva halad, az óramutató járásával ellenkező irányban,
-    mozgását két adat adja meg: mennyi idő alatt teszi meg az első kört és mennyi idő alatt a másodikat.
+    <td colspan=2 align="left">Egy egysĂŠgnyi kerĂźletĹą kĂśrĂśn halad kĂŠt szereplĹ;
+    az egyik (a fiĂş) egyenletesen halad az ĂłramutatĂł jĂĄrĂĄsĂĄval megegyezĹ irĂĄnyban,
+    sebessĂŠge <i>w,</i> azaz <i>t<sub>0</sub>=1/w</i> idĹegysĂŠgenkĂŠnt tesz megy egy kĂśrt;
+    a mĂĄsik szereplĹ (hinta) egyenletesen lassulva halad, az ĂłramutatĂł jĂĄrĂĄsĂĄval ellenkezĹ irĂĄnyban,
+    mozgĂĄsĂĄt kĂŠt adat adja meg: mennyi idĹ alatt teszi meg az elsĹ kĂśrt ĂŠs mennyi idĹ alatt a mĂĄsodikat.
     <br><br>
 <tr>
-    <td align="left">Fiú körbejárásánal ideje:
+    <td align="left">FiĂş kĂśrbejĂĄrĂĄsĂĄnal ideje:
     <td><input type="input" id="tford0" value="3.6">
 <tr>
-    <td align="left" colspan=2>Hinta forgásának adatai:
+    <td align="left" colspan=2>Hinta forgĂĄsĂĄnak adatai:
 <tr>
-    <td align="left">Hinta első fordulatának ideje:
+    <td align="left">Hinta elsĹ fordulatĂĄnak ideje:
     <td><input type="input" id="tford1" value="1.94">
 <tr>
-    <td align="left">Második fordulatának ideje:
+    <td align="left">MĂĄsodik fordulatĂĄnak ideje:
     <td><input type="input" id="tford2" value="2.17">
 <tr>
     <td>&nbsp;
-    <td><input type="button" onclick="calculate1()" value="Számolj!">
+    <td><input type="button" onclick="calculate1()" value="SzĂĄmolj!">
 <tr>
-    <td align="left" colspan=2>Vagy, alternatívan az előbbi kettő helyett:<br>
-	(Lehet fokban is, ha ° jel van a végén)
+    <td align="left" colspan=2>Vagy, alternatĂ­van az elĹbbi kettĹ helyett:<br>
+	(Lehet fokban is, ha Â° jel van a vĂŠgĂŠn)
 <tr>
-    <td align="left">Hinta útja az első 'köridő' alatt:
-    <td><input type="input" id="shinta1" value="540°">
+    <td align="left">Hinta Ăştja az elsĹ 'kĂśridĹ' alatt:
+    <td><input type="input" id="shinta1" value="540Â°">
 <tr>
-    <td align="left">Hinta útja a második 'köridő' alatt:
-    <td><input type="input" id="shinta2" value="360°">
+    <td align="left">Hinta Ăştja a mĂĄsodik 'kĂśridĹ' alatt:
+    <td><input type="input" id="shinta2" value="360Â°">
 
 <tr>
     <td>&nbsp;
-    <td><input type="button" onclick="calculate2()" value="Számolj!">
+    <td><input type="button" onclick="calculate2()" value="SzĂĄmolj!">
 </table>
 
 <div id="result" style="border: 1px solid black">
